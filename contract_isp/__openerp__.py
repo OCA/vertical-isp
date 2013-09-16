@@ -47,7 +47,6 @@ Features:
              'contract_isp_view.xml',
              'contract_isp_data.xml',
              'contract_isp_workflow.xml'],
-    'demo': ['contract_isp_demo.xml'],
     'active': False,
     'installable': True,
 }
