@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <record id="view_contract_isp_invoice_create" model="ir.ui.view">
+            <field name="name">contract.isp.invoice.create.form</field>
+            <field name="model">hr.timesheet.invoice.create</field>
+	    <field name="inherit_id" ref="hr_timesheet_invoice.view_hr_timesheet_invoice_create" />
+            <field name="arch" type="xml">
+		<field name="price" position="after">
+		    <field name="factor_name" />
+		    <field name="product_name" />
+		</field>
+	    </field>
+	</record>
+    </data>
+</openerp>

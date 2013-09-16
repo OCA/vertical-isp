@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+"access_stock_production_lot_group_isp_agent","stock_production_lot contract_isp.group_isp_agent","stock.model_stock_production_lot","contract_isp.group_isp_agent",1,0,0,0
+"access_product_dependency_group_isp_agent","product_dependency contract_isp.group_isp_agent","product_dependencies.model_product_dependency","contract_isp.group_isp_agent",1,0,0,0
+

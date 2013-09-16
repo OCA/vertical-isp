@@ -1,0 +1,26 @@
+<openerp>
+  <data>
+    <record id="view_package_config_settings" model="ir.ui.view">
+      <field name="name">Package Settings</field>
+      <field name="model">sale.config.settings</field>
+      <field name="inherit_id" ref="base_setup.view_sale_config_settings" />
+      <field name="arch" type="xml">
+        <div name="customer feature" position="before">
+          <separator string="Package configuration" />
+
+          <group>
+            <label for="id" string="Default options" />
+
+            <div>
+              <div>
+                <label for="default_category" />
+                <field name="default_category" class="oe_inline" />
+                <!-- FIXME domaine de default_category -->
+              </div>
+            </div>
+          </group>
+        </div>
+      </field>
+    </record>
+  </data>
+</openerp>

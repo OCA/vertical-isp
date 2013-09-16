@@ -1,0 +1,251 @@
+# Translation of OpenERP Server.
+# This file contains the translation of the following modules:
+#	* contract_isp
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenERP Server 7.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2013-08-13 12:37+0000\n"
+"PO-Revision-Date: 2013-08-13 12:37+0000\n"
+"Last-Translator: <>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: contract_isp
+#: field:account.analytic.line,contract_service_id:0
+#: field:contract.service.activate,service_id:0
+msgid "Service"
+msgstr ""
+
+#. module: contract_isp
+#: selection:contract.service,analytic_line_type:0
+#: selection:product.product,analytic_line_type:0
+msgid "Recurrent"
+msgstr ""
+
+#. module: contract_isp
+#: selection:contract.service,analytic_line_type:0
+#: selection:product.product,analytic_line_type:0
+msgid "Exception"
+msgstr ""
+
+#. module: contract_isp
+#: field:contract.service,state:0
+msgid "State"
+msgstr ""
+
+#. module: contract_isp
+#: field:contract.service,activation_date:0
+msgid "Activation date"
+msgstr ""
+
+#. module: contract_isp
+#: field:res.partner,account_analytic_account_ids:0
+msgid "Analytic Accounts/Contracts"
+msgstr ""
+
+#. module: contract_isp
+#: field:contract.service,analytic_line_type:0
+msgid "Type"
+msgstr ""
+
+#. module: contract_isp
+#: model:res.groups,comment:contract_isp.group_isp_agent
+msgid "The user will be able to manage customers and contracts"
+msgstr ""
+
+#. module: contract_isp
+#: view:account.analytic.account:0
+msgid "Total Price"
+msgstr ""
+
+#. module: contract_isp
+#: field:account.analytic.account,use_contract_services:0
+msgid "Contract services"
+msgstr ""
+
+#. module: contract_isp
+#: field:contract.service,product_id:0
+#: model:ir.model,name:contract_isp.model_product_product
+msgid "Product"
+msgstr ""
+
+#. module: contract_isp
+#: model:ir.model,name:contract_isp.model_account_analytic_line
+msgid "Analytic Line"
+msgstr ""
+
+#. module: contract_isp
+#: field:contract.service,price:0
+msgid "Price"
+msgstr ""
+
+#. module: contract_isp
+#: field:contract.service,require_activation:0
+#: field:product.product,require_activation:0
+msgid "Require activation"
+msgstr ""
+
+#. module: contract_isp
+#: field:product.product,analytic_line_type:0
+msgid "Type in contract"
+msgstr ""
+
+#. module: contract_isp
+#: selection:contract.service,state:0
+msgid "Inactive"
+msgstr ""
+
+#. module: contract_isp
+#: field:res.company,parent_account_id:0
+msgid "Parent Analytic Account"
+msgstr ""
+
+#. module: contract_isp
+#: selection:contract.service,state:0
+msgid "Active"
+msgstr ""
+
+#. module: contract_isp
+#: view:res.company:0
+msgid "ISP Contract Management"
+msgstr ""
+
+#. module: contract_isp
+#: field:res.partner,analytic_data_lines_ids:0
+#: field:res.partner,analytic_tel_lines_ids:0
+msgid "Account Lines"
+msgstr ""
+
+#. module: contract_isp
+#: field:contract.service.activate,account_id:0
+msgid "Account"
+msgstr ""
+
+#. module: contract_isp
+#: selection:contract.service,analytic_line_type:0
+#: selection:product.product,analytic_line_type:0
+msgid "One time"
+msgstr ""
+
+#. module: contract_isp
+#: view:account.analytic.account:0
+#: view:contract.service:0
+msgid "Desactivate"
+msgstr ""
+
+#. module: contract_isp
+#: model:ir.model,name:contract_isp.model_contract_service_activate
+msgid "contract.service.activate"
+msgstr ""
+
+#. module: contract_isp
+#: model:ir.model,name:contract_isp.model_res_company
+msgid "Companies"
+msgstr ""
+
+#. module: contract_isp
+#: field:contract.service,account_id:0
+msgid "Contract"
+msgstr ""
+
+#. module: contract_isp
+#: view:contract.service.activate:0
+msgid "Cancel"
+msgstr ""
+
+#. module: contract_isp
+#: view:contract.service.activate:0
+#: model:ir.actions.act_window,name:contract_isp.action_view_contract_service_activate
+msgid "Activate Service"
+msgstr ""
+
+#. module: contract_isp
+#: field:res.company,cutoff_day:0
+msgid "Cutoff day"
+msgstr ""
+
+#. module: contract_isp
+#: field:res.partner,payments_ids:0
+msgid "Payments"
+msgstr ""
+
+#. module: contract_isp
+#: selection:contract.service,state:0
+msgid "Waiting for activating"
+msgstr ""
+
+#. module: contract_isp
+#: field:res.partner,partner_analytic_account_id:0
+msgid "Partner Analytic Account"
+msgstr ""
+
+#. module: contract_isp
+#: view:account.analytic.account:0
+#: view:contract.service:0
+#: view:contract.service.activate:0
+msgid "Activate"
+msgstr ""
+
+#. module: contract_isp
+#: field:contract.service,account_line_id:0
+msgid "Account Entry"
+msgstr ""
+
+#. module: contract_isp
+#: model:ir.model,name:contract_isp.model_contract_service
+msgid "contract.service"
+msgstr ""
+
+#. module: contract_isp
+#: model:res.groups,name:contract_isp.group_isp_agent
+msgid "Agent"
+msgstr ""
+
+#. module: contract_isp
+#: view:account.analytic.account:0
+msgid "Suspend"
+msgstr ""
+
+#. module: contract_isp
+#: view:contract.service:0
+#: model:ir.model,name:contract_isp.model_account_analytic_account
+msgid "Analytic Account"
+msgstr ""
+
+#. module: contract_isp
+#: field:contract.service.activate,activation_date:0
+msgid "Activation Date"
+msgstr ""
+
+#. module: contract_isp
+#: view:account.analytic.account:0
+#: field:account.analytic.account,contract_service_ids:0
+#: model:ir.actions.act_window,name:contract_isp.action_contract_service_manage
+msgid "Services"
+msgstr ""
+
+#. module: contract_isp
+#: field:contract.service,duration:0
+msgid "Duration"
+msgstr ""
+
+#. module: contract_isp
+#: model:ir.model,name:contract_isp.model_res_partner
+msgid "Partner"
+msgstr ""
+
+#. module: contract_isp
+#: field:contract.service,activation_line_generated:0
+msgid "Activation Line Generated?"
+msgstr ""
+
+#. module: contract_isp
+#: view:contract.service:0
+msgid "Contract Services"
+msgstr ""
+

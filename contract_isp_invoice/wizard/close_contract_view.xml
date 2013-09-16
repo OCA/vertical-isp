@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <record id="view_contract_isp_close" model="ir.ui.view">
+            <field name="name">Close contract</field>
+            <field name="model">contract.isp.close</field>
+            <field name="arch" type="xml">
+                <form string="Close Contract" version="7.0">
+		    <field name="account_id" invisible="1" />
+		    <p>Confirm the termination of this contract?</p>
+		    <group>
+			<field name="close_date" />
+		    </group>
+		    <group colspan="4" string="Reason">
+			<field name="close_reason" nolabel="1" />
+		    </group>
+		    <footer>
+			<button 
+			    name="do_close"
+			    string="Confirm"
+			    type="object"
+			    class="oe_highlight" />
+			<button
+			    string="Cancel"
+			    class="oe_link"
+			    special="cancel" />
+		    </footer>
+		</form>
+	    </field>
+	</record>
+        <record id="action_view_contract_isp_close" model="ir.actions.act_window">
+            <field name="name">Close contract</field>
+            <field name="type">ir.actions.act_window</field>
+	    <field name="src_model">account.analytic.account</field>
+            <field name="res_model">contract.isp.close</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+
+    </data>
+</openerp>

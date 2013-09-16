@@ -1,0 +1,23 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+"access_contract_service_isp_agent","access_contract_service","model_contract_service","group_isp_agent",1,1,1,0
+"access_account_analytic_account_isp_agent","access_account_analytic_account","model_account_analytic_account","group_isp_agent",1,1,1,0
+"access_account_analytic_line_isp_agent","access_account_analytic_line","model_account_analytic_line","group_isp_agent",1,1,1,1
+"access_res_partner_group_isp_agent","access_res_partner","model_res_partner","group_isp_agent",1,1,1,0
+"access_product_product_group_isp_agent","access_product_product group_isp_agent","product.model_product_product","group_isp_agent",1,0,0,0
+"access_product_category_group_isp_agent","access_product_category group_isp_agent","product.model_product_category","group_isp_agent",1,0,0,0
+"access_product_pricelist_group_isp_agent","access_product_pricelist group_isp_agent","product.model_product_pricelist","group_isp_agent",1,0,0,0
+"access_product_pricelist_versiongroup_isp_agent","access_product_pricelist_version group_isp_agent","product.model_product_pricelist_version","group_isp_agent",1,0,0,0
+"access_product_uom_group_isp_agent","access_product_uom group_isp_agent","product.model_product_uom","group_isp_agent",1,0,0,0
+"access_product_template_group_isp_agent","access_product_template group_isp_agent","product.model_product_template","group_isp_agent",1,0,0,0
+"access_product_supplierinfo_group_isp_agent","access_product_supplierinfo group_isp_agent","product.model_product_supplierinfo","group_isp_agent",1,0,0,0
+"access_account_invoice_group_isp_agent","access_account_invoice group_isp_agent","account.model_account_invoice","group_isp_agent",1,1,1,0
+"access_account_invoice_line_group_isp_agent","access_account_invoice group_isp_agent","account.model_account_invoice_line","group_isp_agent",1,1,1,0
+"access_account_voucher_group_isp_agent","access_account_voucher group_isp_agent","account_voucher.model_account_voucher","group_isp_agent",1,1,1,0
+"access_account_voucher_line_group_isp_agent","access_account_voucher_line group_isp_agent","account_voucher.model_account_voucher_line","group_isp_agent",1,1,1,0
+"access_account_fiscalyear_group_isp_agent","access_account_fiscalyear group_isp_agent","account.model_account_fiscalyear","group_isp_agent",1,0,0,0
+"access_account_sequence_fiscalyear_group_isp_agent","access_account_sequence_fiscalyear group_isp_agent","account.model_account_sequence_fiscalyear","group_isp_agent",1,1,1,0
+"access_account_analytic_journal_group_isp_agent","access_account_analytic_journal group_isp_agent","account.model_account_analytic_journal","group_isp_agent",1,0,0,0
+"access_sale_order_group_isp_agent","access_sale_order group_isp_agent","sale.model_sale_order","group_isp_agent",1,0,0,0
+"access_account_period_group_isp_agent","access_account_period group_isp_agent","account.model_account_period","group_isp_agent",1,0,0,0
+"access_account_journal_group_isp_agent","access_account_journal group_isp_agent","account.model_account_journal","group_isp_agent",1,0,0,0
+"access_account_move_group_isp_agent","access_account_move group_isp_agent","account.model_account_move","group_isp_agent",1,1,1,0

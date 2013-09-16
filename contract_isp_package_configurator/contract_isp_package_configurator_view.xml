@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+    <data>
+        <record id="contract_isp_form_package_configurator_wizard" model="ir.ui.view">
+            <field name="name">contract.isp.form.package.configurator.wizard</field>
+            <field name="model">account.analytic.account</field>
+            <field name="inherit_id" ref="analytic.view_account_analytic_account_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//div[@name='buttons']" position='inside'>
+		    <button string="Package Configurator"
+			    name="%(action_contract_isp_package_configurator)d"
+			    type="action" />
+		</xpath>
+	    </field>
+	</record>
+        <record id="view_company_form_package_configurator" model="ir.ui.view">
+            <field name="name">company.form.package.configurator</field>
+            <field name="model">res.company</field>
+            <field name="inherit_id" ref="contract_isp.view_company_contract_isp_form"/>
+            <field name="arch" type="xml">
+		<field name="parent_account_id" position="before">
+		    <field name="default_product_category" />
+		</field>
+	    </field>
+	</record>
+
+    </data>
+</openerp>
+

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <!-- Workflow definition -->
+
+        <record id="wkf_contract_service_configurator" model="workflow">
+            <field name="name">contract.service.configurator</field>
+            <field name="osv">contract.service.configurator</field>
+            <field name="on_create">True</field>
+        </record>
+
+        <record id="act_draft" model="workflow.activity">
+            <field name="wkf_id" ref="wkf_contract_service_configurator" />
+            <field name="name">draft</field>
+            <field name="kind">dummy</field>
+	    <field name="flow_start">True</field>
+        </record>
+        <record id="act_level0" model="workflow.activity">
+            <field name="wkf_id" ref="wkf_contract_service_configurator"/>
+            <field name="name">select_level0</field>
+            <field name="kind">function</field>
+            <field name="action">write({'state': 'dependency'})</field>
+        </record>
+        <record id="act_leveln" model="workflow.activity">
+            <field name="wkf_id" ref="wkf_contract_service_configurator"/>
+            <field name="name">select_leveln</field>
+            <field name="kind">function</field>
+            <field name="action">write({'state':'leveln'})</field>
+            <!-- <field name="flow_stop">True</field> -->
+        </record>
+        <record id="act_finish" model="workflow.activity">
+            <field name="wkf_id" ref="wkf_contract_service_configurator"/>
+            <field name="name">finish</field>
+            <field name="kind">function</field>
+            <field name="action">write({'state':'done'})</field>
+            <field name="flow_stop">True</field>
+        </record>
+
+        <record id="t0" model="workflow.transition">
+            <field name="act_from" ref="act_draft"/>
+            <field name="act_to" ref="act_level0"/>
+            <field name="signal">select0</field>
+            <field name="group_id" ref="contract_isp.group_isp_agent"/>
+        </record>
+        <record id="t1" model="workflow.transition">
+            <field name="act_from" ref="act_level0"/>
+            <field name="act_to" ref="act_leveln"/>
+            <field name="signal">selectn</field>
+            <field name="group_id" ref="contract_isp.group_isp_agent"/>
+        </record>
+        <record id="t2" model="workflow.transition">
+            <field name="act_from" ref="act_leveln"/>
+            <field name="act_to" ref="act_leveln"/>
+            <field name="signal">selectnn</field>
+            <field name="group_id" ref="contract_isp.group_isp_agent"/>
+        </record>
+
+        <record id="t3" model="workflow.transition">
+            <field name="act_from" ref="act_leveln"/>
+            <field name="act_to" ref="act_finish"/>
+            <field name="signal">finish</field>
+            <field name="group_id" ref="contract_isp.group_isp_agent"/>
+        </record>
+    </data>
+</openerp>
