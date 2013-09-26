@@ -24,19 +24,6 @@ from openerp.osv import orm, fields
 from openerp.tools.translate import _
 
 
-class contract_service_product(orm.TransientModel):
-    _name = 'contract.service.product'
-
-    _columns = {
-        'name': fields.char('Name'),
-        'qty_available': fields.float('Quantity on Hand'),
-        'original_product_id': fields.many2one('product.product', 'Product Id'),
-        'categ_id': fields.many2one('product.category', 'Category'),
-        'type': fields.char('Type'),
-        'description': fields.char('Description')
-    }
-
-
 class contract_service_configurator_line(orm.TransientModel):
     _name = 'contract.service.configurator.line'
 
@@ -51,6 +38,7 @@ class contract_service_configurator_line(orm.TransientModel):
         'serial': fields.many2one('stock.production.lot', 'Serial Number'),
         'message': fields.text('Message'),
         'handle_dependency': fields.boolean('Handle dependencies'),
+        'stock_move_id': fields.many2one('stock.move', 'Stock Move'),
         'state': fields.selection((('draft', _('Added')),
                                    ('message', _('Information')),
                                    ('serial', _('Select serial number')),
@@ -63,20 +51,70 @@ class contract_service_configurator_line(orm.TransientModel):
     }
 
     def router(self, cr, uid, ids, data=None, context=None):
+        stock_move_id = None
         if isinstance(ids, list):
             ids = ids[0]
         line = self.browse(cr, uid, ids, context=context)
         if line.state == 'message':
-            if line.product_id.type == 'product' and line.product_id.qty_available > 0.0:
+            if line.product_id.type == 'product' and \
+                    line.product_id.qty_available > 0.0:
                 state = 'serial'
             else:
                 state = 'stock'
         elif line.state in ('serial', 'stock'):
+            stock_move_obj = self.pool.get('stock.move')
+            location_id = self.pool.get('ir.model.data').get_object_reference(
+                cr, uid, 'stock', 'stock_location_stock')[1]
+            location_dest_id = line.configurator_id.contract_id.partner_id.property_stock_customer.id
+            move = {
+                'name': line.product_id and line.product_id.name or '',
+                'product_id': line.product_id and line.product_id.id,
+                'product_uom': line.product_id and line.product_id.uom_id and line.product_id.uom_id.id or None,
+                'prodlot_id': line.serial and line.serial.id or None,
+                'location_id': location_id,
+                'location_dest_id': location_dest_id,
+                'partner_id': line.configurator_id.contract_id.partner_id.id,
+                'type': 'out'
+            }
+            stock_move_id = stock_move_obj.create(
+                cr, uid, move, context=context)
+            stock_move_obj.action_confirm(
+                cr, uid, [stock_move_id], context=context)
+            stock_move_obj.action_done(
+                cr, uid, [stock_move_id], context=context)
+
             state = 'done'
 
-        line.write({'state': state})
+        line.write({'state': state, 'stock_move_id': stock_move_id})
 
         return line.configurator_id.router(data={})
+
+    def unlink(self, cr, uid, ids, context=None):
+        if isinstance(ids, int):
+            ids = [ids]
+
+        for line in self.browse(cr, uid, ids, context=context):
+            if line.product_id.type == 'product' and line.stock_move_id:
+                stock_move_obj = self.pool.get('stock.move')
+                move = {
+                    'name': ' '.join([_('Cancel'), line.product_id and line.product_id.name or '']),
+                    'product_id': line.product_id and line.product_id.id,
+                    'product_uom': line.product_id and line.product_id.uom_id and line.product_id.uom_id.id or None,
+                    'prodlot_id': line.serial and line.serial.id or None,
+                    'location_id': line.stock_move_id.location_dest_id.id,
+                    'location_dest_id': line.stock_move_id.location_id.id,
+                    'partner_id': line.configurator_id.contract_id.partner_id.id,
+                    'type': 'in'
+                }
+                stock_move_id = stock_move_obj.create(
+                    cr, uid, move, context=context)
+                stock_move_obj.action_confirm(
+                    cr, uid, [stock_move_id], context=context)
+                stock_move_obj.action_done(
+                    cr, uid, [stock_move_id], context=context)
+
+        return super(contract_service_configurator_line, self).unlink(
+            cr, uid, ids, context=context)
 
     def onchange_product_id(self, cr, uid, ids, product_id, context):
         ret = {}
@@ -424,9 +462,8 @@ class contract_service_configurator(orm.TransientModel):
                             'message': product.description,
                             'state': state
                         }
-                        contract_service_configurator_dependency_line_obj.create(cr, uid,
-                                                                                 record,
-                                                                                 context=context)
+                        contract_service_configurator_dependency_line_obj.create(
+                            cr, uid, record, context=context)
 
             record = {
                 'current_product_id': None,
@@ -454,25 +491,9 @@ class contract_service_configurator(orm.TransientModel):
                 'require_activation': line.product_id.require_activation
             }
             contract_service_obj.create(cr, uid, l, context=context)
-            if line.product_id.type == 'product':
-                location_id = self.pool.get('ir.model.data').get_object_reference(cr, uid, 'stock', 'stock_location_stock')[1]
-                location_dest_id = wizard.contract_id.partner_id.property_stock_customer.id
-                move = {
-                    'name': line.product_id and line.product_id.name or '',
-                    'product_id': line.product_id and line.product_id.id,
-                    'product_uom': line.product_id and line.product_id.uom_id and line.product_id.uom_id.id or None,
-                    'prodlot_id': line.serial and line.serial.id,
-                    'location_id': location_id,
-                    'location_dest_id': location_dest_id,
-                    'partner_id': wizard.contract_id.partner_id.id,
-                    'type': 'out'
-                }
-                stock_move_id = stock_move_obj.create(cr, uid, move, context=context)
-                stock_move_obj.action_confirm(cr, uid, [stock_move_id], context=context)
-                stock_move_obj.action_done(cr, uid, [stock_move_id], context=context)
 
-        ids_to_unlink = contract_service_serial_obj.search(cr, uid, [], context=context)
-        contract_service_serial_obj.unlink(cr, uid, ids_to_unlink, context=context)
+            if line.product_id.type == 'product' and line.stock_move_id:
+                line.write({'stock_move_id': None})
 
         return {
             'type': 'ir.actions.act_window',
@@ -483,7 +504,32 @@ class contract_service_configurator(orm.TransientModel):
             'res_id': wizard.contract_id.id,
             'context': context
         }
-        #return True
+
+    def do_cancel(self, cr, uid, ids, context=None):
+        if isinstance(ids, int):
+            ids = [ids]
+
+        for line in self.browse(cr, uid, ids[0], context=context).line_ids:
+            if line.product_id.type == 'product' and line.stock_move_id:
+                stock_move_obj = self.pool.get('stock.move')
+                move = {
+                    'name': ' '.join([_('Cancel'), line.product_id and line.product_id.name or '']),
+                    'product_id': line.product_id and line.product_id.id,
+                    'product_uom': line.product_id and line.product_id.uom_id and line.product_id.uom_id.id or None,
+                    'prodlot_id': line.serial and line.serial.id or None,
+                    'location_id': line.stock_move_id.location_dest_id.id,
+                    'location_dest_id': line.stock_move_id.location_id.id,
+                    'partner_id': line.configurator_id.contract_id.partner_id.id,
+                    'type': 'in'
+                }
+                stock_move_id = stock_move_obj.create(
+                    cr, uid, move, context=context)
+                stock_move_obj.action_confirm(
+                    cr, uid, [stock_move_id], context=context)
+                stock_move_obj.action_done(
+                    cr, uid, [stock_move_id], context=context)
+
+        return True
 
     def router(self, cr, uid, ids, data=None, context=None):
         if isinstance(ids, list):

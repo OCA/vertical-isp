@@ -92,7 +92,8 @@
 			<button
 			    string="Cancel"
 			    class="oe_link"
-			    special="cancel" />
+			    type="object"
+			    name="do_cancel" />
 		    </footer>
 		</form>
 	    </field>
