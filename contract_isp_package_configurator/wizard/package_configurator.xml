@@ -21,13 +21,15 @@
 			<field name="state" class="oe_right" widget="statusbar" />
 		    </header>
 		    <field name="root_category_id" invisible="1" />
+		    <field name="is_level2" invisible="1" />
 		    <field name="contract_id" on_change="onchange_contract_id(contract_id, root_category_id)" invisible="1" />
 		    <group string="Category" attrs="{'invisible': [('state', '=', 'dependency')]}">
 			<field
 			    nolabel="1"
 			    name="product_category_id"
 			    options="{'no_open': True}"
-			    domain="['&amp;', ('id', 'child_of', [root_category_id]), ('type', '=', 'normal')]" />
+			    domain="['&amp;', ('id', 'child_of', [root_category_id]), ('type', '=', 'normal')]"
+			    on_change="onchange_product_category_id(product_category_id, is_level2)" />
 		    </group>
 		    <group string="Products" attrs="{'invisible': [('state', '=', 'dependency')]}">
 			<group colspan="4">
@@ -36,10 +38,8 @@
 				    name="current_product_id"
 				    width="70%%"
 				    class="oe_inline"
-				    domain="[('categ_id', '=', product_category_id)]"
 				    options="{'no_open': True}"
-				    on_change="onchange_product_id(current_product_id)"
-				    placeholder="Product "/>
+				    placeholder="Product" />
 				<button 
 				    name="do_add_current_product_id"
 				    string="Add"

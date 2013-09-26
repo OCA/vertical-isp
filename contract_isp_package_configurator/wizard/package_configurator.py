@@ -24,6 +24,19 @@ from openerp.osv import orm, fields
 from openerp.tools.translate import _
 
 
+class contract_service_product(orm.TransientModel):
+    _name = 'contract.service.product'
+
+    _columns = {
+        'name': fields.char('Name'),
+        'qty_available': fields.float('Quantity on Hand'),
+        'original_product_id': fields.many2one('product.product', 'Product Id'),
+        'categ_id': fields.many2one('product.category', 'Category'),
+        'type': fields.char('Type'),
+        'description': fields.char('Description')
+    }
+
+
 class contract_service_configurator_line(orm.TransientModel):
     _name = 'contract.service.configurator.line'
 
@@ -100,7 +113,24 @@ class contract_service_configurator(orm.TransientModel):
         company_id = res_company_obj._company_default_get(cr, uid, context)
         res_company = res_company_obj.browse(cr, uid, company_id,
                                              context=context)
-        return res_company.default_product_category and res_company.default_product_category.id
+        return res_company.default_product_category and \
+            res_company.default_product_category.id
+
+    def _get_is_level2(self, cr, uid, context=None):
+        ir_model_data_obj = self.pool.get('ir.model.data')
+        res_groups_obj = self.pool.get('res.groups')
+        res_user = self.pool.get('res.users').browse(
+            cr, uid, uid, context={})
+        group_agent_n2_id = ir_model_data_obj.get_object_reference(
+            cr, uid, 'contract_isp', 'group_isp_agent2')[1]
+        group_agent_n2 = res_groups_obj.browse(
+            cr, uid, group_agent_n2_id, context={})
+
+        groups_id = [i.id for i in res_user.groups_id]
+        if group_agent_n2_id not in groups_id:
+            return False
+        else:
+            return True
 
     _columns = {
         'contract_id': fields.many2one('account.analytic.account', 'Contract'),
@@ -120,13 +150,14 @@ class contract_service_configurator(orm.TransientModel):
                                            'Dependencies'),
         'root_category_id': fields.many2one('product.category', 'Category'),
         'product_category_id': fields.many2one('product.category', 'Category'),
-        'serial': fields.many2one('contract.service.serial', 'Serial Number'),
+        'is_level2': fields.boolean('Is level 2')
     }
 
     _defaults = {
         'state': 'draft',
         'product_category_id': lambda s, cr, uid, ctx: s._get_default_category(cr, uid, ctx),
-        'root_category_id': lambda s, cr, uid, ctx: s._get_default_category(cr, uid, ctx)
+        'root_category_id': lambda s, cr, uid, ctx: s._get_default_category(cr, uid, ctx),
+        'is_level2': lambda s, cr, uid, ctx: s._get_is_level2(cr, uid, ctx)
     }
 
     def onchange_contract_id(self, cr, uid, ids, contract_id, root_category_id, context=None):
@@ -135,6 +166,18 @@ class contract_service_configurator(orm.TransientModel):
             return {'domain': {'product_category_id': [('id', 'child_of', [int(root_category_id)])]}}
         else:
             return {}
+
+    def onchange_product_category_id(self, cr, uid, ids, product_category_id, is_level2):
+        domain = [('categ_id', '=', product_category_id)]
+        ret = {
+            'domain': {'current_product_id': None}}
+
+        if not is_level2:
+            domain.append(('list_price', '>=', 0))
+
+        ret['domain']['current_product_id'] = domain
+
+        return ret
 
     def onchange_product_id(self, cr, uid, ids, product_id, context=None):
         ret = {}
@@ -216,6 +259,9 @@ class contract_service_configurator(orm.TransientModel):
                 loop_deps = True
                 for dep in line.product_id.dependency_ids:
                     if dep.type == 'product':
+                        if not wizard.is_level2 and dep.list_price < 0:
+                            continue
+
                         if line.product_id.description:
                             state = 'message'
                         elif line.product_id.type == 'product':
@@ -240,6 +286,9 @@ class contract_service_configurator(orm.TransientModel):
                                                                  query,
                                                                  context=context)
                         for product in product_product_obj.browse(cr, uid, product_ids, context=context):
+                            if not wizard.is_level2 and dep.list_price < 0:
+                                continue
+
                             if line.product_id.description:
                                 state = 'message'
                             elif line.product_id.type == 'product':
@@ -288,14 +337,20 @@ class contract_service_configurator(orm.TransientModel):
         if context is None:
             context = {}
         deps = 0
-        wizard = self.browse(cr, uid, ids[0], context)
-        contract_service_configurator_line_obj = self.pool.get('contract.service.configurator.line')
-        contract_service_configurator_dependency_line_obj = self.pool.get('contract.service.configurator.dependency.line')
+        wizard = self.browse(cr, uid, ids[0], context=context)
+        contract_service_configurator_line_obj = self.pool.get(
+            'contract.service.configurator.line')
+        contract_service_configurator_dependency_line_obj = self.pool.get(
+            'contract.service.configurator.dependency.line')
         product_product_obj = self.pool.get('product.product')
         contract_service_serial_obj = self.pool.get('contract.service.serial')
-        ir_model_data_obj = self.pool.get('ir.model.data')
 
         if wizard.current_product_id:
+            #if group_agent_n2_id not in res_user.groups_id and \
+            #        wizard.current_product_id.type == 'product' and \
+            #        wizard.current_product_id.qty_available <= 0:
+            #    raise orm.except_orm(_('Error!'), _('Product not available!'))
+
             if wizard.current_product_id.description:
                 state = 'message'
             elif wizard.current_product_id.type == 'product':
@@ -307,17 +362,20 @@ class contract_service_configurator(orm.TransientModel):
                 'name': wizard.current_product_id.name,
                 'product_id': wizard.current_product_id.id,
                 'configurator_id': wizard.id,
-                'serial': wizard.serial and wizard.serial.id or None,
                 'message': wizard.current_product_id.description,
-                'state': 'done'
+                'state': state
             }
-            new_line = contract_service_configurator_line_obj.create(cr, uid,
-                                                                     record,
-                                                                     context=context)
+            new_line = contract_service_configurator_line_obj.create(
+                cr, uid, record, context=context)
 
-            for dep in wizard.current_product_id.dependency_ids:
-                deps += 1
+            for dep in contract_service_configurator_line_obj.browse(
+                    cr, uid, new_line,
+                    context=context).product_id.dependency_ids:
+
                 if dep.type == 'product':
+                    if not wizard.is_level2 and dep.product_id.list_price < 0:
+                        continue
+
                     if dep.product_id.description:
                         state = 'message'
                     elif dep.product_id.type == 'product':
@@ -325,6 +383,7 @@ class contract_service_configurator(orm.TransientModel):
                     else:
                         state = 'done'
 
+                    deps += 1
                     wl = {
                         'name': dep.product_id.name,
                         'product_id': dep.product_id.id,
@@ -346,6 +405,9 @@ class contract_service_configurator(orm.TransientModel):
                     for product in product_product_obj.browse(cr, uid,
                                                               product_ids,
                                                               context=context):
+                        if not wizard.is_level2 and dep.product_id.list_price < 0:
+                            continue
+
                         if product.description:
                             state = 'message'
                         elif product.type == 'product':
@@ -361,7 +423,6 @@ class contract_service_configurator(orm.TransientModel):
                             'parent_id': new_line,
                             'message': product.description,
                             'state': state
-
                         }
                         contract_service_configurator_dependency_line_obj.create(cr, uid,
                                                                                  record,
@@ -369,7 +430,6 @@ class contract_service_configurator(orm.TransientModel):
 
             record = {
                 'current_product_id': None,
-                'serial': None,
                 'product_category_id': self._get_default_category(cr, uid, context),
                 'state': deps and 'dependency' or 'product'
             }
@@ -377,6 +437,7 @@ class contract_service_configurator(orm.TransientModel):
             wizard.write(record)
 
             return wizard.router({})
+        raise orm.except_orm(_('Error'), _('Product not found!'))
 
     def do_done(self, cr, uid, ids, context=None):
         account_analytic_account_obj = self.pool.get('account.analytic.account')
