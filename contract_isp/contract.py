@@ -23,9 +23,11 @@
 import logging
 import calendar
 import datetime
+import openerp.addons.decimal_precision as dp
 from openerp.osv import orm, fields
 from openerp.report import report_sxw
 from openerp.tools import convert
+from openerp.tools.translate import _
 
 
 def add_months(sourcedate, months):
@@ -60,7 +62,9 @@ class res_company(orm.Model):
     _columns = {
         'parent_account_id': fields.many2one('account.analytic.account',
                                              'Parent Analytic Account'),
-        'cutoff_day': fields.selection(_days, 'Cutoff day')
+        'cutoff_day': fields.selection(_days, 'Cutoff day'),
+        'default_journal_id': fields.many2one('account.analytic.journal',
+                                              'Default Journal')
     }
 
 
@@ -114,10 +118,21 @@ class contract_service(orm.Model):
 
     def _get_product_price(self, cr, uid, ids, field_name, arg, context=None):
         product_obj = self.pool.get('product.product')
+        product_pricelist_obj = self.pool.get('product.pricelist')
+        partner_id = self.browse(
+            cr, uid, ids[0],
+            context=context).account_id.partner_id.id
+        pricelist_id = self.browse(
+            cr, uid, ids[0],
+            context=context
+        ).account_id.partner_id.property_product_pricelist.id
         ret = {}
-        for line in self.browse(cr, uid, ids, context):
+        for line in self.browse(cr, uid, ids, context=context):
             if line.product_id:
-                ret[line.id] = line.product_id.list_price
+                ret[line.id] = product_pricelist_obj.price_get(
+                    cr, uid, [pricelist_id],
+                    line.product_id.id, 1, partner_id,
+                    context=context)[pricelist_id]
             else:
                 ret[line.id] = None
 
@@ -135,9 +150,12 @@ class contract_service(orm.Model):
                                                'Type'),
         'require_activation': fields.boolean('Require activation'),
         'account_id': fields.many2one('account.analytic.account', 'Contract'),
-        'price': fields.function(_get_product_price, type='float',
-                                 string='Price'),
-        'activation_line_generated': fields.boolean('Activation Line Generated?'),
+        'price': fields.function(
+            _get_product_price, type='float',
+            digits_compute=dp.get_precision('Product Price'),
+            string='Price'),
+        'activation_line_generated': fields.boolean(
+            'Activation Line Generated?'),
         'state': fields.selection((('draft', 'Waiting for activating'),
                                    ('active', 'Active'),
                                    ('inactive', 'Inactive')),
@@ -181,6 +199,10 @@ class contract_service(orm.Model):
         ret = []
         record = {}
 
+        company_obj = self.pool.get('res.company')
+        company_id = company_obj._company_default_get(cr, uid, context)
+        company = company_obj.browse(cr, uid, company_id, context)
+
         account_analytic_line_obj = self.pool.get('account.analytic.line')
         for line in self.browse(cr, uid, ids, context):
             account_id = line.account_id.id
@@ -213,6 +235,7 @@ class contract_service(orm.Model):
                     interval = date_interval(add_months(date, 1),
                                              True,
                                              date_format)
+
                 elif mode == 'cron':
                     amount = line.product_id.list_price
                     next_month = add_months(date, 1)
@@ -224,9 +247,15 @@ class contract_service(orm.Model):
                                              False,
                                              date_format)
                     date = next_month
+
                 elif mode == 'manual':
                     amount = line.product_id.list_price
                     interval = date_interval(date, False, date_format)
+
+                elif mode == 'subscription':
+                    amount = line.product_id.list_price
+                    interval = ''
+
             else:
                 interval = ''
                 amount = line.product_id.list_price
@@ -245,7 +274,8 @@ class contract_service(orm.Model):
                 'to_invoice': 1,
                 'unit_amount': 1,
                 'is_prorata': mode == 'prorata',
-                'date': date.strftime('%Y-%m-%d')
+                'date': date.strftime('%Y-%m-%d'),
+                'journal_id': 1
             }
 
             if line.analytic_line_type == 'x':
@@ -253,6 +283,9 @@ class contract_service(orm.Model):
                 if line.duration <= 0:
                     line.unlink()
                     record['contract_service_id'] = False
+
+            if 'default_type' in context:
+                context.pop('default_type')
 
             ret.append(account_analytic_line_obj.create(cr, uid, record,
                                                         context))
