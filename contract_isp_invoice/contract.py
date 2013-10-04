@@ -24,6 +24,7 @@ import logging
 import time
 import datetime
 from openerp.osv import orm, fields
+from openerp.tools.translate import _
 from openerp.addons.contract_isp.contract import add_months, date_interval
 
 _logger = logging.getLogger(__name__)
@@ -50,6 +51,154 @@ class res_partner(orm.Model):
 
     _defaults = {
         'property_payment_term': lambda s, cr, uid, ctx: s._get_default_payment_term(cr, uid, ctx)
+    }
+
+
+class account_voucher(orm.Model):
+    _inherit = 'account.voucher'
+
+    _columns = {
+        'later_validation': fields.boolean('Later Validation')
+    }
+
+    _defaults = {
+        'later_validation': False
+    }
+
+    def post_later(self, cr, uid, ids, context=None):
+        return {'type': 'ir.actions.act_window_close'}
+
+    def onchange_journal(self, cr, uid, ids, journal_id, line_ids,
+                         tax_id, partner_id, date, amount, ttype,
+                         company_id, context=None):
+        ret = super(account_voucher, self).onchange_journal(
+            cr, uid, ids, journal_id, line_ids,
+            tax_id, partner_id, date, amount, ttype,
+            company_id, context=None)
+        account_journal = self.pool.get('account.journal').browse(
+            cr, uid, journal_id, context=context)
+
+        ret['value']['later_validation'] = account_journal.later_validation
+
+        return ret
+
+    def create(self, cr, uid, data, context=None):
+        if context.get('original_amount', False) and data.get('amount', False):
+            if data['amount'] < context.get('original_amount'):
+                raise orm.except_orm(
+                    _('Error'),
+                    _('Amount cannot be less than the invoice amount'))
+
+        return super(account_voucher, self).create(
+            cr, uid, data, context=context)
+
+    def proforma_voucher(self, cr, uid, ids, context=None):
+        if not context.get('not_subscription_voucher', True) and self.browse(
+                cr, uid, ids[0], context=context).later_validation:
+            raise orm.except_orm(
+                _('Error'),
+                _('Voucher cannot be validated immediately with this payment mode!'))
+
+        ret = super(account_voucher, self).proforma_voucher(
+            cr, uid, ids, context=context)
+
+        voucher = self.browse(cr, uid, ids[0], context=context)
+        if context.get('not_subscription_voucher', True) is False:
+            account_invoice_obj = self.pool.get('account.invoice')
+            a = account_invoice_obj._workflow_signal(
+                cr, uid, [context.get('subscription_invoice_id')],
+                'invoice_open', context=context)
+
+            account_move_line_obj = self.pool.get('account.move.line')
+            query = [
+                ('partner_id', '=', voucher.partner_id.id),
+                ('account_id', '=', voucher.partner_id.property_account_receivable.id),
+                ('reconcile_id', '=', False)
+            ]
+
+            ids_to_reconcile = account_move_line_obj.search(cr, uid, query,
+                                                            context=context)
+            if ids_to_reconcile:
+                # Code from account/wizard/account_reconcile.py/\
+                #    account_move_line_reconcile/trans_rec_reconcile_full
+                period_obj = self.pool.get('account.period')
+                date = False
+                period_id = False
+                journal_id = False
+                account_id = False
+
+                date = time.strftime('%Y-%m-%d')
+                ctx = dict(context or {}, account_period_prefer_normal=True)
+                period_ids = period_obj.find(cr, uid, dt=date, context=ctx)
+                if period_ids:
+                    period_id = ids[0]
+                    account_move_line_obj.reconcile(cr, uid, ids_to_reconcile,
+                                                    'manual', account_id,
+                                                    period_id, journal_id,
+                                                    context=context)
+
+                    mail_template_obj = self.pool.get('email.template')
+                    ir_model_data_obj = self.pool.get('ir.model.data')
+                    mail_template_id = ir_model_data_obj.get_object_reference(
+                        cr, uid, 'account', 'email_template_edi_invoice')[1]
+                    mail_mail_obj = self.pool.get('mail.mail')
+                    if isinstance(inv, list):
+                        for i in inv:
+                            mail_id = mail_template_obj.send_mail(
+                                cr, uid, mail_template_id, i, context=context)
+                            mail_message = mail_mail_obj.browse(
+                                cr, uid, mail_id, context=context).mail_message_id
+                            mail_message.write({'type': 'email'})
+                            ret.append(i)
+                    else:
+                        mail_id = mail_template_obj.send_mail(
+                            cr, uid, mail_template_id, inv, context=context)
+                        mail_message = mail_mail_obj.browse(
+                            cr, uid, mail_id, context=context).mail_message_id
+                        mail_message.write({'type': 'email'})
+
+        return ret
+
+    def cancel_voucher(self, cr, uid, ids, context=None):
+        ret = super(account_voucher, self).cancel_voucher(
+            cr, uid, ids, context=context)
+
+        if context.get('not_subscription_voucher', True) is False \
+                and context.get('subscription_invoice_id', False):
+            account_analytic_line_obj = self.pool.get('account.analytic.line')
+            account_invoice = self.pool.get('account.invoice').browse(
+                cr, uid, context.get('subscription_invoice_id'),
+                context=context)
+
+            query = [
+                ('invoice_id', '=', context.get('subscription_invoice_id'))
+            ]
+            account_analytic_line_ids = account_analytic_line_obj.search(
+                cr, uid, query, context=context)
+            account_analytic_line_obj.unlink(
+                cr, uid, account_analytic_line_ids, context=context)
+
+            for line in account_invoice.invoice_line:
+                line.unlink()
+
+        return ret
+
+    def unlink(cr, uid, ids, context=None):
+        print 'unlink'
+
+        return super(account_voucher, self).unlink(
+            cr, uid, ids, context=context)
+
+
+class account_journal(orm.Model):
+    _inherit = 'account.journal'
+
+    _columns = {
+        'later_validation': fields.boolean('Later Validation')
+    }
+
+    _defaults = {
+        'later_validation': False
     }
 
 
@@ -102,8 +251,6 @@ class account_analytic_account(orm.Model):
 
         ret = []
         for contract_id in ids:
-            #if context.get('create_line_before_invoice', False):
-            #    contract_service_obj.
             query = [('account_id', '=', contract_id),
                      ('to_invoice', '!=', None),
                      ('invoice_id', '=', None),
@@ -134,26 +281,27 @@ class account_analytic_account(orm.Model):
 
                 a = account_invoice_obj._workflow_signal(
                     cr, uid, inv, 'invoice_open', context)
-                mail_template_obj = self.pool.get('email.template')
-                ir_model_data_obj = self.pool.get('ir.model.data')
-                mail_template_id = ir_model_data_obj.get_object_reference(
-                    cr, uid, 'account', 'email_template_edi_invoice')[1]
-                mail_mail_obj = self.pool.get('mail.mail')
-                if isinstance(inv, list):
-                    for i in inv:
+                if context.get('not_subscription_voucher', True):
+                    mail_template_obj = self.pool.get('email.template')
+                    ir_model_data_obj = self.pool.get('ir.model.data')
+                    mail_template_id = ir_model_data_obj.get_object_reference(
+                        cr, uid, 'account', 'email_template_edi_invoice')[1]
+                    mail_mail_obj = self.pool.get('mail.mail')
+                    if isinstance(inv, list):
+                        for i in inv:
+                            mail_id = mail_template_obj.send_mail(
+                                cr, uid, mail_template_id, i, context=context)
+                            mail_message = mail_mail_obj.browse(
+                                cr, uid, mail_id, context=context).mail_message_id
+                            mail_message.write({'type': 'email'})
+                            ret.append(i)
+                    else:
                         mail_id = mail_template_obj.send_mail(
-                            cr, uid, mail_template_id, i, context=context)
+                            cr, uid, mail_template_id, inv, context=context)
                         mail_message = mail_mail_obj.browse(
                             cr, uid, mail_id, context=context).mail_message_id
                         mail_message.write({'type': 'email'})
-                        ret.append(i)
-                else:
-                    mail_id = mail_template_obj.send_mail(
-                        cr, uid, mail_template_id, inv, context=context)
-                    mail_message = mail_mail_obj.browse(
-                        cr, uid, mail_id, context=context).mail_message_id
-                    mail_message.write({'type': 'email'})
-                    ret.append(inv)
+                        ret.append(inv)
 
         if return_int:
             if len(ret) == 0:
@@ -172,6 +320,48 @@ class account_analytic_account(orm.Model):
             'view_type': 'form',
             'view_mode': 'form',
             'target': 'new'
+        }
+
+    def prepare_voucher(self, cr, uid, ids, context=None):
+        if context is None:
+            context = {}
+
+        account_analytic_account_obj = self.pool.get(
+            'account.analytic.account')
+        account_invoice_obj = self.pool.get('account.invoice')
+
+        for line in self.browse(
+                cr, uid, ids[0], context=context).contract_service_ids:
+            line.create_analytic_line(
+                mode='subscription',
+                date=datetime.datetime.today())
+
+        # jgama - Create the activation invoice
+        context['not_subscription_voucher'] = False
+        inv = account_analytic_account_obj.create_invoice(
+            cr, uid, ids[0], context=context)
+
+        amount = account_invoice_obj.browse(
+            cr, uid, inv, context=context).amount_total
+
+        view_id = self.pool.get('ir.model.data').get_object_reference(
+            cr, uid, 'account_voucher', 'view_vendor_receipt_form')[1]
+
+        return {
+            'name': _('Create Voucher'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'account.voucher',
+            'view_type': 'form',
+            'view_mode': 'form',
+            'view_id': view_id,
+            'target': 'new',
+            'context': {'not_subscription_voucher': False,
+                        'subscription_invoice_id': inv,
+                        'default_type': 'receipt',
+                        'default_amount': amount,
+                        'original_amount': amount,
+                        'default_partner_id': context.get('default_partner_id',
+                                                          None)}
         }
 
 

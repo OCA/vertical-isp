@@ -53,40 +53,6 @@ class contract_service_activate(orm.TransientModel):
         ]
         # Check if all services were activated
         if not contract_service_obj.search(cr, uid, query, context=context):
-            # jgama - Create the activation invoice
-            inv = account_analytic_account_obj.create_invoice(
-                cr, uid, wizard.account_id.id, context=context)
-
-            voucher_id = account_voucher_obj.search(cr, uid,
-                                                    [('partner_id', '=', wizard.account_id.partner_id.id)],
-                                                    context=context)
-            if voucher_id:
-                query = [
-                    ('partner_id', '=', wizard.account_id.partner_id.id),
-                    ('account_id', '=', wizard.account_id.partner_id.property_account_receivable.id),
-                    ('reconcile_id', '=', False)
-                ]
-
-                ids_to_reconcile = account_move_line_obj.search(cr, uid, query,
-                                                                context=context)
-                if ids_to_reconcile:
-                    # Code from account/wizard/account_reconcile.py/\
-                    #    account_move_line_reconcile/trans_rec_reconcile_full
-                    period_obj = self.pool.get('account.period')
-                    date = False
-                    period_id = False
-                    journal_id = False
-                    account_id = False
-
-                    date = time.strftime('%Y-%m-%d')
-                    ctx = dict(context or {}, account_period_prefer_normal=True)
-                    ids = period_obj.find(cr, uid, dt=date, context=ctx)
-                    if ids:
-                        period_id = ids[0]
-                        account_move_line_obj.reconcile(cr, uid, ids_to_reconcile,
-                                                        'manual', account_id,
-                                                        period_id, journal_id,
-                                                        context=context)
 
             # jgama - Try to create the prorata invoice
             pro_inv = account_analytic_account_obj.create_invoice(
