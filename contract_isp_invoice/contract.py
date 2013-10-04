@@ -105,8 +105,9 @@ class account_voucher(orm.Model):
         voucher = self.browse(cr, uid, ids[0], context=context)
         if context.get('not_subscription_voucher', True) is False:
             account_invoice_obj = self.pool.get('account.invoice')
+            inv = [context.get('subscription_invoice_id')]
             a = account_invoice_obj._workflow_signal(
-                cr, uid, [context.get('subscription_invoice_id')],
+                cr, uid, inv,
                 'invoice_open', context=context)
 
             account_move_line_obj = self.pool.get('account.move.line')
@@ -149,7 +150,7 @@ class account_voucher(orm.Model):
                             mail_message = mail_mail_obj.browse(
                                 cr, uid, mail_id, context=context).mail_message_id
                             mail_message.write({'type': 'email'})
-                            ret.append(i)
+
                     else:
                         mail_id = mail_template_obj.send_mail(
                             cr, uid, mail_template_id, inv, context=context)
@@ -180,6 +181,7 @@ class account_voucher(orm.Model):
 
             for line in account_invoice.invoice_line:
                 line.unlink()
+            account_invoice.unlink()
 
         return ret
 
@@ -265,6 +267,12 @@ class account_analytic_account(orm.Model):
                 }
                 inv = account_analytic_line.invoice_cost_create(
                     cr, uid, ids_to_invoice, data=data, context=context)
+                if isinstance(inv, list):
+                    for i in inv:
+                        ret.append(i)
+
+                else:
+                    ret.append(inv)
 
                 # jgama - If its a prorata invoice, change the invoice date
                 #         according to the invoice_day variable
@@ -279,9 +287,10 @@ class account_analytic_account(orm.Model):
                         cr, uid, inv, {'date_invoice': date_invoice},
                         context=context)
 
-                a = account_invoice_obj._workflow_signal(
-                    cr, uid, inv, 'invoice_open', context)
                 if context.get('not_subscription_voucher', True):
+                    a = account_invoice_obj._workflow_signal(
+                        cr, uid, inv, 'invoice_open', context)
+
                     mail_template_obj = self.pool.get('email.template')
                     ir_model_data_obj = self.pool.get('ir.model.data')
                     mail_template_id = ir_model_data_obj.get_object_reference(
@@ -294,14 +303,12 @@ class account_analytic_account(orm.Model):
                             mail_message = mail_mail_obj.browse(
                                 cr, uid, mail_id, context=context).mail_message_id
                             mail_message.write({'type': 'email'})
-                            ret.append(i)
                     else:
                         mail_id = mail_template_obj.send_mail(
                             cr, uid, mail_template_id, inv, context=context)
                         mail_message = mail_mail_obj.browse(
                             cr, uid, mail_id, context=context).mail_message_id
                         mail_message.write({'type': 'email'})
-                        ret.append(inv)
 
         if return_int:
             if len(ret) == 0:
@@ -343,7 +350,7 @@ class account_analytic_account(orm.Model):
 
         amount = account_invoice_obj.browse(
             cr, uid, inv, context=context).amount_total
-
+        print amount
         view_id = self.pool.get('ir.model.data').get_object_reference(
             cr, uid, 'account_voucher', 'view_vendor_receipt_form')[1]
 

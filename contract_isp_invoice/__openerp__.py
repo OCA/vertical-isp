@@ -40,10 +40,13 @@ Features:
     'website': 'www.savoirfairelinux.com',
     'license': 'AGPL-3',
     'depends': ['contract_isp'],
-    'data': ['contract_isp_invoice_data.xml',
-             'contract_isp_invoice_view.xml',
-             'wizard/contract_isp_invoice_invoice_create.xml',
-             'wizard/close_contract_view.xml'],
+    'data': [
+        'security/ir.model.access.csv',
+        'contract_isp_invoice_data.xml',
+        'contract_isp_invoice_view.xml',
+        'wizard/contract_isp_invoice_invoice_create.xml',
+        'wizard/close_contract_view.xml'
+    ],
     'active': False,
     'installable': True,
 }
