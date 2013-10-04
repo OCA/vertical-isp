@@ -48,10 +48,12 @@
 			    <field name="state" readonly="True" />
 			    <field name="activation_date"
 				   attrs="{'readonly': [('state', 'in', ('draft', 'active'))]}" />
+			    <field name="category_id" invisible="1" />
 			    <field name="product_id"
 				   on_change="on_change_product_id(product_id)"
-				   domain="[('analytic_line_type', 'in', ('r', 'x', 'o'))]"
-				   attrs="{'readonly': [('state', '=', 'active')]}"/>
+				   attrs="{'readonly': [('state', '=', 'active')]}"
+				   domain="['&amp;', ('analytic_line_type', 'in', ('r', 'x', 'o')), ('categ_id', '=', category_id)]" />
+			    <field name="name" />
 			    <field name="price" readonly="1" sum="Total Price" />
 			    <field name="analytic_line_type" />
 			    <field name="require_activation" invisible="True" />
@@ -105,9 +107,10 @@
 		    <field name="state" readonly="True" />
 		    <field name="activation_date"
 			   attrs="{'readonly': [('state', 'in', ('draft', 'active'))]}" />
+		    <field name="category_id" invisible="1" />
 		    <field name="product_id"
 			   on_change="on_change_product_id(product_id)"
-			   domain="[('analytic_line_type', 'in', ('r', 'x', 'o'))]" />
+			   domain="[('&amp;', ('analytic_line_type', 'in', ('r', 'x', 'o')), ('categ_id', '=', category_id))]" />
 		    <field name="analytic_line_type" />
 		    <field 
 			name="duration"

@@ -144,6 +144,8 @@ class contract_service(orm.Model):
         'product_id': fields.many2one('product.product',
                                       'Product',
                                       required=True),
+        'category_id': fields.many2one('product.category', 'Product Category'),
+        'name': fields.char('Description', size=64),
         'analytic_line_type': fields.selection((('r', 'Recurrent'),
                                                 ('x', 'Exception'),
                                                 ('o', 'One time')),
@@ -164,7 +166,8 @@ class contract_service(orm.Model):
 
     _defaults = {
         'state': 'draft',
-        'activation_line_generated': False
+        'activation_line_generated': False,
+        'category_id': 1
     }
 
     def on_change_product_id(self, cr, uid, ids, product_id):
@@ -177,6 +180,7 @@ class contract_service(orm.Model):
         if product_id:
             ret['value']['analytic_line_type'] = product.analytic_line_type
             ret['value']['require_activation'] = product.require_activation
+            ret['value']['category_id'] = product.categ_id.id
             ret['value']['price'] = product.list_price
             if product.analytic_line_type in ('r', 'o'):
                 ret['value']['duration'] = 0

@@ -485,8 +485,10 @@ class contract_service_configurator(orm.TransientModel):
         wizard = self.browse(cr, uid, ids[0], context=context)
         for line in wizard.line_ids:
             l = {
+                'name': line.serial and line.serial.name or '',
                 'account_id': wizard.contract_id.id,
                 'product_id': line.product_id.id,
+                'category_id': line.product_id.categ_id.id,
                 'analytic_line_type': line.product_id.analytic_line_type,
                 'require_activation': line.product_id.require_activation
             }
