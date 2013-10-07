@@ -167,7 +167,8 @@ class contract_service(orm.Model):
     _defaults = {
         'state': 'draft',
         'activation_line_generated': False,
-        'category_id': 1
+        'category_id': 1,
+        'name': ''
     }
 
     def on_change_product_id(self, cr, uid, ids, product_id):
@@ -268,7 +269,7 @@ class contract_service(orm.Model):
                 or line.product_id.categ_id.property_account_expense_categ.id
 
             record = {
-                'name': ' '.join([line.product_id.name, interval]),
+                'name': ' '.join([line.product_id.name, line.name, interval]),
                 'amount': amount * (-1),
                 'account_id': line.account_id.id,
                 'user_id': uid,
