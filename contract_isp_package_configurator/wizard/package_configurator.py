@@ -133,16 +133,6 @@ class contract_service_configurator_dependency_line(orm.TransientModel):
     _inherit = 'contract.service.configurator.line'
 
 
-class contract_service_serial(orm.TransientModel):
-    _name = 'contract.service.serial'
-
-    _columns = {
-        'name': fields.char('Serial Number'),
-        'product_id': fields.many2one('product.product', 'Product'),
-        'prodlot_id': fields.many2one('stock.production.lot', 'Production Lot')
-    }
-
-
 class contract_service_configurator(orm.TransientModel):
     _name = 'contract.service.configurator'
 
@@ -198,14 +188,8 @@ class contract_service_configurator(orm.TransientModel):
         'is_level2': lambda s, cr, uid, ctx: s._get_is_level2(cr, uid, ctx)
     }
 
-    def onchange_contract_id(self, cr, uid, ids, contract_id, root_category_id, context=None):
-        product_category_obj = self.pool.get('product.category')
-        if root_category_id:
-            return {'domain': {'product_category_id': [('id', 'child_of', [int(root_category_id)])]}}
-        else:
-            return {}
-
-    def onchange_product_category_id(self, cr, uid, ids, product_category_id, is_level2):
+    def onchange_product_category_id(self, cr, uid, ids,
+                                     product_category_id, is_level2):
         domain = [('categ_id', '=', product_category_id)]
         ret = {
             'domain': {'current_product_id': None}}
@@ -215,44 +199,6 @@ class contract_service_configurator(orm.TransientModel):
 
         ret['domain']['current_product_id'] = domain
 
-        return ret
-
-    def onchange_product_id(self, cr, uid, ids, product_id, context=None):
-        ret = {}
-        product_product_obj = self.pool.get('product.product')
-        if product_id and product_product_obj.browse(cr, uid, product_id, context=context).type == 'product':
-            contract_service_serial = self.pool.get('contract.service.serial')
-            location_id = self.pool.get('ir.model.data').get_object_reference(cr, uid, 'stock', 'stock_location_stock')[1]
-            stock_move_obj = self.pool.get('stock.move')
-            stock_production_lot_obj = self.pool.get('stock.production.lot')
-
-            clean_ids = contract_service_serial.search(cr, uid, [('product_id', '=', product_id)], context=context)
-            contract_service_serial.unlink(cr, uid, clean_ids, context=context)
-
-            query = [
-                ('product_id', '=', product_id),
-                ('stock_available', '>', 0.0)
-            ]
-            serial_ids = stock_production_lot_obj.search(cr, uid, query, context=context)
-            #stock_move_ids = stock_move_obj.search(cr, uid, query, context=context)
-            if serial_ids and product_product_obj.browse(cr, uid, product_id, context=context).qty_available > 0:
-                if isinstance(serial_ids, int):
-                    serial_ids = [serial_ids]
-
-                for line in stock_production_lot_obj.browse(cr, uid, serial_ids, context=context):
-                    if line.stock_available > 0.0:
-                        record = {
-                            'name': line.name,
-                            'product_id': line.product_id.id,
-                            'prodlot_id': line.id
-                        }
-                        contract_service_serial.create(cr, uid, record, context=context)
-            else:
-                ret['warning'] = {
-                    'title': _('Information'),
-                    'message': _("We don't have this product in stock at the moment!")
-                }
-                # ret['domain'] = {'product_category_id': [('id', 'child_of', [int(root_category_id)])]}
         return ret
 
     def do_next(self, cr, uid, ids, context=None):
@@ -350,7 +296,6 @@ class contract_service_configurator(orm.TransientModel):
         if loop_deps:
             record = {
                 'state': 'dependency',
-                'must_go_to_dependencies': False,
             }
             wizard.write(record)
             return self.router(cr, uid, ids, {}, context=context)
@@ -358,7 +303,6 @@ class contract_service_configurator(orm.TransientModel):
         else:
             record = {
                 'state': 'product',
-                'must_go_to_dependencies': False,
                 'current_product_id': None,
                 'dependency_ids': [(5)],
             }
