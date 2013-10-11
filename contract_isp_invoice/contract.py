@@ -419,7 +419,7 @@ class account_analytic_line(orm.Model):
                 partner = account.partner_id.parent_id or account.partner_id
 
                 if (not partner) or not (account.pricelist_id):
-                    raise osv.except_osv(
+                    raise orm.except_orm(
                         _('Analytic Account Incomplete!'),
                         _('Contract incomplete. Please fill in the Customer and Pricelist fields.'))
 
@@ -508,7 +508,7 @@ class account_analytic_line(orm.Model):
                         general_account = product.property_account_income or \
                             product.categ_id.property_account_income_categ
                         if not general_account:
-                            raise osv.except_osv(
+                            raise orm.except_orm(
                                 _("Configuration Error!"),
                                 _("Please define income account for product '%s'.") % product.name)
                         taxes = product.taxes_id or general_account.tax_ids
