@@ -261,8 +261,11 @@ class contract_service_configurator(orm.TransientModel):
                             'message': line.product_id.description,
                             'state': state
                         }
-                        contract_service_configurator_dependency_line_obj.create(cr, uid, wl,
-                                                                                 context=context)
+                        new_dep = contract_service_configurator_dependency_line_obj.create(
+                            cr, uid, wl, context=context)
+
+                        if dep.auto:
+                            wizard.write({'dependency_ids': [(4, new_dep)]})
 
                     elif dep.type == 'category':
                         query = [('categ_id', '=', dep.category_id.id)]
