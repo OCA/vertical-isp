@@ -350,9 +350,15 @@ class account_analytic_account(orm.Model):
 
         amount = account_invoice_obj.browse(
             cr, uid, inv, context=context).amount_total
-        print amount
+
         view_id = self.pool.get('ir.model.data').get_object_reference(
             cr, uid, 'account_voucher', 'view_vendor_receipt_form')[1]
+
+        partner = self.browse(
+            cr, uid, ids[0], context=context).partner_id
+
+        voucher_partner_id = partner.parent_id and \
+            partner.parent_id.id or partner_id.id
 
         return {
             'name': _('Create Voucher'),
@@ -367,8 +373,7 @@ class account_analytic_account(orm.Model):
                         'default_type': 'receipt',
                         'default_amount': amount,
                         'original_amount': amount,
-                        'default_partner_id': context.get('default_partner_id',
-                                                          None)}
+                        'default_partner_id': voucher_partner_id}
         }
 
 
@@ -404,7 +409,9 @@ class account_analytic_line(orm.Model):
         for journal_type, account_ids in journal_types.items():
             for account in analytic_account_obj.browse(
                     cr, uid, list(account_ids), context=context):
-                partner = account.partner_id
+                # jgama - If there's a parent, invoice the parent
+                partner = account.partner_id.parent_id or account.partner_id
+
                 if (not partner) or not (account.pricelist_id):
                     raise osv.except_osv(
                         _('Analytic Account Incomplete!'),
@@ -423,13 +430,13 @@ class account_analytic_line(orm.Model):
                 curr_invoice = {
                     'name': time.strftime('%d/%m/%Y') + ' - ' + account.name,
                     'origin': account.name,
-                    'partner_id': account.partner_id.id,
+                    'partner_id': partner.id,
                     'company_id': account.company_id.id,
                     'payment_term': partner.property_payment_term.id or False,
                     'account_id': partner.property_account_receivable.id,
                     'currency_id': account.pricelist_id.currency_id.id,
                     'date_due': date_due,
-                    'fiscal_position': account.partner_id.property_account_position.id
+                    'fiscal_position': partner.property_account_position.id
                 }
                 context2 = context.copy()
                 context2['lang'] = partner.lang
