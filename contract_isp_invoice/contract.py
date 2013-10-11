@@ -71,6 +71,9 @@ class account_voucher(orm.Model):
     def onchange_journal(self, cr, uid, ids, journal_id, line_ids,
                          tax_id, partner_id, date, amount, ttype,
                          company_id, context=None):
+        if not journal_id:
+            return False
+
         ret = super(account_voucher, self).onchange_journal(
             cr, uid, ids, journal_id, line_ids,
             tax_id, partner_id, date, amount, ttype,
@@ -93,6 +96,9 @@ class account_voucher(orm.Model):
             cr, uid, data, context=context)
 
     def proforma_voucher(self, cr, uid, ids, context=None):
+        if context is None:
+            context = {}
+
         if not context.get('not_subscription_voucher', True) and self.browse(
                 cr, uid, ids[0], context=context).later_validation:
             raise orm.except_orm(
@@ -358,7 +364,7 @@ class account_analytic_account(orm.Model):
             cr, uid, ids[0], context=context).partner_id
 
         voucher_partner_id = partner.parent_id and \
-            partner.parent_id.id or partner_id.id
+            partner.parent_id.id or partner.id
 
         return {
             'name': _('Create Voucher'),
