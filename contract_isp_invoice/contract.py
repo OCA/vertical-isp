@@ -65,9 +65,6 @@ class account_voucher(orm.Model):
         'later_validation': False
     }
 
-    def post_later(self, cr, uid, ids, context=None):
-        return {'type': 'ir.actions.act_window_close'}
-
     def onchange_journal(self, cr, uid, ids, journal_id, line_ids,
                          tax_id, partner_id, date, amount, ttype,
                          company_id, context=None):
@@ -99,70 +96,64 @@ class account_voucher(orm.Model):
         if context is None:
             context = {}
 
-        if not context.get('not_subscription_voucher', True) and self.browse(
-                cr, uid, ids[0], context=context).later_validation:
-            raise orm.except_orm(
-                _('Error'),
-                _('Voucher cannot be validated immediately with this payment mode!'))
-
-        ret = super(account_voucher, self).proforma_voucher(
-            cr, uid, ids, context=context)
-
+        ret = True
         voucher = self.browse(cr, uid, ids[0], context=context)
+
         if context.get('not_subscription_voucher', True) is False:
+            if voucher.journal_id.later_validation is False:
+                ret = super(account_voucher, self).proforma_voucher(
+                    cr, uid, ids, context=context)
+
             account_invoice_obj = self.pool.get('account.invoice')
             inv = [context.get('subscription_invoice_id')]
             a = account_invoice_obj._workflow_signal(
                 cr, uid, inv,
                 'invoice_open', context=context)
 
-            account_move_line_obj = self.pool.get('account.move.line')
-            query = [
-                ('partner_id', '=', voucher.partner_id.id),
-                ('account_id', '=', voucher.partner_id.property_account_receivable.id),
-                ('reconcile_id', '=', False)
-            ]
+            if voucher.journal_id.later_validation is False:
+                account_move_line_obj = self.pool.get('account.move.line')
+                query = [
+                    ('partner_id', '=', voucher.partner_id.id),
+                    ('account_id', '=', voucher.partner_id.property_account_receivable.id),
+                    ('reconcile_id', '=', False)
+                ]
 
-            ids_to_reconcile = account_move_line_obj.search(cr, uid, query,
-                                                            context=context)
-            if ids_to_reconcile:
-                # Code from account/wizard/account_reconcile.py/\
-                #    account_move_line_reconcile/trans_rec_reconcile_full
-                period_obj = self.pool.get('account.period')
-                date = False
-                period_id = False
-                journal_id = False
-                account_id = False
+                ids_to_reconcile = account_move_line_obj.search(cr, uid, query,
+                                                                context=context)
+                if ids_to_reconcile:
+                    # Code from account/wizard/account_reconcile.py/\
+                    #    account_move_line_reconcile/trans_rec_reconcile_full
+                    period_obj = self.pool.get('account.period')
+                    date = False
+                    period_id = False
+                    journal_id = False
+                    account_id = False
 
-                date = time.strftime('%Y-%m-%d')
-                ctx = dict(context or {}, account_period_prefer_normal=True)
-                period_ids = period_obj.find(cr, uid, dt=date, context=ctx)
-                if period_ids:
-                    period_id = ids[0]
-                    account_move_line_obj.reconcile(cr, uid, ids_to_reconcile,
-                                                    'manual', account_id,
-                                                    period_id, journal_id,
-                                                    context=context)
+                    date = time.strftime('%Y-%m-%d')
+                    ctx = dict(context or {}, account_period_prefer_normal=True)
+                    period_ids = period_obj.find(cr, uid, dt=date, context=ctx)
+                    if period_ids:
+                        period_id = ids[0]
+                        account_move_line_obj.reconcile(cr, uid, ids_to_reconcile,
+                                                        'manual', account_id,
+                                                        period_id, journal_id,
+                                                        context=context)
 
-                    mail_template_obj = self.pool.get('email.template')
-                    ir_model_data_obj = self.pool.get('ir.model.data')
-                    mail_template_id = ir_model_data_obj.get_object_reference(
-                        cr, uid, 'account', 'email_template_edi_invoice')[1]
-                    mail_mail_obj = self.pool.get('mail.mail')
-                    if isinstance(inv, list):
-                        for i in inv:
-                            mail_id = mail_template_obj.send_mail(
-                                cr, uid, mail_template_id, i, context=context)
-                            mail_message = mail_mail_obj.browse(
-                                cr, uid, mail_id, context=context).mail_message_id
-                            mail_message.write({'type': 'email'})
-
-                    else:
-                        mail_id = mail_template_obj.send_mail(
-                            cr, uid, mail_template_id, inv, context=context)
-                        mail_message = mail_mail_obj.browse(
-                            cr, uid, mail_id, context=context).mail_message_id
-                        mail_message.write({'type': 'email'})
+            mail_template_obj = self.pool.get('email.template')
+            ir_model_data_obj = self.pool.get('ir.model.data')
+            mail_template_id = ir_model_data_obj.get_object_reference(
+                cr, uid, 'account', 'email_template_edi_invoice')[1]
+            mail_mail_obj = self.pool.get('mail.mail')
+            if isinstance(inv, list):
+                for i in inv:
+                    mail_id = mail_template_obj.send_mail(
+                        cr, uid, mail_template_id, i, context=context)
+                    mail_message = mail_mail_obj.browse(
+                        cr, uid, mail_id, context=context).mail_message_id
+                    mail_message.write({'type': 'email'})
+        else:
+            ret = super(account_voucher, self).proforma_voucher(
+                cr, uid, ids, context=context)
 
         return ret
 

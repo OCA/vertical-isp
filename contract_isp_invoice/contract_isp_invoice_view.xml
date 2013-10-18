@@ -31,14 +31,6 @@
             <field name="model">account.voucher</field>
             <field name="inherit_id" ref="account_voucher.view_vendor_receipt_form" />
             <field name="arch" type="xml">
-		<button name="proforma_voucher" position="before">
-		    <button 
-			name="post_later"
-			string="Post Later"
-			type="object"
-			states="draft"
-			invisible="context.get('not_subscription_voucher', True)"/>
-		</button>
 		<field name="name" position="after">
 		    <field name="later_validation" invisible="1" />
 		</field>
