@@ -269,7 +269,9 @@ class contract_service(orm.Model):
                 or line.product_id.categ_id.property_account_expense_categ.id
 
             record = {
-                'name': ' '.join([line.product_id.name, line.name, interval]),
+                'name': ' '.join([line.product_id.name,
+                                  line.name and True or '',
+                                  interval]),
                 'amount': amount * (-1),
                 'account_id': line.account_id.id,
                 'user_id': uid,
