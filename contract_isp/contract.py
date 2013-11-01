@@ -270,7 +270,7 @@ class contract_service(orm.Model):
 
             record = {
                 'name': ' '.join([line.product_id.name,
-                                  line.name and True or '',
+                                  True and line.name or '',
                                   interval]),
                 'amount': amount * (-1),
                 'account_id': line.account_id.id,
