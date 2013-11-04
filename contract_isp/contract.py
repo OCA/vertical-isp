@@ -203,7 +203,8 @@ class contract_service(orm.Model):
 
         ret = []
         record = {}
-
+        next_month = None
+        
         company_obj = self.pool.get('res.company')
         company_id = company_obj._company_default_get(cr, uid, context)
         company = company_obj.browse(cr, uid, company_id, context)
@@ -251,7 +252,6 @@ class contract_service(orm.Model):
                     interval = date_interval(next_month,
                                              False,
                                              date_format)
-                    date = next_month
 
                 elif mode == 'manual':
                     amount = line.product_id.list_price
@@ -281,7 +281,7 @@ class contract_service(orm.Model):
                 'to_invoice': 1,
                 'unit_amount': 1,
                 'is_prorata': mode == 'prorata',
-                'date': date.strftime('%Y-%m-%d'),
+                'date': next_month and next_month.strftime('%Y-%m-%d') or date.strftime('%Y-%m-%d'),
                 'journal_id': 1
             }
 
