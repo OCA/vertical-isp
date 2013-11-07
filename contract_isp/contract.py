@@ -138,12 +138,25 @@ class contract_service(orm.Model):
 
         return ret
 
+    def _get_total_product_price(self, cr, uid, ids, field_name, arg, context=None):
+        ret = {}
+        for line in self.browse(cr, uid, ids, context=context):
+            if line.qty:
+                ret[line.id] = line.unit_price * line.qty
+            else:
+                ret[line.id] = None
+
+        return ret
+
     _columns = {
         'activation_date': fields.datetime('Activation date'),
         'duration': fields.integer('Duration'),
         'product_id': fields.many2one('product.product',
                                       'Product',
                                       required=True),
+        'qty': fields.float(
+            'Qty',
+            digits_compute=dp.get_precision('Product Unit of Measure')),
         'category_id': fields.many2one('product.category', 'Product Category'),
         'name': fields.char('Description', size=64),
         'analytic_line_type': fields.selection((('r', 'Recurrent'),
@@ -152,8 +165,12 @@ class contract_service(orm.Model):
                                                'Type'),
         'require_activation': fields.boolean('Require activation'),
         'account_id': fields.many2one('account.analytic.account', 'Contract'),
-        'price': fields.function(
+        'unit_price': fields.function(
             _get_product_price, type='float',
+            digits_compute=dp.get_precision('Product Price'),
+            string='Unit Price'),
+        'price': fields.function(
+            _get_total_product_price, type='float',
             digits_compute=dp.get_precision('Product Price'),
             string='Price'),
         'activation_line_generated': fields.boolean(
@@ -168,7 +185,8 @@ class contract_service(orm.Model):
         'state': 'draft',
         'activation_line_generated': False,
         'category_id': 1,
-        'name': ''
+        'name': '',
+        'qty': 1
     }
 
     def on_change_product_id(self, cr, uid, ids, product_id):
@@ -182,11 +200,18 @@ class contract_service(orm.Model):
             ret['value']['analytic_line_type'] = product.analytic_line_type
             ret['value']['require_activation'] = product.require_activation
             ret['value']['category_id'] = product.categ_id.id
-            ret['value']['price'] = product.list_price
+            ret['value']['unit_price'] = product.list_price
             if product.analytic_line_type in ('r', 'o'):
                 ret['value']['duration'] = 0
             else:
                 ret['value']['duration'] = 1
+
+        return ret
+
+    def on_change_qty(self, cr, uid, ids, qty, price):
+        ret = {'value': {'price': price}}
+        if qty:
+            ret['value']['price'] = qty * price
 
         return ret
 
@@ -204,7 +229,6 @@ class contract_service(orm.Model):
         ret = []
         record = {}
         next_month = None
-        
         company_obj = self.pool.get('res.company')
         company_id = company_obj._company_default_get(cr, uid, context)
         company = company_obj.browse(cr, uid, company_id, context)
@@ -272,14 +296,14 @@ class contract_service(orm.Model):
                 'name': ' '.join([line.product_id.name,
                                   True and line.name or '',
                                   interval]),
-                'amount': amount * (-1),
+                'amount': (amount * -1) * line.qty,
                 'account_id': line.account_id.id,
                 'user_id': uid,
                 'general_account_id': general_account_id,
                 'product_id': line.product_id.id,
                 'contract_service_id': line.id,
                 'to_invoice': 1,
-                'unit_amount': 1,
+                'unit_amount': line.qty,
                 'is_prorata': mode == 'prorata',
                 'date': next_month and next_month.strftime('%Y-%m-%d') or date.strftime('%Y-%m-%d'),
                 'journal_id': 1

@@ -8,6 +8,7 @@
             <field name="arch" type="xml">
 		<field name="cutoff_day" position="after">
 		    <field name="invoice_day" />
+		    <field name="send_email_contract_invoice" />
 		</field>
 	    </field>
 	</record>

@@ -38,8 +38,12 @@ class res_company(orm.Model):
 
     _columns = {
         'invoice_day': fields.selection(_days, 'Invoice day'),
+        'send_email_contract_invoice': fields.boolean('Send invoice by email')
     }
 
+    _defaults = {
+        'send_email_contract_invoice': True
+    }
 
 class res_partner(orm.Model):
     _inherit = "res.partner"
@@ -223,12 +227,12 @@ class account_analytic_account(orm.Model):
         contract_service_obj = self.pool.get('contract.service')
         res_company_obj = self.pool.get('res.company')
         account_invoice_obj = self.pool.get('account.invoice')
-
-        cuttoff_day = res_company_obj.read(
+        res_company_data = res_company_obj.read(
             cr, uid,
             res_company_obj._company_default_get(cr, uid, context),
-            fields=['cutoff_day'],
-            context=context)['cutoff_day']
+            context=context)
+
+        cuttoff_day = res_company_data['cutoff_day']
 
         cutoff_date = datetime.date(
             datetime.date.today().year,
@@ -236,11 +240,7 @@ class account_analytic_account(orm.Model):
             int(cuttoff_day)
         )
 
-        invoice_day = res_company_obj.read(
-            cr, uid,
-            res_company_obj._company_default_get(cr, uid, context),
-            fields=['invoice_day'],
-            context=context)['invoice_day']
+        invoice_day = res_company_data['invoice_day']
 
         invoice_date = datetime.date(
             datetime.date.today().year,
@@ -288,24 +288,20 @@ class account_analytic_account(orm.Model):
                     a = account_invoice_obj._workflow_signal(
                         cr, uid, inv, 'invoice_open', context)
 
-                    mail_template_obj = self.pool.get('email.template')
-                    ir_model_data_obj = self.pool.get('ir.model.data')
-                    mail_template_id = ir_model_data_obj.get_object_reference(
-                        cr, uid, 'account', 'email_template_edi_invoice')[1]
-                    mail_mail_obj = self.pool.get('mail.mail')
-                    if isinstance(inv, list):
+                    if res_company_data['send_email_contract_invoice']:
+                        mail_template_obj = self.pool.get('email.template')
+                        ir_model_data_obj = self.pool.get('ir.model.data')
+                        mail_template_id = ir_model_data_obj.get_object_reference(
+                            cr, uid, 'account', 'email_template_edi_invoice')[1]
+                        mail_mail_obj = self.pool.get('mail.mail')
+                        if not isinstance(inv, list):
+                            inv = [inv]
                         for i in inv:
                             mail_id = mail_template_obj.send_mail(
                                 cr, uid, mail_template_id, i, context=context)
                             mail_message = mail_mail_obj.browse(
                                 cr, uid, mail_id, context=context).mail_message_id
                             mail_message.write({'type': 'email'})
-                    else:
-                        mail_id = mail_template_obj.send_mail(
-                            cr, uid, mail_template_id, inv, context=context)
-                        mail_message = mail_mail_obj.browse(
-                            cr, uid, mail_id, context=context).mail_message_id
-                        mail_message.write({'type': 'email'})
 
         if return_int:
             if len(ret) == 0:

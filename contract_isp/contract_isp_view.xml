@@ -54,6 +54,8 @@
 				   attrs="{'readonly': [('state', '=', 'active')]}"
 				   domain="['&amp;', ('analytic_line_type', 'in', ('r', 'x', 'o')), ('categ_id', '=', category_id)]" />
 			    <field name="name" />
+			    <field name="qty" on_change="on_change_qty(qty, unit_price)" />
+			    <field name="unit_price" invisible="1" />
 			    <field name="price" readonly="1" sum="Total Price" />
 			    <field name="analytic_line_type" />
 			    <field name="require_activation" invisible="True" />
