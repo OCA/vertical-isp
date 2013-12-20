@@ -87,6 +87,8 @@ class account_voucher(orm.Model):
         return ret
 
     def create(self, cr, uid, data, context=None):
+        if context is None:
+            context = {}
         if context.get('original_amount', False) and data.get('amount', False):
             if data['amount'] < context.get('original_amount'):
                 raise orm.except_orm(
