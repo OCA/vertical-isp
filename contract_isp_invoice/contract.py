@@ -20,12 +20,14 @@
 #
 ##############################################################################
 
+import sys
 import logging
 import time
 import datetime
 from openerp.osv import orm, fields
 from openerp.tools.translate import _
 from openerp.addons.contract_isp.contract import add_months, date_interval
+from openerp import netsvc
 
 _logger = logging.getLogger(__name__)
 
@@ -44,6 +46,7 @@ class res_company(orm.Model):
     _defaults = {
         'send_email_contract_invoice': True
     }
+
 
 class res_partner(orm.Model):
     _inherit = "res.partner"
@@ -188,12 +191,6 @@ class account_voucher(orm.Model):
 
         return ret
 
-    def unlink(cr, uid, ids, context=None):
-        print 'unlink'
-
-        return super(account_voucher, self).unlink(
-            cr, uid, ids, context=context)
-
 
 class account_journal(orm.Model):
     _inherit = 'account.journal'
@@ -225,6 +222,7 @@ class account_analytic_account(orm.Model):
             return_int = True
             ids = [ids]
 
+        account_analytic_account_obj = self.pool.get('account.analytic.account')
         account_analytic_line = self.pool.get('account.analytic.line')
         contract_service_obj = self.pool.get('contract.service')
         res_company_obj = self.pool.get('res.company')
@@ -233,6 +231,15 @@ class account_analytic_account(orm.Model):
             cr, uid,
             res_company_obj._company_default_get(cr, uid, context),
             context=context)
+        wf_service = netsvc.LocalService("workflow")
+
+        if res_company_data['send_email_contract_invoice']:
+            mail_template_obj = self.pool.get('email.template')
+            ir_model_data_obj = self.pool.get('ir.model.data')
+            mail_template_id = ir_model_data_obj.get_object_reference(
+                cr, uid, 'account',
+                'email_template_edi_invoice')[1]
+            mail_mail_obj = self.pool.get('mail.mail')
 
         cuttoff_day = res_company_data['cutoff_day']
 
@@ -250,17 +257,29 @@ class account_analytic_account(orm.Model):
             int(invoice_day)
         )
 
+        if prorata:
+            if datetime.date.today() <= cutoff_date:
+                date_invoice = invoice_date.strftime('%Y-%m-%d')
+            else:
+                date_invoice = add_months(invoice_date, 1).strftime(
+                    '%Y-%m-%d')
+
         ret = []
         for contract_id in ids:
             query = [('account_id', '=', contract_id),
-                     ('to_invoice', '!=', None),
-                     ('invoice_id', '=', None),
-                     ('product_id', '!=', None),
+                     ('to_invoice', '!=', False),
+                     ('invoice_id', '=', False),
+                     ('product_id', '!=', False),
                      ('is_prorata', '=', prorata)]
 
             ids_to_invoice = account_analytic_line.search(cr, uid, query,
                                                           context=context)
             if ids_to_invoice:
+                _logger.info(
+                    "Invoicing contract %s" %
+                    account_analytic_account_obj.browse(
+                        cr, uid, contract_id, context=context).name)
+
                 data = {
                     'name': True,
                 }
@@ -276,34 +295,41 @@ class account_analytic_account(orm.Model):
                 # jgama - If its a prorata invoice, change the invoice date
                 #         according to the invoice_day variable
                 if prorata:
-                    if datetime.date.today() <= cutoff_date:
-                        date_invoice = invoice_date.strftime('%Y-%m-%d')
-                    else:
-                        date_invoice = add_months(invoice_date, 1).strftime(
-                            '%Y-%m-%d')
-
                     account_invoice_obj.write(
                         cr, uid, inv, {'date_invoice': date_invoice},
                         context=context)
 
                 if context.get('not_subscription_voucher', True):
-                    a = account_invoice_obj._workflow_signal(
-                        cr, uid, inv, 'invoice_open', context)
+                    _logger.debug(
+                        "Opening invoice %s" % account_invoice_obj.browse(
+                            cr, uid, inv[0], context=context).name)
+
+                    wf_service.trg_validate(
+                        uid, 'account.invoice', inv[0], 'invoice_open', cr)
+                    #a = account_invoice_obj._workflow_signal(
+                    #    cr, uid, inv, 'invoice_open', context)
 
                     if res_company_data['send_email_contract_invoice']:
-                        mail_template_obj = self.pool.get('email.template')
-                        ir_model_data_obj = self.pool.get('ir.model.data')
-                        mail_template_id = ir_model_data_obj.get_object_reference(
-                            cr, uid, 'account', 'email_template_edi_invoice')[1]
-                        mail_mail_obj = self.pool.get('mail.mail')
-                        if not isinstance(inv, list):
-                            inv = [inv]
-                        for i in inv:
+                        _logger.info(
+                            "Mailing invoice %s" % account_invoice_obj.browse(
+                                cr, uid, inv[0], context=context).name)
+
+                        ctx = dict(context, default_type='email')
+
+                        try:
                             mail_id = mail_template_obj.send_mail(
-                                cr, uid, mail_template_id, i, context=context)
+                                cr, uid, mail_template_id, inv[0], context=ctx)
                             mail_message = mail_mail_obj.browse(
-                                cr, uid, mail_id, context=context).mail_message_id
+                                cr, uid, mail_id,
+                                context=context).mail_message_id
                             mail_message.write({'type': 'email'})
+                        except:
+                            _logger.error(
+                                'Error generating mail for invoice %s:'
+                                '\n\n%s' % (
+                                    account_invoice_obj.browse(
+                                        cr, uid, inv[0], context=context).name,
+                                    sys.exc_info()[0]))
 
         if return_int:
             if len(ret) == 0:
