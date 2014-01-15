@@ -491,7 +491,7 @@ class account_analytic_line(orm.Model):
                     #    unit_price = self._get_invoice_price(cr, uid, account, product_id, user_id, qty, context2)
                     else:
                         # expenses, using price from amount field
-                        unit_price = total_price * -1.0 / qty
+                        unit_price = qty and total_price * -1.0 / qty or 0.0
 
                     factor = invoice_factor_obj.browse(
                         cr, uid, factor_id, context=context2)
