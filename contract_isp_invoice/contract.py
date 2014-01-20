@@ -26,8 +26,10 @@ import time
 import datetime
 from openerp.osv import orm, fields
 from openerp.tools.translate import _
+import openerp.addons.decimal_precision as dp
 from openerp.addons.contract_isp.contract import add_months, date_interval
 from openerp import netsvc
+import openerp.exceptions
 
 _logger = logging.getLogger(__name__)
 
@@ -65,7 +67,11 @@ class account_voucher(orm.Model):
     _inherit = 'account.voucher'
 
     _columns = {
-        'later_validation': fields.boolean('Later Validation')
+        'later_validation': fields.boolean('Later Validation'),
+        'original_amount': fields.float(
+            'Original Amount', digits_compute=dp.get_precision('Account'),
+            required=True, readonly=True,
+            states={'draft':[('readonly',False)]}),
     }
 
     _defaults = {
@@ -93,7 +99,7 @@ class account_voucher(orm.Model):
         if context is None:
             context = {}
         if context.get('original_amount', False) and data.get('amount', False):
-            if data['amount'] < context.get('original_amount'):
+            if data['amount'] < data['original_amount']:
                 raise orm.except_orm(
                     _('Error'),
                     _('Amount cannot be less than the invoice amount'))
@@ -106,18 +112,37 @@ class account_voucher(orm.Model):
             context = {}
 
         ret = True
+        account_analytic_account_obj = self.pool.get(
+            'account.analytic.account')
+        account_invoice_obj = self.pool.get('account.invoice')
+
         voucher = self.browse(cr, uid, ids[0], context=context)
 
         if context.get('not_subscription_voucher', True) is False:
+
+            if context.get('active_model') == 'account.analytic.account' and \
+               context.get('active_id', False):
+                for line in account_analytic_account_obj.browse(
+                        cr, uid, context.get('active_id'),
+                        context=context).contract_service_ids:
+                    line.create_analytic_line(
+                        mode='subscription',
+                        date=datetime.datetime.today())
+
+                inv = account_analytic_account_obj.create_invoice(
+                    cr, uid, context.get('active_id'), context=context)
+
+                a = account_invoice_obj._workflow_signal(
+                    cr, uid, [inv],
+                    'invoice_open', context=context)
+
+            else:
+                raise openerp.exceptions.Warning(_('Contract not found'))
+
             if voucher.journal_id.later_validation is False:
                 ret = super(account_voucher, self).proforma_voucher(
                     cr, uid, ids, context=context)
 
-            account_invoice_obj = self.pool.get('account.invoice')
-            inv = [context.get('subscription_invoice_id')]
-            a = account_invoice_obj._workflow_signal(
-                cr, uid, inv,
-                'invoice_open', context=context)
 
             if voucher.journal_id.later_validation is False:
                 account_move_line_obj = self.pool.get('account.move.line')
@@ -163,31 +188,6 @@ class account_voucher(orm.Model):
         else:
             ret = super(account_voucher, self).proforma_voucher(
                 cr, uid, ids, context=context)
-
-        return ret
-
-    def cancel_voucher(self, cr, uid, ids, context=None):
-        ret = super(account_voucher, self).cancel_voucher(
-            cr, uid, ids, context=context)
-
-        if context.get('not_subscription_voucher', True) is False \
-                and context.get('subscription_invoice_id', False):
-            account_analytic_line_obj = self.pool.get('account.analytic.line')
-            account_invoice = self.pool.get('account.invoice').browse(
-                cr, uid, context.get('subscription_invoice_id'),
-                context=context)
-
-            query = [
-                ('invoice_id', '=', context.get('subscription_invoice_id'))
-            ]
-            account_analytic_line_ids = account_analytic_line_obj.search(
-                cr, uid, query, context=context)
-            account_analytic_line_obj.unlink(
-                cr, uid, account_analytic_line_ids, context=context)
-
-            for line in account_invoice.invoice_line:
-                line.unlink()
-            account_invoice.unlink()
 
         return ret
 
@@ -354,23 +354,32 @@ class account_analytic_account(orm.Model):
         if context is None:
             context = {}
 
+        res_currency_obj = self.pool.get('res.currency')
         account_analytic_account_obj = self.pool.get(
             'account.analytic.account')
         account_invoice_obj = self.pool.get('account.invoice')
 
+        cur = self.browse(
+            cr, uid, ids[0], context=context).pricelist_id.currency_id
+
+        amount_tax = amount_untaxed = 0
         for line in self.browse(
                 cr, uid, ids[0], context=context).contract_service_ids:
-            line.create_analytic_line(
-                mode='subscription',
-                date=datetime.datetime.today())
+            for c in self.pool.get('account.tax').compute_all(
+                    cr, uid, line.product_id.taxes_id, line.unit_price,
+                    line.qty, line.product_id,
+                    line.account_id.partner_id)['taxes']:
+                amount_tax += c.get('amount', 0.0)
+
+            amount_untaxed += line.unit_price * line.qty
+        amount = res_currency_obj.round(cr, uid, cur, amount_tax) + \
+            res_currency_obj.round(cr, uid, cur, amount_untaxed)
 
         # jgama - Create the activation invoice
         context['not_subscription_voucher'] = False
-        inv = account_analytic_account_obj.create_invoice(
-            cr, uid, ids[0], context=context)
 
-        amount = account_invoice_obj.browse(
-            cr, uid, inv, context=context).amount_total
+        # amount = account_invoice_obj.browse(
+        #     cr, uid, inv, context=context).amount_total
 
         view_id = self.pool.get('ir.model.data').get_object_reference(
             cr, uid, 'account_voucher', 'view_vendor_receipt_form')[1]
@@ -390,7 +399,6 @@ class account_analytic_account(orm.Model):
             'view_id': view_id,
             'target': 'new',
             'context': {'not_subscription_voucher': False,
-                        'subscription_invoice_id': inv,
                         'default_type': 'receipt',
                         'default_amount': amount,
                         'original_amount': amount,
@@ -577,3 +585,4 @@ class account_analytic_line(orm.Model):
                 invoice_obj.button_reset_taxes(
                     cr, uid, [last_invoice], context)
         return invoices
+
