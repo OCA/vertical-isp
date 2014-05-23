@@ -22,7 +22,7 @@
 
 {
     'name': 'Product Dependencies',
-    'version': '1.0',
+    'version': '1.0.1',
     'category': 'Product Management',
     'description': """
 Product Dependencies
@@ -37,7 +37,10 @@ This module is not related to the manufacturing process or the Bill of Materials
     'website': 'www.savoirfairelinux.com',
     'license': 'AGPL-3',
     'depends': ['product'],
-    'data': ['product_dependencies_view.xml'],
+    'data': [
+        'security/ir.model.access.csv',
+        'product_dependencies_view.xml'
+    ],
     'active': False,
     'installable': True,
 }
