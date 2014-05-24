@@ -36,7 +36,6 @@ class product_dependency(orm.Model):
         'category_id': fields.many2one('product.category',
                                        string='Category Dependency'),
         'auto': fields.boolean('Automatically added'),
-        'product_id': fields.many2one('product.product')
     }
 
     _defaults = {
