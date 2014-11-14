@@ -27,7 +27,7 @@ import datetime
 from openerp.osv import orm, fields
 from openerp.tools.translate import _
 import openerp.addons.decimal_precision as dp
-from openerp.addons.contract_isp.contract import add_months, date_interval
+from openerp.addons.contract_isp.contract import add_months
 from openerp import netsvc
 import openerp.exceptions
 
@@ -71,7 +71,7 @@ class account_voucher(orm.Model):
         'original_amount': fields.float(
             'Original Amount', digits_compute=dp.get_precision('Account'),
             required=True, readonly=True,
-            states={'draft':[('readonly',False)]}),
+            states={'draft': [('readonly', False)]}),
     }
 
     _defaults = {
@@ -143,12 +143,12 @@ class account_voucher(orm.Model):
                 ret = super(account_voucher, self).proforma_voucher(
                     cr, uid, ids, context=context)
 
-
             if voucher.journal_id.later_validation is False:
                 account_move_line_obj = self.pool.get('account.move.line')
                 query = [
                     ('partner_id', '=', voucher.partner_id.id),
-                    ('account_id', '=', voucher.partner_id.property_account_receivable.id),
+                    ('account_id', '=',
+                     voucher.partner_id.property_account_receivable.id),
                     ('reconcile_id', '=', False)
                 ]
 
@@ -164,7 +164,8 @@ class account_voucher(orm.Model):
                     account_id = False
 
                     date = time.strftime('%Y-%m-%d')
-                    ctx = dict(context or {}, account_period_prefer_normal=True)
+                    ctx = dict(
+                        context or {}, account_period_prefer_normal=True)
                     period_ids = period_obj.find(cr, uid, dt=date, context=ctx)
                     if period_ids:
                         period_id = ids[0]
@@ -222,9 +223,9 @@ class account_analytic_account(orm.Model):
             return_int = True
             ids = [ids]
 
-        account_analytic_account_obj = self.pool.get('account.analytic.account')
+        account_analytic_account_obj = self.pool.get(
+            'account.analytic.account')
         account_analytic_line = self.pool.get('account.analytic.line')
-        contract_service_obj = self.pool.get('contract.service')
         res_company_obj = self.pool.get('res.company')
         account_invoice_obj = self.pool.get('account.invoice')
         res_company_data = res_company_obj.read(
@@ -306,7 +307,7 @@ class account_analytic_account(orm.Model):
 
                     wf_service.trg_validate(
                         uid, 'account.invoice', inv[0], 'invoice_open', cr)
-                    #a = account_invoice_obj._workflow_signal(
+                    # a = account_invoice_obj._workflow_signal(
                     #    cr, uid, inv, 'invoice_open', context)
 
                     if res_company_data['send_email_contract_invoice']:
@@ -357,7 +358,6 @@ class account_analytic_account(orm.Model):
         res_currency_obj = self.pool.get('res.currency')
         account_analytic_account_obj = self.pool.get(
             'account.analytic.account')
-        account_invoice_obj = self.pool.get('account.invoice')
 
         cur = self.browse(
             cr, uid, ids[0], context=context).pricelist_id.currency_id
@@ -494,8 +494,8 @@ class account_analytic_line(orm.Model):
                         product_id = data['product'][0]
                         unit_price = self._get_invoice_price(
                             cr, uid, account, product_id, user_id, qty, context2)
-                    #elif journal_type == 'general' and product_id:
-                    #    # timesheets, use sale price
+                    # elif journal_type == 'general' and product_id:
+                    # timesheets, use sale price
                     #    unit_price = self._get_invoice_price(cr, uid, account, product_id, user_id, qty, context2)
                     else:
                         # expenses, using price from amount field
@@ -548,7 +548,8 @@ class account_analytic_line(orm.Model):
                     #
                     # Compute for lines
                     #
-                    cr.execute("SELECT * FROM account_analytic_line WHERE account_id = %s and id IN %s AND product_id=%s and to_invoice=%s ORDER BY account_analytic_line.date", (account.id, tuple(ids), product_id, factor_id))
+                    cr.execute("SELECT * FROM account_analytic_line WHERE account_id = %s and id IN %s AND product_id=%s and to_invoice=%s ORDER BY account_analytic_line.date",
+                               (account.id, tuple(ids), product_id, factor_id))
 
                     line_ids = cr.dictfetchall()
                     note = []
@@ -580,9 +581,9 @@ class account_analytic_line(orm.Model):
                                 map(lambda x: unicode(x) or '', note))
                     invoice_line_obj.create(
                         cr, uid, curr_line, context=context)
-                    cr.execute("update account_analytic_line set invoice_id=%s WHERE account_id = %s and id IN %s", (last_invoice, account.id, tuple(ids)))
+                    cr.execute("update account_analytic_line set invoice_id=%s WHERE account_id = %s and id IN %s", (
+                        last_invoice, account.id, tuple(ids)))
 
                 invoice_obj.button_reset_taxes(
                     cr, uid, [last_invoice], context)
         return invoices
-

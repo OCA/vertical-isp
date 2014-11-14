@@ -20,10 +20,7 @@
 #
 ##############################################################################
 
-import time
-import datetime
-from openerp.osv import orm, fields
-from openerp.addons.contract_isp.contract import add_months
+from openerp.osv import orm
 
 
 class contract_service_activate(orm.TransientModel):
@@ -33,10 +30,6 @@ class contract_service_activate(orm.TransientModel):
         if context is None:
             context = {}
 
-        account_invoice_obj = self.pool.get('account.invoice')
-        account_voucher_obj = self.pool.get('account.voucher')
-        account_move_obj = self.pool.get('account.move')
-        res_company_obj = self.pool.get('res.company')
         wizard = self.browse(cr, uid, ids[0], context)
 
         ret = super(contract_service_activate, self).activate(cr, uid,
@@ -44,8 +37,8 @@ class contract_service_activate(orm.TransientModel):
                                                               context=context)
 
         contract_service_obj = self.pool.get('contract.service')
-        account_analytic_account_obj = self.pool.get('account.analytic.account')
-        account_move_line_obj = self.pool.get('account.move.line')
+        account_analytic_account_obj = self.pool.get(
+            'account.analytic.account')
 
         query = [
             ('account_id', '=', wizard.account_id.id),

@@ -20,13 +20,10 @@
 #
 ##############################################################################
 
-import logging
 import calendar
 import datetime
 import openerp.addons.decimal_precision as dp
 from openerp.osv import orm, fields
-from openerp.report import report_sxw
-from openerp.tools import convert
 from openerp.tools.translate import _
 
 
@@ -117,7 +114,6 @@ class contract_service(orm.Model):
     _name = 'contract.service'
 
     def _get_product_price(self, cr, uid, ids, field_name, arg, context=None):
-        product_obj = self.pool.get('product.product')
         product_pricelist_obj = self.pool.get('product.pricelist')
         partner_id = self.browse(
             cr, uid, ids[0],
@@ -231,11 +227,9 @@ class contract_service(orm.Model):
         next_month = None
         company_obj = self.pool.get('res.company')
         company_id = company_obj._company_default_get(cr, uid, context)
-        company = company_obj.browse(cr, uid, company_id, context)
 
         account_analytic_line_obj = self.pool.get('account.analytic.line')
         for line in self.browse(cr, uid, ids, context):
-            account_id = line.account_id.id
             partner_lang = line.account_id.partner_id.lang
             res_lang_obj = self.pool.get('res.lang')
             query = [
@@ -364,7 +358,6 @@ class account_analytic_account(orm.Model):
         if context and context.get('create_analytic_line_mode', False):
             mode = context.get('create_analytic_line_mode')
 
-        account_analytic_line_obj = self.pool.get('account.analytic.line')
         contract_service_obj = self.pool.get('contract.service')
         query = [
             ('account_id', 'in', ids),

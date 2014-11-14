@@ -20,6 +20,6 @@
 #
 ##############################################################################
 
-import activate_contract_service
-import contract_isp_invoice_invoice_create
-import close_contract
+from . import activate_contract_service
+from . import contract_isp_invoice_invoice_create
+from . import close_contract
