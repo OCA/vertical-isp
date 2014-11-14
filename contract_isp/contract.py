@@ -226,7 +226,7 @@ class contract_service(orm.Model):
         record = {}
         next_month = None
         company_obj = self.pool.get('res.company')
-        company_id = company_obj._company_default_get(cr, uid, context)
+        company_obj._company_default_get(cr, uid, context)
 
         account_analytic_line_obj = self.pool.get('account.analytic.line')
         for line in self.browse(cr, uid, ids, context):
