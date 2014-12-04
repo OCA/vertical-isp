@@ -3,7 +3,7 @@
 ##############################################################################
 #
 #    OpenERP, Open Source Management Solution
-#    Copyright (C) 2013 Savoirfaire-Linux Inc. (<www.savoirfairelinux.com>).
+#    Copyright (C) 2014 Savoirfaire-Linux Inc. (<www.savoirfairelinux.com>).
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -20,10 +20,16 @@
 #
 ##############################################################################
 
-from . import (
-    account_analytic,
-    company,
-    contract,
-    wizard,
-    workflow,
-)
+from openerp.osv import fields, orm
+
+
+class ContractService(orm.Model):
+    _name = 'contract.service'
+    _inherit = 'contract.service'
+    _columns = {
+        'prodlot_id': fields.many2one(
+            'stock.production.lot',
+            'Serial Number',
+            required=False,
+        ),
+    }

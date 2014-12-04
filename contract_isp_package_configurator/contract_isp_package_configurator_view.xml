@@ -1,28 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <openerp>
     <data>
-        <record id="contract_isp_form_package_configurator_wizard" model="ir.ui.view">
-            <field name="name">contract.isp.form.package.configurator.wizard</field>
-            <field name="model">account.analytic.account</field>
-            <field name="inherit_id" ref="analytic.view_account_analytic_account_form"/>
-            <field name="arch" type="xml">
-                <xpath expr="//div[@name='buttons']" position='inside'>
-		    <button string="Package Configurator"
-			    name="%(action_contract_isp_package_configurator)d"
-			    type="action" />
-		</xpath>
-	    </field>
-	</record>
-        <record id="view_company_form_package_configurator" model="ir.ui.view">
-            <field name="name">company.form.package.configurator</field>
-            <field name="model">res.company</field>
-            <field name="inherit_id" ref="contract_isp.view_company_contract_isp_form"/>
-            <field name="arch" type="xml">
-		<field name="parent_account_id" position="before">
-		    <field name="default_product_category" />
-		</field>
-	    </field>
-	</record>
+      <record id="contract_isp_form_package_configurator_wizard" model="ir.ui.view">
+        <field name="name">contract.isp.form.package.configurator.wizard</field>
+        <field name="model">account.analytic.account</field>
+        <field name="inherit_id" ref="analytic.view_account_analytic_account_form"/>
+        <field name="arch" type="xml">
+          <xpath expr="//div[@name='buttons']" position='inside'>
+            <field name="ui_reserve" invisible="1" />
+            <field name="ui_return" invisible="1" />
+            <button string="Package Configurator"
+              name="%(action_contract_isp_package_configurator)d"
+              type="action" />
+            <button string="Reserve Equipment"
+              name="%(action_contract_isp_reserve_equipment)d"
+              attrs="{'invisible': [('ui_reserve', '=', False)]}"
+              groups="contract_isp_package_configurator.group_isp_add_equipment"
+              type="action" />
+            <button string="Exchange Equipment"
+              name="%(action_contract_isp_exchange_equipment)d"
+              attrs="{'invisible': [('ui_return', '=', False)]}"
+              groups="contract_isp_package_configurator.group_isp_add_equipment"
+              type="action" />
+            <button string="Return Equipment"
+              name="%(action_contract_isp_return_equipment)d"
+              attrs="{'invisible': [('ui_return', '=', False)]}"
+              groups="contract_isp_package_configurator.group_isp_remove_equipment"
+              type="action" />
+          </xpath>
+        </field>
+      </record>
+
+      <record id="view_company_form_package_configurator" model="ir.ui.view">
+        <field name="name">company.form.package.configurator</field>
+        <field name="model">res.company</field>
+        <field name="inherit_id" ref="contract_isp.view_company_contract_isp_form"/>
+        <field name="arch" type="xml">
+          <field name="parent_account_id" position="before">
+            <field name="default_product_category" />
+          </field>
+        </field>
+      </record>
 
     </data>
 </openerp>

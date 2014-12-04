@@ -27,7 +27,7 @@ from openerp.osv import orm, fields
 from openerp.report import report_sxw
 from openerp.tools import convert
 from openerp.tools.translate import _
-from openerp.addons.contract_isp.contract import date_interval
+from openerp.addons.contract_isp.contract import date_interval, format_interval
 
 
 class contract_isp_close(orm.TransientModel):
@@ -71,7 +71,8 @@ class contract_isp_close(orm.TransientModel):
                                                       last_invoice_id[-1],
                                                       context=context)
             if last_invoice.date_invoice > wizard.close_date:
-                raise orm.except_orm(_('Error!'), _('Close date before last invoice date!'))
+                raise orm.except_orm(_('Error!'),
+                                     _('Close date before last invoice date!'))
 
             amount_untaxed = last_invoice.amount_untaxed
 
@@ -81,10 +82,12 @@ class contract_isp_close(orm.TransientModel):
             used_days = month_days - int(wizard.close_date[8:10])
             ptx = (100 * used_days / month_days) / 100.0
             amount = amount_untaxed * ptx
-            interval = date_interval(datetime.date(int(wizard.close_date[:4]),
-                                                   int(wizard.close_date[5:7]),
-                                                   int(wizard.close_date[8:10])),
-                                     True)
+            start_date, end_date = date_interval(
+                datetime.date(int(wizard.close_date[:4]),
+                              int(wizard.close_date[5:7]),
+                              int(wizard.close_date[8:10])),
+                True)
+            interval = format_interval(start_date, end_date)
 
             line = {
                 'name': ' '.join([_('Credit refund'), interval]),

@@ -20,10 +20,8 @@
 #
 ##############################################################################
 
-import time
-import datetime
-from openerp.osv import orm, fields
-from openerp.addons.contract_isp.contract import add_months
+from openerp.osv import orm
+from ..invoice import PROCESS_PRORATA
 
 
 class contract_service_activate(orm.TransientModel):
@@ -33,29 +31,39 @@ class contract_service_activate(orm.TransientModel):
         if context is None:
             context = {}
 
-        account_invoice_obj = self.pool.get('account.invoice')
-        account_voucher_obj = self.pool.get('account.voucher')
-        account_move_obj = self.pool.get('account.move')
-        res_company_obj = self.pool.get('res.company')
         wizard = self.browse(cr, uid, ids[0], context)
 
         ret = super(contract_service_activate, self).activate(cr, uid,
                                                               ids,
                                                               context=context)
 
-        contract_service_obj = self.pool.get('contract.service')
         account_analytic_account_obj = self.pool.get('account.analytic.account')
-        account_move_line_obj = self.pool.get('account.move.line')
 
-        query = [
-            ('account_id', '=', wizard.account_id.id),
-            ('state', '=', 'draft')
-        ]
-        # Check if all services were activated
-        if not contract_service_obj.search(cr, uid, query, context=context):
+        account_analytic_account_obj.create_invoice(
+            cr, uid, wizard.account_id.id,
+            source_process=PROCESS_PRORATA,
+            context=context)
 
-            # jgama - Try to create the prorata invoice
-            pro_inv = account_analytic_account_obj.create_invoice(
-                cr, uid, wizard.account_id.id, prorata=True, context=context)
+        return ret
+
+
+class contract_service_deactivate(orm.TransientModel):
+    _inherit = 'contract.service.deactivate'
+
+    def deactivate(self, cr, uid, ids, context=None):
+        if context is None:
+            context = {}
+
+        wizard = self.browse(cr, uid, ids[0], context)
+
+        ret = super(contract_service_deactivate, self).deactivate(
+            cr, uid, ids, context=context)
+
+        account_analytic_account_obj = self.pool.get('account.analytic.account')
+
+        account_analytic_account_obj.create_invoice(
+            cr, uid, wizard.account_id.id,
+            source_process=PROCESS_PRORATA,
+            context=context)
 
         return ret

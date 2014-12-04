@@ -1,88 +1,89 @@
 # Translation of OpenERP Server.
 # This file contains the translation of the following modules:
-#	* contract_isp_package_configurator
+# 	* contract_isp_package_configurator
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: OpenERP Server 7.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-09-23 00:06+0000\n"
-"PO-Revision-Date: 2014-09-23 00:06+0000\n"
-"Last-Translator: <>\n"
+"PO-Revision-Date: 2014-09-22 20:07-0500\n"
+"Last-Translator: Marc Cassuto <marc.cassuto@savoirfairelinux.com>\n"
 "Language-Team: \n"
+"Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: \n"
-"Plural-Forms: \n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.5.4\n"
 
 #. module: contract_isp_package_configurator
 #: view:contract.service.configurator:0
 msgid "Add"
-msgstr ""
+msgstr "Ajouter"
 
 #. module: contract_isp_package_configurator
 #: model:res.groups,name:contract_isp_package_configurator.group_isp_add_equipment
 msgid "Add Equipment"
-msgstr ""
+msgstr "Ajouter un équipement"
 
 #. module: contract_isp_package_configurator
 #: field:contract.service.configurator,current_product_id:0
 msgid "Add Product"
-msgstr ""
+msgstr "Ajouter un produit"
 
 #. module: contract_isp_package_configurator
 #: selection:contract.service.configurator.dependency.line,state:0
 #: selection:contract.service.configurator.line,state:0
 msgid "Added"
-msgstr ""
+msgstr "Ajouté"
 
 #. module: contract_isp_package_configurator
 #: code:_description:0
 #: model:ir.model,name:contract_isp_package_configurator.model_account_analytic_account
 #, python-format
 msgid "Analytic Account"
-msgstr ""
+msgstr "Contrat"
 
 #. module: contract_isp_package_configurator
 #: view:contract.service.configurator:0
 #: view:contract.service.equipment.manage:0
 msgid "Cancel"
-msgstr ""
+msgstr "Annuler"
 
 #. module: contract_isp_package_configurator
 #: view:contract.service.configurator:0
 #: field:contract.service.configurator,product_category_id:0
 #: field:contract.service.configurator,root_category_id:0
 msgid "Category"
-msgstr ""
+msgstr "Catégorie"
 
 #. module: contract_isp_package_configurator
 #: view:contract.service.configurator:0
 msgid "Click on add to view the available components"
-msgstr ""
+msgstr "Cliquer sur le bouton 'Ajouter' pour voir les produits disponibles"
 
 #. module: contract_isp_package_configurator
 #: code:_description:0
 #: model:ir.model,name:contract_isp_package_configurator.model_res_company
 #, python-format
 msgid "Companies"
-msgstr ""
+msgstr "Companies"
 
 #. module: contract_isp_package_configurator
 #: field:contract.service.configurator,contract_id:0
 #: field:contract.service.equipment.manage,contract_id:0
 msgid "Contract"
-msgstr ""
+msgstr "Contrat"
 
 #. module: contract_isp_package_configurator
 #: field:res.company,default_product_category:0
 msgid "Default Product Category"
-msgstr ""
+msgstr "Catégorie de Produit par défault"
 
 #. module: contract_isp_package_configurator
 #: field:contract.service.configurator,dependency_ids:0
 msgid "Dependencies"
-msgstr ""
+msgstr "Dépendances"
 
 #. module: contract_isp_package_configurator
 #: view:contract.service.configurator:0
@@ -90,90 +91,89 @@ msgstr ""
 #: selection:contract.service.configurator.dependency.line,state:0
 #: selection:contract.service.configurator.line,state:0
 msgid "Done"
-msgstr ""
+msgstr "Terminé"
 
 #. module: contract_isp_package_configurator
 #: view:contract.service.equipment.manage:0
 msgid "Exchange"
-msgstr ""
+msgstr "Échanger"
 
 #. module: contract_isp_package_configurator
 #: view:account.analytic.account:0
 #: model:ir.actions.act_window,name:contract_isp_package_configurator.action_contract_isp_exchange_equipment
 msgid "Exchange Equipment"
-msgstr ""
+msgstr "Échanger l'équipement"
 
 #. module: contract_isp_package_configurator
 #: field:contract.service.configurator.dependency.line,handle_dependency:0
 #: field:contract.service.configurator.line,handle_dependency:0
 msgid "Handle dependencies"
-msgstr ""
+msgstr "Gère les dépendances"
 
 #. module: contract_isp_package_configurator
 #: selection:contract.service.configurator.dependency.line,state:0
 #: selection:contract.service.configurator.line,state:0
 msgid "Information"
-msgstr ""
+msgstr "Information"
 
 #. module: contract_isp_package_configurator
 #: field:contract.service.configurator,is_level2:0
 msgid "Is level 2"
-msgstr ""
+msgstr "Est niveau 2 ?"
 
 #. module: contract_isp_package_configurator
 #: field:contract.service.configurator,line_ids:0
 msgid "Line"
-msgstr ""
+msgstr "Ligne"
 
 #. module: contract_isp_package_configurator
 #: field:contract.service.configurator.dependency.line,manager_id:0
 #: field:contract.service.configurator.line,manager_id:0
 msgid "Manage Equipment Wizard"
-msgstr ""
+msgstr "Gère l'assistant pour les équipements"
 
 #. module: contract_isp_package_configurator
 #: field:contract.service.configurator.dependency.line,message:0
 #: field:contract.service.configurator.line,message:0
 msgid "Message"
-msgstr ""
+msgstr "Message"
 
 #. module: contract_isp_package_configurator
 #: field:contract.service.configurator.dependency.line,name:0
 #: field:contract.service.configurator.line,name:0
 msgid "Name"
-msgstr ""
+msgstr "Nom"
 
 #. module: contract_isp_package_configurator
 #: view:contract.service.configurator:0
 msgid "Next"
-msgstr ""
+msgstr "Suivant"
 
 #. module: contract_isp_package_configurator
 #: selection:contract.service.configurator.dependency.line,state:0
 #: selection:contract.service.configurator.line,state:0
 msgid "No Stock"
-msgstr ""
+msgstr "Aucun stock"
 
 #. module: contract_isp_package_configurator
 #: view:contract.service.configurator.line:0
 msgid "Ok"
-msgstr ""
+msgstr "OK"
 
 #. module: contract_isp_package_configurator
-#: view:account.analytic.account:0
-#: view:contract.service.configurator:0
+#: view:account.analytic.account:0 view:contract.service.configurator:0
 #: field:contract.service.configurator.dependency.line,configurator_id:0
 #: view:contract.service.configurator.line:0
 #: field:contract.service.configurator.line,configurator_id:0
 #: model:ir.actions.act_window,name:contract_isp_package_configurator.action_contract_isp_package_configurator
 msgid "Package Configurator"
-msgstr ""
+msgstr "Sélecteur de Produits"
 
 #. module: contract_isp_package_configurator
 #: field:contract.service.configurator.dependency.line,parent_id:0
 #: field:contract.service.configurator.line,parent_id:0
 msgid "Parent"
-msgstr ""
+msgstr "Parent"
 
 #. module: contract_isp_package_configurator
 #: view:contract.service.configurator:0
@@ -181,68 +181,66 @@ msgstr ""
 #: field:contract.service.configurator.line,product_id:0
 #: view:contract.service.equipment.manage:0
 msgid "Product"
-msgstr ""
+msgstr "Produit"
 
 #. module: contract_isp_package_configurator
 #: view:contract.service.configurator:0
 #: view:contract.service.configurator.line:0
 msgid "Products"
-msgstr ""
+msgstr "Produits"
 
 #. module: contract_isp_package_configurator
 #: model:res.groups,name:contract_isp_package_configurator.group_isp_remove_equipment
 msgid "Remove Equipment"
-msgstr ""
+msgstr "Rendre l'Équipement"
 
 #. module: contract_isp_package_configurator
 #: view:contract.service.equipment.manage:0
 msgid "Reserve"
-msgstr ""
+msgstr "Réserver"
 
 #. module: contract_isp_package_configurator
-#: view:account.analytic.account:0
-#: view:contract.service.equipment.manage:0
+#: view:account.analytic.account:0 view:contract.service.equipment.manage:0
 #: model:ir.actions.act_window,name:contract_isp_package_configurator.action_contract_isp_reserve_equipment
 msgid "Reserve Equipment"
-msgstr ""
+msgstr "Réserver un Équipement"
 
 #. module: contract_isp_package_configurator
 #: view:contract.service.equipment.manage:0
 msgid "Return"
-msgstr ""
+msgstr "Retourner"
 
 #. module: contract_isp_package_configurator
-#: view:account.analytic.account:0
-#: view:contract.service.equipment.manage:0
+#: view:account.analytic.account:0 view:contract.service.equipment.manage:0
 #: model:ir.actions.act_window,name:contract_isp_package_configurator.action_contract_isp_return_equipment
 msgid "Return Equipment"
-msgstr ""
+msgstr "Retourner un Équipement"
 
 #. module: contract_isp_package_configurator
 #: selection:contract.service.configurator,state:0
 msgid "Select components"
-msgstr ""
+msgstr "Sélectionner les composants"
 
 #. module: contract_isp_package_configurator
 #: selection:contract.service.configurator,state:0
 msgid "Select product"
-msgstr ""
+msgstr "Sélection les produits"
 
 #. module: contract_isp_package_configurator
 #: selection:contract.service.configurator.dependency.line,state:0
 #: selection:contract.service.configurator.line,state:0
 msgid "Select serial number"
-msgstr ""
+msgstr "Sélection un numéro de série"
 
 #. module: contract_isp_package_configurator
 #: field:contract.service.equipment.manage,product_id:0
 msgid "Selected Product"
-msgstr ""
+msgstr "Produit Sélectionné"
 
 #. module: contract_isp_package_configurator
 #: view:contract.service.equipment.manage:0
 msgid "Serial"
-msgstr ""
+msgstr "Numéro de Série"
 
 #. module: contract_isp_package_configurator
 #: field:account.analytic.account,prodlot_id:0
@@ -252,85 +250,88 @@ msgstr ""
 #: field:contract.service.configurator.line,serial:0
 #: field:contract.service.equipment.manage,prodlot_id:0
 msgid "Serial Number"
-msgstr ""
+msgstr "Numéro de Série"
 
 #. module: contract_isp_package_configurator
 #: help:res.company,default_product_category:0
 msgid "Set the default starting point for the package configuration wizard"
-msgstr ""
+msgstr "Défini la catégorie de départ pour le sélecteur de produit"
 
 #. module: contract_isp_package_configurator
 #: selection:contract.service.configurator,state:0
 msgid "Start"
-msgstr ""
+msgstr "Début"
 
 #. module: contract_isp_package_configurator
 #: field:contract.service.configurator,state:0
 #: field:contract.service.configurator.dependency.line,state:0
 #: field:contract.service.configurator.line,state:0
 msgid "State"
-msgstr ""
+msgstr "Statut"
 
 #. module: contract_isp_package_configurator
 #: field:contract.service.configurator.dependency.line,stock_move_id:0
 #: field:contract.service.configurator.line,stock_move_id:0
 msgid "Stock Move"
-msgstr ""
+msgstr "Mouvement de Stock"
 
 #. module: contract_isp_package_configurator
 #: model:res.groups,comment:contract_isp_package_configurator.group_isp_add_equipment
 msgid "The users in this group will be able to assign customer equipment"
 msgstr ""
+"Les utilisateurs de ce groupe pourront assigner des équipements aux clients"
 
 #. module: contract_isp_package_configurator
 #: model:res.groups,comment:contract_isp_package_configurator.group_isp_remove_equipment
 msgid "The users in this group will be able to unassign customers equipment"
 msgstr ""
+"Les utilisateurs de ce groupe pourront retourner un équipement à partir des "
+"contrats"
 
 #. module: contract_isp_package_configurator
 #: view:contract.service.configurator.line:0
 msgid "We don't have this product in stock at the moment!"
-msgstr ""
+msgstr "Ce produit n'est pas disponible en stock pour le moment"
 
 #. module: contract_isp_package_configurator
 #: code:_description:0
 #: model:ir.model,name:contract_isp_package_configurator.model_contract_service
 #, python-format
 msgid "contract.service"
-msgstr ""
+msgstr "contract.service"
 
 #. module: contract_isp_package_configurator
 #: code:_description:0
 #: model:ir.model,name:contract_isp_package_configurator.model_contract_service_configurator
 #, python-format
 msgid "contract.service.configurator"
-msgstr ""
+msgstr "contract.service.configurator"
 
 #. module: contract_isp_package_configurator
 #: code:_description:0
 #: model:ir.model,name:contract_isp_package_configurator.model_contract_service_configurator_dependency_line
 #, python-format
 msgid "contract.service.configurator.dependency.line"
-msgstr ""
+msgstr "contract.service.configurator.dependency.line"
 
 #. module: contract_isp_package_configurator
 #: code:_description:0
 #: model:ir.model,name:contract_isp_package_configurator.model_contract_service_configurator_line
 #, python-format
 msgid "contract.service.configurator.line"
-msgstr ""
+msgstr "contract.service.configurator.line"
 
 #. module: contract_isp_package_configurator
 #: code:_description:0
 #: model:ir.model,name:contract_isp_package_configurator.model_contract_service_equipment_manage
 #, python-format
 msgid "contract.service.equipment.manage"
-msgstr ""
+msgstr "contract.service.equipment.manage"
 
 #. module: contract_isp_package_configurator
 #: view:contract.service.equipment.manage:0
 msgid "or"
-msgstr ""
+msgstr "ou"
 
 #. module: contract_isp_package_configurator
 #: field:account.analytic.account,ui_reserve:0
@@ -339,5 +340,7 @@ msgstr ""
 #: field:contract.service.equipment.manage,products_no_serial:0
 #: field:contract.service.equipment.manage,products_with_serial:0
 msgid "unknown"
-msgstr ""
+msgstr "inconnu"
 
+#~ msgid "contract.service.serial"
+#~ msgstr "contract.service.serial"

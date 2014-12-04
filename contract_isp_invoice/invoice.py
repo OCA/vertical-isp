@@ -3,7 +3,7 @@
 ##############################################################################
 #
 #    OpenERP, Open Source Management Solution
-#    Copyright (C) 2013 Savoirfaire-Linux Inc. (<www.savoirfairelinux.com>).
+#    Copyright (C) 2014 Savoir-faire Linux (<www.savoirfairelinux.com>).
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -20,10 +20,21 @@
 #
 ##############################################################################
 
-from . import (
-    account_analytic,
-    company,
-    contract,
-    wizard,
-    workflow,
-)
+from openerp.osv import orm, fields
+
+PROCESS_RECURRENT = 'recurrent'
+PROCESS_PRORATA = 'prorata'
+PROCESS_CRON = 'cron'
+PROCESS_MANUAL = 'manual'
+
+
+class Invoice(orm.Model):
+    _name = _inherit = 'account.invoice'
+    _columns = {
+        'source_process': fields.selection([
+            (PROCESS_RECURRENT, 'Recurrent Billing'),
+            (PROCESS_PRORATA, 'Pro Rata'),
+            (PROCESS_MANUAL, 'Manual'),
+            (PROCESS_CRON, 'Scheduled'),
+        ], 'Billing Process', required=False),
+    }

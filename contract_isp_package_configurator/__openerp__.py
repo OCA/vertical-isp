@@ -35,6 +35,7 @@ This module provides a wizard to help create service packages based on product i
     'depends': ['contract_isp', 'product_dependencies', 'stock'],
     'data': [
         'security/ir.model.access.csv',
+        'security/groups.xml',
         'wizard/package_configurator.xml',
         'workflow/contract_isp_package_configurator.xml',
         'contract_isp_package_configurator_view.xml',
