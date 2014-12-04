@@ -461,6 +461,22 @@ class account_analytic_account(orm.Model):
     _name = "account.analytic.account"
     _inherit = "account.analytic.account"
 
+    def _search_invoice_ids(self, cr, uid, ids, field_name, arg, context=None):
+        res = {}
+        if ids:
+            cr.execute("""
+                SELECT account_analytic_id, array_agg(invoice_id)
+                FROM account_invoice_line
+                WHERE account_analytic_id IN %s
+                GROUP BY account_analytic_id
+                """, (tuple(ids), ))
+            values = dict(cr.fetchall())
+
+            for i in ids:
+                res[i] = values.get(i, [])
+
+        return res
+
     _columns = {
         'contract_service_ids': fields.one2many('contract.service',
                                                 'account_id',
@@ -474,6 +490,12 @@ class account_analytic_account(orm.Model):
                                    ('cancelled', 'Cancelled')],
                                   'Status', required=True,
                                   track_visibility='onchange'),
+        'invoice_ids': fields.function(
+            _search_invoice_ids,
+            string="Invoices",
+            type="one2many", obj="account.invoice",
+            store=False, method=True,
+        ),
     }
 
     _defaults = {
