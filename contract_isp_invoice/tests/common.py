@@ -24,6 +24,8 @@ from openerp.addons.contract_isp.contract import (
     LINE_TYPE_ONETIME,
 )
 
+from datetime import datetime
+
 
 class ServiceSetup(object):
     """ Mixin class to provide setup and utils for testing invoicing """
@@ -139,4 +141,10 @@ class ServiceSetup(object):
         )
         date_from = invoice_line.name[-24:-14]
         date_to = invoice_line.name[-11:-1]
+
+        if len(date_from.split("/")[-1]) == 4:
+            date_from = datetime.strptime(date_from,
+                                          '%m/%d/%Y').strftime('%Y-%m-%d')
+            date_to = datetime.strptime(date_to,
+                                          '%m/%d/%Y').strftime('%Y-%m-%d')
         return date_from, date_to
