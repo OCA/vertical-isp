@@ -461,7 +461,7 @@ class account_analytic_account(orm.Model):
     _name = "account.analytic.account"
     _inherit = "account.analytic.account"
 
-    def _search_invoice_ids(self, cr, uid, ids, field_name, arg, context=None):
+    def _get_invoice_ids(self, cr, uid, ids, field_name, arg, context=None):
         res = {}
         if ids:
             cr.execute("""
@@ -477,6 +477,47 @@ class account_analytic_account(orm.Model):
 
         return res
 
+    def _search_invoice_ids(self, cr, uid, obj, name, args, context):
+        query, params = [], []
+        for key, op, value in args:
+            if key != "invoice_ids":
+                continue
+            if op in ("=", "in") and not value:
+                query.append("agg.invoice_ids = ARRAY[NULL]::integer[]")
+            elif op in ("!=", "not in") and not value:
+                query.append("NOT agg.invoice_ids = ARRAY[NULL]::integer[]")
+            elif op in ("=", "in", "!=", "not in") and value:
+                if isinstance(value, (int, long)):
+                    value = [value]
+                query.append("{0} agg.invoice_ids && ARRAY[{1}]".format(
+                    "NOT" if op in ("!=", "not in") else "",
+                    ", ".join(["%s"] * len(value)),
+                ))
+                params.extend(value)
+            else:
+                continue
+
+        if not query:
+            return []
+
+        else:
+            cr.execute(
+                """
+                SELECT array_agg(agg.id) FROM (
+                    SELECT aaa.id as id
+                         , array_agg(ail.invoice_id) as invoice_ids
+                    FROM account_analytic_account aaa
+                    LEFT JOIN account_invoice_line ail ON ail.account_analytic_id = aaa.id
+                    GROUP BY aaa.id
+                    ) agg
+                WHERE {0}""".format(" AND ".join(query)),
+                params,
+            )
+
+            ids = cr.fetchone()[0]
+            return [('id', 'in', tuple(ids))]
+
+
     _columns = {
         'contract_service_ids': fields.one2many('contract.service',
                                                 'account_id',
@@ -491,7 +532,8 @@ class account_analytic_account(orm.Model):
                                   'Status', required=True,
                                   track_visibility='onchange'),
         'invoice_ids': fields.function(
-            _search_invoice_ids,
+            _get_invoice_ids,
+            fnct_search=_search_invoice_ids,
             string="Invoices",
             type="one2many", obj="account.invoice",
             store=False, method=True,
