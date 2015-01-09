@@ -24,7 +24,7 @@ from datetime import date
 
 from openerp.tests.common import TransactionCase
 
-from .common import ServiceSetup
+from .common import ServiceSetup, YEAR
 
 
 class test_prorata_deactivate_service(TransactionCase, ServiceSetup):
@@ -67,14 +67,16 @@ class test_prorata_deactivate_service(TransactionCase, ServiceSetup):
 
     def test_after_invoice_before_cutoff(self):
         self.company.write({"invoice_day": "7", "cutoff_day": "21"})
-        self._deactivate_service("2014-02-14", {
-            "operation_date": date(2014, 2, 17),
+        self._deactivate_service("{0}-02-14".format(YEAR), {
+            "operation_date": date(YEAR, 2, 17),
         })
         invoice = self._get_last_invoice()
         date_from, date_to = self._get_invoice_date_range(invoice.id)
-        self.assertEquals(invoice.date_invoice, "2014-02-07")
-        self.assertEquals(date_from, "2014-02-14", "Wrong start_date")
-        self.assertEquals(date_to, "2014-03-31", "Wrong end_date")
+        self.assertEquals(invoice.date_invoice, "{0}-02-07".format(YEAR))
+        self.assertEquals(date_from, "{0}-02-14".format(YEAR),
+                          "Wrong start_date")
+        self.assertEquals(date_to, "{0}-03-31".format(YEAR),
+                          "Wrong end_date")
         self.assertAlmostEquals(
             invoice.amount_untaxed,
             (1 + self.service_obj._prorata_rate(14, 28)) * 56,
@@ -83,14 +85,15 @@ class test_prorata_deactivate_service(TransactionCase, ServiceSetup):
 
     def test_after_invoice_after_cutoff(self):
         self.company.write({"invoice_day": "7", "cutoff_day": "21"})
-        self._deactivate_service("2014-02-14", {
-            "operation_date": date(2014, 2, 23),
+        self._deactivate_service("{0}-02-14".format(YEAR), {
+            "operation_date": date(YEAR, 2, 23),
         })
         invoice = self._get_last_invoice()
         date_from, date_to = self._get_invoice_date_range(invoice.id)
-        self.assertEquals(invoice.date_invoice, "2014-03-07")
-        self.assertEquals(date_from, "2014-02-14", "Wrong start_date")
-        self.assertEquals(date_to, "2014-03-31", "Wrong end_date")
+        self.assertEquals(invoice.date_invoice, "{0}-03-07".format(YEAR))
+        self.assertEquals(date_from, "{0}-02-14".format(YEAR),
+                          "Wrong start_date")
+        self.assertEquals(date_to, "{0}-03-31".format(YEAR), "Wrong end_date")
         self.assertAlmostEquals(
             invoice.amount_untaxed,
             (1 + self.service_obj._prorata_rate(14, 28)) * 56,
@@ -99,14 +102,15 @@ class test_prorata_deactivate_service(TransactionCase, ServiceSetup):
 
     def test_before_invoice_past_deactivation_curmonth(self):
         self.company.write({"invoice_day": "14", "cutoff_day": "21"})
-        self._deactivate_service("2014-02-07", {
-            "operation_date": date(2014, 2, 8),
+        self._deactivate_service("{0}-02-07".format(YEAR), {
+            "operation_date": date(YEAR, 2, 8),
         })
         invoice = self._get_last_invoice()
         date_from, date_to = self._get_invoice_date_range(invoice.id)
-        self.assertEquals(invoice.date_invoice, "2014-02-14")
-        self.assertEquals(date_from, "2014-02-07", "Wrong start_date")
-        self.assertEquals(date_to, "2014-02-28", "Wrong end_date")
+        self.assertEquals(invoice.date_invoice, "{0}-02-14".format(YEAR))
+        self.assertEquals(date_from, "{0}-02-07".format(YEAR),
+                          "Wrong start_date")
+        self.assertEquals(date_to, "{0}-02-28".format(YEAR), "Wrong end_date")
         self.assertAlmostEquals(
             invoice.amount_untaxed,
             self.service_obj._prorata_rate(21, 28) * 56,
@@ -115,14 +119,15 @@ class test_prorata_deactivate_service(TransactionCase, ServiceSetup):
 
     def test_before_invoice_past_deactivation_past_month(self):
         self.company.write({"invoice_day": "14", "cutoff_day": "21"})
-        self._deactivate_service("2014-02-07", {
-            "operation_date": date(2014, 3, 8),
+        self._deactivate_service("{0}-02-07".format(YEAR), {
+            "operation_date": date(YEAR, 3, 8),
         })
         invoice = self._get_last_invoice()
         date_from, date_to = self._get_invoice_date_range(invoice.id)
-        self.assertEquals(invoice.date_invoice, "2014-03-14")
-        self.assertEquals(date_from, "2014-02-07", "Wrong start_date")
-        self.assertEquals(date_to, "2014-03-31", "Wrong end_date")
+        self.assertEquals(invoice.date_invoice, "{0}-03-14".format(YEAR))
+        self.assertEquals(date_from, "{0}-02-07".format(YEAR),
+                          "Wrong start_date")
+        self.assertEquals(date_to, "{0}-03-31".format(YEAR), "Wrong end_date")
         self.assertAlmostEquals(
             invoice.amount_untaxed,
             (1 + self.service_obj._prorata_rate(21, 28)) * 56,
@@ -131,14 +136,15 @@ class test_prorata_deactivate_service(TransactionCase, ServiceSetup):
 
     def test_before_invoice_day_future_deactivation_same_month(self):
         self.company.write({"invoice_day": "14", "cutoff_day": "21"})
-        self._deactivate_service("2014-02-14", {
-            "operation_date": date(2014, 2, 7),
+        self._deactivate_service("{0}-02-14".format(YEAR), {
+            "operation_date": date(YEAR, 2, 7),
         })
         invoice = self._get_last_invoice()
         date_from, date_to = self._get_invoice_date_range(invoice.id)
-        self.assertEquals(invoice.date_invoice, "2014-02-14")
-        self.assertEquals(date_from, "2014-02-07", "Wrong start_date")
-        self.assertEquals(date_to, "2014-02-14", "Wrong end_date")
+        self.assertEquals(invoice.date_invoice, "{0}-02-14".format(YEAR))
+        self.assertEquals(date_from, "{0}-02-07".format(YEAR),
+                          "Wrong start_date")
+        self.assertEquals(date_to, "{0}-02-14".format(YEAR), "Wrong end_date")
         self.assertAlmostEquals(
             invoice.amount_untaxed,
             self.service_obj._prorata_rate(7, 28) * 56,
@@ -147,14 +153,15 @@ class test_prorata_deactivate_service(TransactionCase, ServiceSetup):
 
     def test_before_invoice_day_future_deactivation_future_month(self):
         self.company.write({"invoice_day": "14", "cutoff_day": "21"})
-        self._deactivate_service("2014-04-16", {
-            "operation_date": date(2014, 2, 7),
+        self._deactivate_service("{0}-04-16".format(YEAR), {
+            "operation_date": date(YEAR, 2, 7),
         })
         invoice = self._get_last_invoice()
         date_from, date_to = self._get_invoice_date_range(invoice.id)
-        self.assertEquals(invoice.date_invoice, "2014-02-14")
-        self.assertEquals(date_from, "2014-02-07", "Wrong start_date")
-        self.assertEquals(date_to, "2014-04-16", "Wrong end_date")
+        self.assertEquals(invoice.date_invoice, "{0}-02-14".format(YEAR))
+        self.assertEquals(date_from, "{0}-02-07".format(YEAR),
+                          "Wrong start_date")
+        self.assertEquals(date_to, "{0}-04-16".format(YEAR), "Wrong end_date")
         self.assertAlmostEquals(
             invoice.amount_untaxed,
             56 * (

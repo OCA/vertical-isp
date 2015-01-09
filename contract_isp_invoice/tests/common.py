@@ -26,6 +26,8 @@ from openerp.addons.contract_isp.contract import (
 
 from datetime import datetime
 
+YEAR = datetime.today().year
+
 
 class ServiceSetup(object):
     """ Mixin class to provide setup and utils for testing invoicing """
@@ -47,6 +49,9 @@ class ServiceSetup(object):
         self.invoice_obj = self.registry("account.invoice")
         self.wiz_activate_obj = self.registry("contract.service.activate")
         self.wiz_deactivate_obj = self.registry("contract.service.deactivate")
+        # Remove date constraints for our tests
+        self.wiz_activate_obj._constraints[:1] = []
+        self.wiz_deactivate_obj._constraints[:1] = []
 
     def _configure_company(self):
         self.company = self.company_obj.browse(self.cr, self.uid, 1)
@@ -146,5 +151,5 @@ class ServiceSetup(object):
             date_from = datetime.strptime(date_from,
                                           '%m/%d/%Y').strftime('%Y-%m-%d')
             date_to = datetime.strptime(date_to,
-                                          '%m/%d/%Y').strftime('%Y-%m-%d')
+                                        '%m/%d/%Y').strftime('%Y-%m-%d')
         return date_from, date_to

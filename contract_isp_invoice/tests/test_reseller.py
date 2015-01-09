@@ -24,7 +24,7 @@ from datetime import date
 
 from openerp.tests.common import TransactionCase
 
-from .common import ServiceSetup
+from .common import ServiceSetup, YEAR
 
 
 class test_reseller_invoice(TransactionCase, ServiceSetup):
@@ -49,8 +49,8 @@ class test_reseller_invoice(TransactionCase, ServiceSetup):
         })
 
     def test_prorata_invoice(self):
-        self._create_activate_service(self.p_internet, "2014-02-08", {
-            "operation_date": date(2014, 2, 10),
+        self._create_activate_service(self.p_internet, "{0}-02-08".format(YEAR), {
+            "operation_date": date(YEAR, 2, 10),
         })
 
         self.assertEquals(

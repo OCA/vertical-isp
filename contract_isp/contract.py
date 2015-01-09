@@ -60,6 +60,21 @@ def format_interval(start, end, date_format=DEFAULT_SERVER_DATE_FORMAT):
                           end.strftime(date_format))
 
 
+def operation_date(date=None, context=None):
+    if context is None:
+        context = {}
+
+    if date is None:
+        date = context.get("operation_date", datetime.date.today())
+        if not isinstance(date, datetime.date):
+            date = datetime.datetime.strptime(
+                date,
+                DEFAULT_SERVER_DATE_FORMAT,
+            ).date()
+
+    return date
+
+
 class res_company(orm.Model):
     _inherit = 'res.company'
 
@@ -275,14 +290,7 @@ class contract_service(orm.Model):
                              mode='manual',
                              date=None,
                              context=None):
-        context = context or {}
-        if date is None:
-            date = context.get("operation_date", datetime.date.today())
-            if not isinstance(date, datetime.date):
-                date = datetime.datetime.strptime(
-                    date,
-                    DEFAULT_SERVER_DATE_FORMAT,
-                ).date()
+        date = operation_date(date, context)
 
         if type(ids) is int:
             ids = [ids]
@@ -373,13 +381,7 @@ class contract_service(orm.Model):
                            date=None,
                            context=None):
         context = context or {}
-        if date is None:
-            date = context.get("operation_date", datetime.date.today())
-            if not isinstance(date, datetime.date):
-                date = datetime.datetime.strptime(
-                    date,
-                    DEFAULT_SERVER_DATE_FORMAT,
-                ).date()
+        date = operation_date(date, context)
 
         if type(ids) is int:
             ids = [ids]
