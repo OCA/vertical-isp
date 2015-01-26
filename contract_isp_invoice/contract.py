@@ -692,11 +692,14 @@ class account_analytic_line(orm.Model):
         if data is None:
             data = {}
 
-        account_ids = list(set(
-            line.account_id.id
-            for line in self.pool.get('account.analytic.line').browse(
-                cr, uid, ids, context=context)
-        ))
+        cr.execute("""
+                   SELECT DISTINCT account_id
+                   FROM account_analytic_line
+                   WHERE id in (%s)
+                   """,
+                   (tuple(ids), ))
+
+        account_ids = [r[0] for r in cr.fetchall() if r[0]]
 
         for account in analytic_account_obj.browse(
                 cr, uid, list(account_ids), context=context):
@@ -752,7 +755,8 @@ class account_analytic_line(orm.Model):
             invoices.append(last_invoice)
 
             cr.execute("""
-                       SELECT product_id, user_id, to_invoice, sum(amount), sum(unit_amount), product_uom_id
+                       SELECT product_id, user_id, to_invoice, sum(amount),
+                              sum(unit_amount), product_uom_id
                        FROM account_analytic_line as line
                        WHERE account_id = %s
                          AND line.id IN %s
@@ -824,7 +828,15 @@ class account_analytic_line(orm.Model):
                 #
                 # Compute for lines
                 #
-                cr.execute("SELECT * FROM account_analytic_line WHERE account_id = %s and id IN %s AND product_id=%s and to_invoice=%s ORDER BY account_analytic_line.date", (account.id, tuple(ids), product_id, factor_id))
+                cr.execute(
+                    """
+                    SELECT * FROM account_analytic_line
+                    WHERE account_id = %s
+                      AND id IN %s
+                      AND product_id=%s
+                     AND to_invoice=%s
+                    ORDER BY account_analytic_line.date""",
+                    (account.id, tuple(ids), product_id, factor_id))
 
                 line_ids = cr.dictfetchall()
                 note = []
@@ -858,7 +870,13 @@ class account_analytic_line(orm.Model):
                             map(lambda x: unicode(x) or '', note))
                 invoice_line_obj.create(
                     cr, uid, curr_line, context=context)
-                cr.execute("update account_analytic_line set invoice_id=%s WHERE account_id = %s and id IN %s", (last_invoice, account.id, tuple(ids)))
+                cr.execute(
+                    """
+                    UPDATE account_analytic_line
+                    SET invoice_id = %s
+                    WHERE account_id = %s
+                      AND id IN %s""",
+                    (last_invoice, account.id, tuple(ids)))
 
             invoice_obj.button_reset_taxes(
                 cr, uid, [last_invoice], context)
