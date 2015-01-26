@@ -75,21 +75,6 @@ def operation_date(date=None, context=None):
     return date
 
 
-class res_company(orm.Model):
-    _inherit = 'res.company'
-
-    def _days(self, cr, uid, context=None):
-        return tuple([(str(x), str(x)) for x in range(1, 29)])
-
-    _columns = {
-        'parent_account_id': fields.many2one('account.analytic.account',
-                                             'Parent Analytic Account'),
-        'cutoff_day': fields.selection(_days, 'Cutoff day'),
-        'default_journal_id': fields.many2one('account.analytic.journal',
-                                              'Default Journal')
-    }
-
-
 class res_partner(orm.Model):
     _inherit = 'res.partner'
 

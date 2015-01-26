@@ -52,22 +52,6 @@ def count_months_stupid(from_date, to_date):
     return count
 
 
-class res_company(orm.Model):
-    _inherit = "res.company"
-
-    def _days(self, cr, uid, context=None):
-        return tuple([(str(x), str(x)) for x in range(1, 29)])
-
-    _columns = {
-        'invoice_day': fields.selection(_days, 'Invoice day'),
-        'send_email_contract_invoice': fields.boolean('Send invoice by email')
-    }
-
-    _defaults = {
-        'send_email_contract_invoice': True
-    }
-
-
 class res_partner(orm.Model):
     _inherit = "res.partner"
 

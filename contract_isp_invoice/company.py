@@ -3,7 +3,7 @@
 ##############################################################################
 #
 #    OpenERP, Open Source Management Solution
-#    Copyright (C) 2013 Savoir-faire Linux (<www.savoirfairelinux.com>).
+#    Copyright (C) 2013 Savoir-faire Linux (<http://www.savoirfairelinux.com>).
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -20,8 +20,21 @@
 #
 ##############################################################################
 
-from . import (
-    company,
-    contract,
-    wizard,
-)
+from openerp.osv import orm, fields
+
+
+class Company(orm.Model):
+    _name = _inherit = "res.company"
+
+    def _days(self, cr, uid, context=None):
+        return tuple([(str(x), str(x)) for x in range(1, 29)])
+
+    _columns = {
+        'invoice_day': fields.selection(_days, 'Invoice day'),
+        'billing_day': fields.selection(_days, 'Billing day'),
+        'send_email_contract_invoice': fields.boolean('Send invoice by email')
+    }
+
+    _defaults = {
+        'send_email_contract_invoice': True
+    }
