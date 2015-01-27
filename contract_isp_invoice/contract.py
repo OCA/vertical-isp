@@ -114,12 +114,13 @@ class account_voucher(orm.Model):
 
             if context.get('active_model') == 'account.analytic.account' and \
                context.get('active_id', False):
+                date_today = fields.date.context_today(self, cr, uid)
                 for line in account_analytic_account_obj.browse(
                         cr, uid, context.get('active_id'),
                         context=context).contract_service_ids:
                     line.create_analytic_line(
                         mode='subscription',
-                        date=datetime.datetime.today())
+                        date=date_today)
 
                 inv = account_analytic_account_obj.create_invoice(
                     cr, uid, context.get('active_id'), context=context)
@@ -202,6 +203,20 @@ class account_journal(orm.Model):
 class contract_service(orm.Model):
     _inherit = 'contract.service'
 
+    def _get_operation_date(self, cr, uid, context):
+        """ Get today's date in date object """
+        date = context.get("operation_date")
+        if not date:
+            date = fields.date.context_today(self, cr, uid)
+
+        if not isinstance(date, datetime.date):
+            date = datetime.datetime.strptime(
+                date,
+                DEFAULT_SERVER_DATE_FORMAT,
+            ).date()
+
+        return date
+
     def _get_invoice_day(self, cr, uid, context):
         res_company_obj = self.pool["res.company"]
         res_company_data = res_company_obj.read(
@@ -217,8 +232,8 @@ class contract_service(orm.Model):
 
         Returns a tuple (start_date, end_date, price percent)
         """
-        today = (context or {}).get("operation_date", datetime.date.today())
-        invoice_day = self._get_invoice_day(cr, uid, context)
+        today = self._get_operation_date(cr, uid, context)
+        invoice_day = self._get_invoice_day(cr, uid, context=context)
 
         curmonth_days = calendar.monthrange(today.year,
                                             today.month)[1]
@@ -266,7 +281,7 @@ class contract_service(orm.Model):
 
     def _get_prorata_interval_rate_deactivate(self, cr, uid, change_date,
                                               context=None):
-        today = (context or {}).get("operation_date", datetime.date.today())
+        today = self._get_operation_date(cr, uid, context)
         invoice_day = self._get_invoice_day(cr, uid, context)
 
         if invoice_day < today.day:
@@ -410,6 +425,49 @@ class account_analytic_account(orm.Model):
 
         return True
 
+    def _get_invoice_date(self, cr, uid, process, date=None, context=None):
+        """
+        Get the date for an invoice, based on the billing process and the
+        current date
+
+        Logic behind date parameters:
+        invoice_day > billing day > cutoff day
+
+        Anything happening after cutoff day
+
+        Params:
+        - process: source_process of the account.invoice to be created
+        - date: date or datetime representing the date at which the invoice
+                is being created. Defaults to context_today()
+
+        Returns:
+        - date formatted as DEFAULT_SERVER_DATE_FORMAT
+        """
+        if date is None:
+            date = datetime.datetime.strptime(
+                fields.date.context_today(self, cr, uid, context=context),
+                DEFAULT_SERVER_DATE_FORMAT,
+            ).date()
+        res_company_obj = self.pool['res.company']
+        res_company_data = res_company_obj.read(
+            cr, uid,
+            res_company_obj._company_default_get(cr, uid, context),
+            context=context)
+
+        cutoff_day = res_company_data['cutoff_day']
+        invoice_day = res_company_data['invoice_day']
+
+        cutoff_date = datetime.date(date.year, date.month, int(cutoff_day))
+        invoice_date = date.replace(day=int(invoice_day))
+
+        if process in (PROCESS_RECURRENT, PROCESS_PRORATA):
+            if date >= cutoff_date:
+                date = add_months(invoice_date, 1)
+            else:
+                date = invoice_date
+
+        return date.strftime(DEFAULT_SERVER_DATE_FORMAT)
+
     def _create_invoice(self, cr, uid, ids, context=None):
         context = context or {}
 
@@ -425,7 +483,6 @@ class account_analytic_account(orm.Model):
         account_analytic_line_obj = self.pool['account.analytic.line']
         account_invoice_obj = self.pool['account.invoice']
         account_invoice_line_obj = self.pool['account.invoice.line']
-        move_obj = self.pool["account.move"]
         wf_service = netsvc.LocalService("workflow")
 
         if sum(-line.amount
@@ -496,37 +553,16 @@ class account_analytic_account(orm.Model):
         if not isinstance(ids, list):
             ids = [ids]
 
-        date = context.get("operation_date", datetime.date.today())
-        if not isinstance(date, datetime.date):
-            date = datetime.datetime.strptime(
-                date,
-                DEFAULT_SERVER_DATE_FORMAT,
-            ).date()
+        ctx = dict(context.copy(), prorata=prorata)
 
         account_analytic_account_obj = self.pool['account.analytic.account']
         account_analytic_line_obj = self.pool['account.analytic.line']
+
         res_company_obj = self.pool['res.company']
         res_company_data = res_company_obj.read(
             cr, uid,
             res_company_obj._company_default_get(cr, uid, context),
             context=context)
-
-        cutoff_day = res_company_data['cutoff_day']
-
-        cutoff_date = datetime.date(date.year, date.month, int(cutoff_day))
-        invoice_day = res_company_data['invoice_day']
-
-        invoice_date = date.replace(day=int(invoice_day))
-
-        ctx = dict(context.copy(), prorata=prorata)
-        if prorata or source_process == PROCESS_RECURRENT:
-            if date <= cutoff_date:
-                ctx.update(date_invoice=invoice_date.strftime('%Y-%m-%d'))
-            else:
-                ctx.update(
-                    date_invoice=add_months(invoice_date, 1).strftime(
-                        '%Y-%m-%d')
-                )
 
         res = []
         if context.get('create_invoice_mode', 'contract') != 'reseller':
@@ -669,6 +705,34 @@ class account_analytic_account(orm.Model):
                         'default_partner_id': voucher_partner_id}
         }
 
+    def _invoice_prepare(self, cr, uid, account, partner, context=None):
+        """ Prepare the data for invoice.create()
+        Params:
+        - account: analytic account browse record
+        - partner: partner browse record
+        - context: context
+        """
+        context = context or {}
+        inv = {
+            'origin': account.name,
+            'partner_id': partner.id,
+            'company_id': account.company_id.id,
+            'payment_term': partner.property_payment_term.id or False,
+            'account_id': partner.property_account_receivable.id,
+            'currency_id': account.pricelist_id.currency_id.id,
+            'fiscal_position': partner.property_account_position.id
+        }
+
+        source_process = context.get("source_process")
+        if source_process:
+            inv["source_process"] = source_process
+            inv["date_invoice"] = self._get_invoice_date(
+                cr, uid, source_process,
+                date=context.get("operation_date"),
+                context=context)
+
+        return inv
+
 
 class account_analytic_line(orm.Model):
     _inherit = 'account.analytic.line'
@@ -720,27 +784,33 @@ class account_analytic_line(orm.Model):
                     _('Contract incomplete. Please fill in the Customer '
                       'and Pricelist fields.'))
 
+            curr_invoice = analytic_account_obj._invoice_prepare(
+                cr, uid, account, partner, context=context)
+
+            if curr_invoice.get("date_invoice"):
+                date_ref = curr_invoice["date_invoice"]
+            else:
+                date_ref = fields.date.context_today(self, cr, uid,
+                                                     context=context)
             date_due = False
             if partner.property_payment_term:
                 pterm_list = account_payment_term_obj.compute(
                     cr, uid, partner.property_payment_term.id, value=1,
-                    date_ref=time.strftime('%Y-%m-%d'))
+                    date_ref=date_ref)
                 if pterm_list:
                     pterm_list = [line[0] for line in pterm_list]
                     pterm_list.sort()
                     date_due = pterm_list[-1]
 
-            curr_invoice = {
-                'name': time.strftime('%d/%m/%Y') + ' - ' + account.name,
-                'origin': account.name,
-                'partner_id': partner.id,
-                'company_id': account.company_id.id,
-                'payment_term': partner.property_payment_term.id or False,
-                'account_id': partner.property_account_receivable.id,
-                'currency_id': account.pricelist_id.currency_id.id,
-                'date_due': date_due,
-                'fiscal_position': partner.property_account_position.id
-            }
+            curr_invoice.update(
+                date_due=date_due,
+                name="{0:%d/%m/%Y} - {1}".format(
+                    datetime.datetime.strptime(date_ref,
+                                               DEFAULT_SERVER_DATE_FORMAT),
+                    account.name,
+                )
+            )
+
             context2 = context.copy()
             context2['lang'] = partner.lang
             # set company_id in context, so the correct default journal
