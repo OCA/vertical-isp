@@ -61,7 +61,8 @@ class res_partner(orm.Model):
             'account_payment_term_end_of_month')[1]
 
     _defaults = {
-        'property_payment_term': lambda s, cr, uid, ctx: s._get_default_payment_term(cr, uid, ctx)
+        'property_payment_term': lambda s, cr, uid, ctx: (
+            s._get_default_payment_term(cr, uid, ctx))
     }
 
 
@@ -141,7 +142,7 @@ class account_voucher(orm.Model):
                     cr, uid, ids, context=context)
 
             if voucher.journal_id.later_validation is False:
-                account_move_line_obj = self.pool.get('account.move.line')
+                account_move_line_obj = self.pool['account.move.line']
                 account_id = voucher.partner_id.property_account_receivable.id
                 query = [
                     ('partner_id', '=', voucher.partner_id.id),
@@ -149,8 +150,8 @@ class account_voucher(orm.Model):
                     ('reconcile_id', '=', False)
                 ]
 
-                ids_to_reconcile = account_move_line_obj.search(cr, uid, query,
-                                                                context=context)
+                ids_to_reconcile = account_move_line_obj.search(
+                    cr, uid, query, context=context)
                 if ids_to_reconcile:
                     # Code from account/wizard/account_reconcile.py/\
                     #    account_move_line_reconcile/trans_rec_reconcile_full
@@ -160,14 +161,16 @@ class account_voucher(orm.Model):
                     journal_id = voucher.journal_id.id
 
                     date = time.strftime('%Y-%m-%d')
-                    ctx = dict(context or {}, account_period_prefer_normal=True)
+                    ctx = dict(
+                        context or {}, account_period_prefer_normal=True)
                     period_ids = period_obj.find(cr, uid, dt=date, context=ctx)
                     if period_ids:
                         period_id = period_ids[0]
-                        account_move_line_obj.reconcile(cr, uid, ids_to_reconcile,
-                                                        'manual', account_id,
-                                                        period_id, journal_id,
-                                                        context=context)
+                        account_move_line_obj.reconcile(
+                            cr, uid,
+                            ids_to_reconcile, 'manual', account_id,
+                            period_id, journal_id,
+                            context=context)
 
             mail_template_obj = self.pool.get('email.template')
             ir_model_data_obj = self.pool.get('ir.model.data')
@@ -489,7 +492,8 @@ class account_analytic_account(orm.Model):
                for line in account_analytic_line_obj.browse(
                    cr, uid, ids, context=context)
                ) < 0:
-            for line in account_analytic_line_obj.browse(cr, uid, ids, context=context):
+            for line in account_analytic_line_obj.browse(
+                    cr, uid, ids, context=context):
                 line.write({"amount": -line.amount})
             context["type"] = "out_refund"
 
@@ -608,9 +612,11 @@ class account_analytic_account(orm.Model):
                 cr, uid, query, context=context)
             if ids_to_invoice:
                 _logger.info(
-                    "Invoicing partner %s" %
+                    "Invoicing partner %s",
                     account_analytic_account_obj.browse(
-                        cr, uid, ids[0], context=context).partner_id.parent_id.name)
+                        cr, uid, ids[0], context=context
+                    ).partner_id.parent_id.name,
+                )
 
                 inv = self._create_invoice(
                     cr, uid, ids_to_invoice, context=ctx)
@@ -834,7 +840,8 @@ class account_analytic_line(orm.Model):
                        GROUP BY product_id, user_id, to_invoice, product_uom_id
                        """, (account.id, tuple(ids)))
 
-            for product_id, user_id, factor_id, total_price, qty, uom in cr.fetchall():
+            for product_id, user_id, factor_id, total_price, qty, uom in (
+                    cr.fetchall()):
                 context2.update({'uom': uom})
 
                 if data.get('product'):
@@ -848,7 +855,6 @@ class account_analytic_line(orm.Model):
 
                 factor = invoice_factor_obj.browse(
                     cr, uid, factor_id, context=context2)
-                # factor_name = factor.customer_name and line_name + ' - ' + factor.customer_name or line_name
                 factor_name = ''
                 if data.get('factor_name', False):
                     factor_name = factor.customer_name
@@ -878,7 +884,8 @@ class account_analytic_line(orm.Model):
                     if not general_account:
                         raise orm.except_orm(
                             _("Configuration Error!"),
-                            _("Please define income account for product '%s'.") % product.name)
+                            _("Please define income account for product '%s'."
+                              ) % product.name)
                     taxes = product.taxes_id or general_account.tax_ids
                     tax = fiscal_pos_obj.map_tax(
                         cr, uid,
