@@ -633,6 +633,13 @@ class account_analytic_account(orm.Model):
 
         return res
 
+    def create_lines_and_invoice(self, cr, uid, ids, source_process=None,
+                                 context=None):
+        self.create_analytic_lines(cr, uid, ids, context=context)
+        res = self.create_invoice(cr, uid, ids, source_process,
+                                  context=context)
+        return res
+
     def set_close(self, cr, uid, ids, context=None):
 
         return {

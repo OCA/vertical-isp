@@ -79,8 +79,9 @@ class res_partner(orm.Model):
     _inherit = 'res.partner'
 
     _columns = {
-        'partner_analytic_account_id': fields.many2one('account.analytic.account',
-                                                       'Partner Analytic Account')
+        'partner_analytic_account_id': fields.many2one(
+            'account.analytic.account',
+            'Partner Analytic Account')
     }
 
     def create(self, cr, uid, values, context=None):
@@ -112,11 +113,12 @@ class product_product(orm.Model):
     _inherit = 'product.product'
 
     _columns = {
-        'analytic_line_type': fields.selection(((LINE_TYPE_RECURRENT, 'Recurrent'),
-                                                (LINE_TYPE_EXCEPTION, 'Exception'),
-                                                (LINE_TYPE_ONETIME, 'One time')),
-                                               'Type in contract',
-                                               required=True),
+        'analytic_line_type': fields.selection(
+            ((LINE_TYPE_RECURRENT, 'Recurrent'),
+             (LINE_TYPE_EXCEPTION, 'Exception'),
+             (LINE_TYPE_ONETIME, 'One time')),
+            'Type in contract',
+            required=True),
         'require_activation': fields.boolean('Require activation')
     }
 
@@ -145,7 +147,8 @@ class contract_service(orm.Model):
 
         return ret
 
-    def _get_total_product_price(self, cr, uid, ids, field_name, arg, context=None):
+    def _get_total_product_price(self, cr, uid, ids, field_name, arg,
+                                 context=None):
         ret = {}
         for line in self.browse(cr, uid, ids, context=context):
             if line.qty:
@@ -443,7 +446,6 @@ class contract_service(orm.Model):
         return True
 
 
-
 class account_analytic_account(orm.Model):
     _name = "account.analytic.account"
     _inherit = "account.analytic.account"
@@ -503,7 +505,6 @@ class account_analytic_account(orm.Model):
 
             ids = cr.fetchone()[0]
             return [('id', 'in', tuple(ids))]
-
 
     _columns = {
         'contract_service_ids': fields.one2many('contract.service',
