@@ -49,9 +49,10 @@ class test_reseller_invoice(TransactionCase, ServiceSetup):
         })
 
     def test_prorata_invoice(self):
-        self._create_activate_service(self.p_internet, "{0}-02-08".format(YEAR), {
-            "operation_date": date(YEAR, 2, 10),
-        })
+        self._create_activate_service(
+            self.p_internet, "{0}-02-08".format(YEAR), {
+                "operation_date": date(YEAR, 2, 10),
+            })
 
         self.assertEquals(
             len(self.invoice_obj.search(self.cr, self.uid, [

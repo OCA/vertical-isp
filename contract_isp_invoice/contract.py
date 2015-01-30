@@ -87,10 +87,10 @@ class account_voucher(orm.Model):
             cr, uid, ids, journal_id, line_ids,
             tax_id, partner_id, date, amount, ttype,
             company_id, context=None)
-        account_journal = self.pool.get('account.journal').browse(
+        journal = self.pool['account.journal'].browse(
             cr, uid, journal_id, context=context)
 
-        ret['value']['later_validation'] = account_journal.later_validation
+        ret['value']['later_validation'] = journal.later_validation
 
         return ret
 
@@ -899,7 +899,6 @@ class account_analytic_line(orm.Model):
                         account.partner_id.property_account_position,
                         taxes)
                     curr_line.update({
-                        'invoice_line_tax_id': [(6, 0, tax)],
                         'name': factor_name,
                         'invoice_line_tax_id': [(6, 0, tax)],
                         'account_id': general_account.id,

@@ -37,7 +37,7 @@ class contract_service_activate(orm.TransientModel):
                                                               ids,
                                                               context=context)
 
-        account_analytic_account_obj = self.pool.get('account.analytic.account')
+        account_analytic_account_obj = self.pool['account.analytic.account']
 
         account_analytic_account_obj.create_invoice(
             cr, uid, wizard.account_id.id,
@@ -59,7 +59,7 @@ class contract_service_deactivate(orm.TransientModel):
         ret = super(contract_service_deactivate, self).deactivate(
             cr, uid, ids, context=context)
 
-        account_analytic_account_obj = self.pool.get('account.analytic.account')
+        account_analytic_account_obj = self.pool['account.analytic.account']
 
         account_analytic_account_obj.create_invoice(
             cr, uid, wizard.account_id.id,
