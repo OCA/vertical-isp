@@ -23,11 +23,13 @@
 from . import (
     test_prorata,
     test_deactivate,
+    test_recurrent,
     test_reseller,
 )
 
 checks = [
     test_deactivate,
     test_prorata,
+    test_recurrent,
     test_reseller,
 ]
