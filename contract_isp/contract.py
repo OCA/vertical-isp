@@ -66,11 +66,12 @@ def operation_date(date=None, context=None):
 
     if date is None:
         date = context.get("operation_date", datetime.date.today())
-        if not isinstance(date, datetime.date):
-            date = datetime.datetime.strptime(
-                date,
-                DEFAULT_SERVER_DATE_FORMAT,
-            ).date()
+
+    if not isinstance(date, datetime.date):
+        date = datetime.datetime.strptime(
+            date,
+            DEFAULT_SERVER_DATE_FORMAT,
+        ).date()
 
     return date
 
@@ -339,7 +340,8 @@ class contract_service(orm.Model):
                 'to_invoice': 1,
                 'unit_amount': line.qty,
                 'is_prorata': mode == 'prorata',
-                'date': (next_month or date).strftime('%Y-%m-%d'),
+                'date': (next_month or date).strftime(
+                    DEFAULT_SERVER_DATE_FORMAT),
                 'journal_id': 1
             }
 
@@ -496,7 +498,8 @@ class account_analytic_account(orm.Model):
                     SELECT aaa.id as id
                          , array_agg(ail.invoice_id) as invoice_ids
                     FROM account_analytic_account aaa
-                    LEFT JOIN account_invoice_line ail ON ail.account_analytic_id = aaa.id
+                    LEFT JOIN account_invoice_line ail
+                    ON ail.account_analytic_id = aaa.id
                     GROUP BY aaa.id
                     ) agg
                 WHERE {0}""".format(" AND ".join(query)),
