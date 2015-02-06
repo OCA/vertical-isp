@@ -772,7 +772,7 @@ class account_analytic_line(orm.Model):
         cr.execute("""
                    SELECT DISTINCT account_id
                    FROM account_analytic_line
-                   WHERE id in (%s)
+                   WHERE id IN %s
                    """,
                    (tuple(ids), ))
 
