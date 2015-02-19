@@ -33,7 +33,7 @@ from openerp.tools import DEFAULT_SERVER_DATE_FORMAT
 from openerp import netsvc
 import openerp.exceptions
 
-from .invoice import PROCESS_PRORATA, PROCESS_RECURRENT
+from .invoice import PROCESS_PRORATA, PROCESS_RECURRENT, PROCESS_INITIAL
 
 _logger = logging.getLogger(__name__)
 
@@ -123,8 +123,11 @@ class account_voucher(orm.Model):
                         mode='subscription',
                         date=date_today)
 
+                ctx = context.copy()
+                ctx['source_process'] = PROCESS_INITIAL
+
                 inv = account_analytic_account_obj.create_invoice(
-                    cr, uid, context.get('active_id'), context=context)
+                    cr, uid, context.get('active_id'), context=ctx)
 
                 wf_service = netsvc.LocalService("workflow")
                 if isinstance(inv, list):
@@ -141,7 +144,6 @@ class account_voucher(orm.Model):
                 ret = super(account_voucher, self).proforma_voucher(
                     cr, uid, ids, context=context)
 
-            if voucher.journal_id.later_validation is False:
                 account_move_line_obj = self.pool['account.move.line']
                 account_id = voucher.partner_id.property_account_receivable.id
                 query = [

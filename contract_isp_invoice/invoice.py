@@ -22,19 +22,21 @@
 
 from openerp.osv import orm, fields
 
-PROCESS_RECURRENT = 'recurrent'
-PROCESS_PRORATA = 'prorata'
 PROCESS_CRON = 'cron'
+PROCESS_INITIAL = 'initial'
 PROCESS_MANUAL = 'manual'
+PROCESS_PRORATA = 'prorata'
+PROCESS_RECURRENT = 'recurrent'
 
 
 class Invoice(orm.Model):
     _name = _inherit = 'account.invoice'
     _columns = {
         'source_process': fields.selection([
-            (PROCESS_RECURRENT, 'Recurrent Billing'),
-            (PROCESS_PRORATA, 'Pro Rata'),
-            (PROCESS_MANUAL, 'Manual'),
             (PROCESS_CRON, 'Scheduled'),
+            (PROCESS_INITIAL, 'Initial'),
+            (PROCESS_MANUAL, 'Manual'),
+            (PROCESS_PRORATA, 'Pro Rata'),
+            (PROCESS_RECURRENT, 'Recurrent Billing'),
         ], 'Billing Process', required=False),
     }
