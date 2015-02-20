@@ -752,6 +752,10 @@ class account_analytic_account(orm.Model):
 class account_analytic_line(orm.Model):
     _inherit = 'account.analytic.line'
 
+    def _get_product_sequence(self, cr, uid, product_id, company_id=None,
+                              context=None):
+        return False
+
     def invoice_cost_create(self, cr, uid, ids, data=None, context=None):
         # jgama - Sligtly modified version. Original from
         #         hr_timesheet_invoice.py
@@ -877,6 +881,10 @@ class account_analytic_line(orm.Model):
                     'name': factor_name,
                     'uos_id': uom,
                     'account_analytic_id': account.id,
+                    'sequence': self._get_product_sequence(
+                        cr, uid, product_id, curr_invoice['company_id'],
+                    ),
+
                 }
                 product = product_obj.browse(
                     cr, uid, product_id, context=context2)
