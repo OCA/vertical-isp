@@ -663,6 +663,12 @@ class account_analytic_account(orm.Model):
 
         voucher = self.browse(cr, uid, ids[0], context=context)
         cur = voucher.pricelist_id.currency_id
+        if cur is None:
+            raise orm.except_orm(
+                _('No pricelist specified'),
+                _('You must set a pricelist on the analytic account before'
+                  ' creating vouchers.'))
+
         amount_tax = amount_untaxed = 0
         for line in self.browse(cr, uid, ids[0],
                                 context=context).contract_service_ids:
@@ -678,14 +684,10 @@ class account_analytic_account(orm.Model):
                     cr, uid, line_tax_ids, line.unit_price,
                     line.qty, line.product_id,
                     line.account_id.partner_id)['taxes']:
-                amount_tax += c.get('amount', 0.0)
+                amount_tax += res_currency_obj.round(
+                    cr, uid, cur, c.get('amount', 0.0))
 
             amount_untaxed += line.unit_price * line.qty
-        if cur is None:
-            raise orm.except_orm(
-                _('No pricelist specified'),
-                _('You must set a pricelist on the analytic account before'
-                  ' creating vouchers.'))
 
         amount = res_currency_obj.round(cr, uid, cur, amount_tax) + \
             res_currency_obj.round(cr, uid, cur, amount_untaxed)
