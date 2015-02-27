@@ -48,9 +48,6 @@ Features:
              'contract_isp_view.xml',
              'contract_isp_data.xml',
              'contract_isp_workflow.xml'],
-    'css': [
-        'static/src/css/configurator.css',
-    ],
     'active': False,
     'installable': True,
 }
