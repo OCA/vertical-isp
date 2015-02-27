@@ -38,7 +38,7 @@
                   nolabel="1"
                   class="w70pct"
                   options="{'no_open': True}"
-                  domain = "[('categ_id', '=', product_category_id), ('sale_ok', '=', True)]"
+                  domain = "[('categ_id', 'child_of', product_category_id), ('sale_ok', '=', True)]"
                   placeholder="Product" />
                 <button
                   name="do_add_current_product_id"
