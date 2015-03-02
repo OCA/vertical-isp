@@ -33,7 +33,7 @@ Allows products to have other products/categories as dependencies.
 This module is primarily used by the contract_isp_wizard module to create product/service packages based on product inter-dependencies. It's aim is to provide the basic structure so that other modules can build sales wizards with decision trees based on each product dependency tree. 
 
 This module is not related to the manufacturing process or the Bill of Materials.""",
-    'author': 'Savoirfaire-Linux Inc',
+    'author': "Savoirfaire-Linux Inc,Odoo Community Association (OCA)",
     'website': 'www.savoirfairelinux.com',
     'license': 'AGPL-3',
     'depends': ['product'],

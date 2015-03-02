@@ -37,7 +37,7 @@ Features:
 * Pro-rata logic,
 * Service activation wizard.
 """,
-    'author': 'Savoir-faire Linux Inc',
+    'author': "Savoir-faire Linux Inc,Odoo Community Association (OCA)",
     'website': 'www.savoirfairelinux.com',
     'license': 'AGPL-3',
     'depends': ['account_analytic_analysis'],
