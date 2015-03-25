@@ -21,6 +21,7 @@
 from __future__ import unicode_literals
 
 from datetime import date
+from functools import partial
 
 from openerp.tests.common import TransactionCase
 
@@ -42,29 +43,16 @@ class test_prorata_activate_service(TransactionCase, ServiceSetup):
             invoice_day < operation_date <= end of month
             operation date < cutoff date
         """
-        cr, uid = self.cr, self.uid
         self.company.write({"invoice_day": "7", "cutoff_day": "24"})
-        self._create_activate_service(
-            self.p_internet, "{0}-01-13".format(YEAR), {
-                "operation_date": date(YEAR, 1, 14),
-            }
+        self._test_invoice(
+            self.p_internet,
+            activation_date=(1, 13),
+            operation_date=(1, 14),
+            invoice_date=(1, 7),
+            invoice_start=(2, 13),
+            invoice_end=(2, 28),
+            expected_amount=self.service_obj._prorata_rate(16, 28) * 56,
         )
-
-        invoice = self.invoice_obj.browse(
-            cr, uid,
-            self.invoice_obj.search(cr, uid,
-                                    [('partner_id', '=', self.partner_id)])[0]
-        )
-        self.assertEquals(invoice.date_invoice, "{0}-01-07".format(YEAR))
-        date_from, date_to = self._get_invoice_date_range(invoice.id)
-        self.assertEquals(date_from, "{0}-02-13".format(YEAR),
-                          "Wrong start date")
-        self.assertEquals(date_to, "{0}-02-28".format(YEAR), "Wrong end date")
-        self.assertAlmostEquals(
-            invoice.amount_untaxed,
-            self.service_obj._prorata_rate(15, 28) * 56,
-            msg="~Half month, 15/28 of 56",
-            delta=0.01)
 
     def test_prorata_after_invoice_before_cutoff_past_month(self):
         """
@@ -72,31 +60,16 @@ class test_prorata_activate_service(TransactionCase, ServiceSetup):
             invoice_day < operation_date <= end of month
             operation date < cutoff date
         """
-        cr, uid = self.cr, self.uid
         self.company.write({"invoice_day": "7", "cutoff_day": "21"})
-        self._create_activate_service(
-            self.p_internet, "{0}-08-11".format(YEAR), {
-                "operation_date": date(YEAR, 9, 10),
-            }
+        self._test_invoice(
+            self.p_internet,
+            activation_date=(8, 11),
+            operation_date=(9, 10),
+            invoice_date=(9, 7),
+            invoice_start=(9, 11),
+            invoice_end=(10, 31),
+            expected_amount=(1 + self.service_obj._prorata_rate(20, 30)) * 56,
         )
-
-        invoice = self.invoice_obj.browse(
-            cr, uid,
-            self.invoice_obj.search(cr, uid,
-                                    [('partner_id', '=', self.partner_id)])[0]
-        )
-        self.assertEquals(invoice.date_invoice, "{0}-09-07".format(YEAR))
-        date_from, date_to = self._get_invoice_date_range(invoice.id)
-        self.assertEquals(date_from, "{0}-09-11".format(YEAR),
-                          "Wrong start date, expected activation + 1 month")
-        self.assertEquals(date_to, "{0}-10-31".format(YEAR),
-                          "Wrong end date, end of (op) next month")
-
-        self.assertAlmostEquals(
-            invoice.amount_untaxed,
-            (1 + self.service_obj._prorata_rate(19, 30)) * 56,
-            msg="Oct 100%, Sept 11-30",
-            delta=0.01)
 
     def test_prorata_after_invoice_after_cutoff(self):
         """
@@ -104,29 +77,16 @@ class test_prorata_activate_service(TransactionCase, ServiceSetup):
             invoice_day < operation_date <= end of month
             operation date > cutoff date
         """
-        cr, uid = self.cr, self.uid
         self.company.write({"invoice_day": "7", "cutoff_day": "24"})
-        self._create_activate_service(
-            self.p_internet, "{0}-01-15".format(YEAR), {
-                "operation_date": date(YEAR, 1, 26),
-            }
+        self._test_invoice(
+            self.p_internet,
+            activation_date=(1, 15),
+            operation_date=(1, 26),
+            invoice_date=(2, 7),
+            invoice_start=(2, 15),
+            invoice_end=(2, 28),
+            expected_amount=self.service_obj._prorata_rate(14, 28) * 56,
         )
-
-        invoice = self.invoice_obj.browse(
-            cr, uid,
-            self.invoice_obj.search(cr, uid,
-                                    [('partner_id', '=', self.partner_id)])[0]
-        )
-        self.assertEquals(invoice.date_invoice, "{0}-02-07".format(YEAR))
-        date_from, date_to = self._get_invoice_date_range(invoice.id)
-        self.assertEquals(date_from, "{0}-02-15".format(YEAR),
-                          "Wrong start date")
-        self.assertEquals(date_to, "{0}-02-28".format(YEAR), "Wrong end date")
-        self.assertAlmostEquals(
-            invoice.amount_untaxed,
-            self.service_obj._prorata_rate(13, 28) * 56,
-            msg="13/28 of 56",
-            delta=0.01)
 
     def test_prorata_before_invoice_past_month_activation(self):
         """
@@ -135,29 +95,16 @@ class test_prorata_activate_service(TransactionCase, ServiceSetup):
             activation is in the past month
 
         """
-        cr, uid = self.cr, self.uid
         self.company.write({"invoice_day": "7", "cutoff_day": "21"})
-        self._create_activate_service(
-            self.p_internet, "{0}-01-27".format(YEAR), {
-                "operation_date": date(YEAR, 2, 1),
-            }
+        self._test_invoice(
+            self.p_internet,
+            activation_date=(1, 27),
+            operation_date=(2, 1),
+            invoice_date=(2, 7),
+            invoice_start=(2, 27),
+            invoice_end=(2, 28),
+            expected_amount=self.service_obj._prorata_rate(2, 28) * 56,
         )
-
-        invoice = self.invoice_obj.browse(
-            cr, uid,
-            self.invoice_obj.search(cr, uid,
-                                    [('partner_id', '=', self.partner_id)])[0]
-        )
-        self.assertEquals(invoice.date_invoice, "{0}-02-07".format(YEAR))
-        date_from, date_to = self._get_invoice_date_range(invoice.id)
-        self.assertEquals(date_from, "{0}-02-27".format(YEAR),
-                          "Wrong start date")
-        self.assertEquals(date_to, "{0}-02-28".format(YEAR), "Wrong end date")
-        self.assertAlmostEquals(
-            invoice.amount_untaxed,
-            self.service_obj._prorata_rate(1, 28) * 56,
-            msg="1 day in feb",
-            delta=0.01)
 
     def test_prorata_before_invoice_current_month_activation(self):
         """
@@ -166,11 +113,62 @@ class test_prorata_activate_service(TransactionCase, ServiceSetup):
             activation is in the current month and < invoice_day
 
         """
-        cr, uid = self.cr, self.uid
         self.company.write({"invoice_day": "21", "cutoff_day": "24"})
+        self._test_invoice(
+            self.p_internet,
+            activation_date=(2, 14),
+            operation_date=(2, 10),
+            invoice_date=(2, 21),
+            invoice_start=(3, 1),
+            invoice_end=(3, 14),
+            expected_amount=self.service_obj._prorata_rate(14, 31) * -56,
+        )
+
+    def test_prorata_febuary(self):
+        """
+        Test activating a service for Jan 1st between the Jan Cutoff
+        and Feb Invoice Day
+        """
+        self.company.write({"invoice_day": "7", "cutoff_day": "24"})
+        self._test_invoice(self.p_internet,
+                           activation_date=(1, 1),
+                           operation_date=(2, 5),
+                           invoice_date=(2, 7),
+                           invoice_start=(2, 1),
+                           invoice_end=(2, 28),
+                           expected_amount=56)
+
+    def _test_invoice(self, product,
+                      activation_date, operation_date,
+                      invoice_date, invoice_start, invoice_end,
+                      expected_amount):
+        """ create and activate a service, then check the resulting invoice
+
+        Dates are all passed as numeric (month, day) tuples to allow filling
+        in the year.
+
+        _test_invoice(product,  expected_amount)
+
+        invoice start and end correspond to date period covered
+
+        amount should be positive for invoices, negative for credits/refunds
+        """
+        cr, uid = self.cr, self.uid
+        strdate = partial("{0}-{1:02}-{2:02}".format, YEAR)
+        act_month, act_day = activation_date
+        op_month, op_day = operation_date
+        inv_month, inv_day = invoice_date
+        inv_start_month, inv_start_day = invoice_start
+        inv_end_month, inv_end_day = invoice_end
+
+        inv_type = "out_invoice"
+        if expected_amount < 0:
+            inv_type = "out_refund"
+            expected_amount = abs(expected_amount)
+
         self._create_activate_service(
-            self.p_internet, "{0}-02-14".format(YEAR), {
-                "operation_date": date(YEAR, 2, 10),
+            product, strdate(act_month, act_day), {
+                "operation_date": date(YEAR, op_month, op_day),
             }
         )
 
@@ -179,15 +177,17 @@ class test_prorata_activate_service(TransactionCase, ServiceSetup):
             self.invoice_obj.search(cr, uid,
                                     [('partner_id', '=', self.partner_id)])[0]
         )
-        self.assertEquals(invoice.date_invoice, "{0}-02-21".format(YEAR))
+        self.assertEquals(invoice.date_invoice, strdate(inv_month, inv_day),
+                          "Wrong invoice date")
         date_from, date_to = self._get_invoice_date_range(invoice.id)
-        self.assertEquals(date_from, "{0}-03-01".format(YEAR),
+        self.assertEquals(date_from, strdate(inv_start_month, inv_start_day),
                           "Wrong start date")
-        self.assertEquals(date_to, "{0}-03-14".format(YEAR), "Wrong end date")
+        self.assertEquals(date_to, strdate(inv_end_month, inv_end_day),
+                          "Wrong end date")
         self.assertAlmostEquals(
             invoice.amount_untaxed,
-            self.service_obj._prorata_rate(14, 31) * 56,
-            msg="credit for 1-14 in match",
+            expected_amount,
+            msg="Invoice is not the right amount",
             delta=0.01)
-        self.assertEquals(invoice.type, "out_refund",
-                          msg="Expected Credit Note")
+        self.assertEquals(invoice.type, inv_type,
+                          msg="Wrong type of invoice/refund")

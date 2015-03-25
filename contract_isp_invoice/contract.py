@@ -255,7 +255,7 @@ class contract_service(orm.Model):
             month_days = calendar.monthrange(start_date.year,
                                              start_date.month)[1]
             ptx = self._prorata_rate(
-                month_days - start_date.day,
+                (month_days - start_date.day) + 1,
                 month_days,
             )
             ptx += count_months_stupid(start_date, end_date)
@@ -268,7 +268,7 @@ class contract_service(orm.Model):
                 month_days = calendar.monthrange(start_date.year,
                                                  start_date.month)[1]
                 ptx = self._prorata_rate(
-                    month_days - start_date.day,
+                    (month_days - start_date.day) + 1,
                     month_days,
                 )
                 ptx += count_months_stupid(start_date, end_date)
