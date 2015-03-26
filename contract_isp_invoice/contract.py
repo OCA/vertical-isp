@@ -123,11 +123,10 @@ class account_voucher(orm.Model):
                         mode='subscription',
                         date=date_today)
 
-                ctx = context.copy()
-                ctx['source_process'] = PROCESS_INITIAL
-
                 inv = account_analytic_account_obj.create_invoice(
-                    cr, uid, context.get('active_id'), context=ctx)
+                    cr, uid, context.get('active_id'),
+                    source_process=PROCESS_INITIAL,
+                    context=context)
 
                 wf_service = netsvc.LocalService("workflow")
                 if isinstance(inv, list):
@@ -553,13 +552,13 @@ class account_analytic_account(orm.Model):
     def create_invoice(self, cr, uid, ids, source_process=None, context=None):
         context = context or {}
         prorata = (source_process == PROCESS_PRORATA)
-        context["source_process"] = source_process
         _logger.debug("create_invoice %r %s", ids, prorata)
 
         if not isinstance(ids, list):
             ids = [ids]
 
         ctx = dict(context.copy(), prorata=prorata)
+        ctx["source_process"] = source_process
 
         account_analytic_account_obj = self.pool['account.analytic.account']
         account_analytic_line_obj = self.pool['account.analytic.line']
