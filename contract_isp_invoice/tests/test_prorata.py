@@ -147,8 +147,6 @@ class test_prorata_activate_service(TransactionCase, ServiceSetup):
         Dates are all passed as numeric (month, day) tuples to allow filling
         in the year.
 
-        _test_invoice(product,  expected_amount)
-
         invoice start and end correspond to date period covered
 
         amount should be positive for invoices, negative for credits/refunds
