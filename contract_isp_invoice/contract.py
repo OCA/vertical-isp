@@ -337,8 +337,9 @@ class contract_service(orm.Model):
                 else:
                     ptx = sum((
                         # Rate for first month
-                        self._prorata_rate((start_month_days - start_date.day) + 1,
-                                           start_month_days),
+                        self._prorata_rate(
+                            (start_month_days - start_date.day) + 1,
+                            start_month_days),
                         # Each full month excluding end month
                         count_months_stupid(start_date, end_date) - 1,
                         # Rate for end month
@@ -656,9 +657,7 @@ class account_analytic_account(orm.Model):
         if context is None:
             context = {}
 
-        res_currency_obj = self.pool['res.currency']
-        fposition_obj = self.pool["account.fiscal.position"]
-        tax_obj = self.pool["account.tax"]
+        cur_obj = self.pool['res.currency']
 
         voucher = self.browse(cr, uid, ids[0], context=context)
         cur = voucher.pricelist_id.currency_id
@@ -668,28 +667,17 @@ class account_analytic_account(orm.Model):
                 _('You must set a pricelist on the analytic account before'
                   ' creating vouchers.'))
 
-        amount_tax = amount_untaxed = 0
-        for line in self.browse(cr, uid, ids[0],
-                                context=context).contract_service_ids:
-            line_tax_ids = fposition_obj.map_tax(
-                cr, uid,
-                voucher.partner_id.property_account_position,
-                line.product_id.taxes_id,
-                context=context)
-            line_tax_ids = tax_obj.browse(cr, uid, line_tax_ids,
-                                          context=context)
+        amount_untaxed = amount_tax = 0
+        for tax in self._compute_voucher_tax(cr, uid, ids[0],
+                                             context=context).values():
+            amount_tax += tax["tax_amount"]
 
-            for c in tax_obj.compute_all(
-                    cr, uid, line_tax_ids, line.unit_price,
-                    line.qty, line.product_id,
-                    line.account_id.partner_id)['taxes']:
-                amount_tax += res_currency_obj.round(
-                    cr, uid, cur, c.get('amount', 0.0))
+        for line in self.browse(cr, uid, ids[0]).contract_service_ids:
+            amount_untaxed += cur_obj.round(
+                cr, uid, cur, line.unit_price * line.qty
+            )
 
-            amount_untaxed += line.unit_price * line.qty
-
-        amount = res_currency_obj.round(cr, uid, cur, amount_tax) + \
-            res_currency_obj.round(cr, uid, cur, amount_untaxed)
+        amount = cur_obj.round(cr, uid, cur, amount_tax + amount_untaxed)
 
         # jgama - Create the activation invoice
         context['not_subscription_voucher'] = False
@@ -748,6 +736,78 @@ class account_analytic_account(orm.Model):
                 context=context)
 
         return inv
+
+    def _compute_voucher_tax(self, cr, uid, account_id, context=None):
+        """ This is a copy of ddons/account/account.py account_tax.compute()
+        which operates on invoices. We want a similar behavior that operates
+        on the contract_service_ids
+        Params:
+        - account_id: account.analytic.account id
+        - voucher: account,voucher browse record
+        """
+        fposition_obj = self.pool["account.fiscal.position"]
+        tax_obj = self.pool['account.tax']
+        cur_obj = self.pool['res.currency']
+
+        contract = self.browse(cr, uid, account_id, context=context)
+        cur = contract.pricelist_id.currency_id
+        company_currency = self.pool['res.company'].browse(
+            cr, uid, contract.company_id.id).currency_id.id
+        tax_grouped = {}
+        for line in contract.contract_service_ids:
+            line_tax_ids = fposition_obj.map_tax(
+                cr, uid,
+                contract.partner_id.property_account_position,
+                line.product_id.taxes_id,
+                context=context)
+            line_tax_ids = tax_obj.browse(cr, uid, line_tax_ids,
+                                          context=context)
+
+            for tax in tax_obj.compute_all(cr, uid, line_tax_ids,
+                                           line.unit_price, line.qty,
+                                           line.product_id,
+                                           contract.partner_id,
+                                           )['taxes']:
+                val = {}
+                val['name'] = tax['name']
+                val['amount'] = tax['amount']
+                val['sequence'] = tax['sequence']
+                val['base'] = cur_obj.round(cr, uid, cur,
+                                            tax['price_unit'] * line.qty)
+
+                val['base_code_id'] = tax['base_code_id']
+                val['tax_code_id'] = tax['tax_code_id']
+                val['base_amount'] = cur_obj.compute(
+                    cr, uid, cur.id, company_currency,
+                    val['base'] * tax['base_sign'],
+                    context={
+                        'date': fields.date.context_today(self, cr, uid,
+                                                          context=context)},
+                    round=False)
+                val['tax_amount'] = cur_obj.compute(
+                    cr, uid,
+                    cur.id, company_currency,
+                    val['amount'] * tax['tax_sign'],
+                    context={
+                        'date': fields.date.context_today(self, cr, uid,
+                                                          context=context)},
+                    round=False)
+
+                key = (val['tax_code_id'], val['base_code_id'])
+                if key not in tax_grouped:
+                    tax_grouped[key] = val
+                else:
+                    tax_grouped[key]['amount'] += val['amount']
+                    tax_grouped[key]['base'] += val['base']
+                    tax_grouped[key]['base_amount'] += val['base_amount']
+                    tax_grouped[key]['tax_amount'] += val['tax_amount']
+
+        for t in tax_grouped.values():
+            t['base'] = cur_obj.round(cr, uid, cur, t['base'])
+            t['amount'] = cur_obj.round(cr, uid, cur, t['amount'])
+            t['base_amount'] = cur_obj.round(cr, uid, cur, t['base_amount'])
+            t['tax_amount'] = cur_obj.round(cr, uid, cur, t['tax_amount'])
+        return tax_grouped
 
 
 class account_analytic_line(orm.Model):

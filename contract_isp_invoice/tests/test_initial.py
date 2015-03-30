@@ -39,14 +39,13 @@ class TestInitialInvoice(ServiceSetup, TransactionCase):
         super(TestInitialInvoice, self).setUp()
         self._common_setup()
 
-    def _create_products(self):
-        super(TestInitialInvoice, self)._create_products()
-        self.p_unit = self.product_obj.create(self.cr, self.uid, {
-            "name": "1$",
+    def _create_product(self, price):
+        return self.product_obj.create(self.cr, self.uid, {
+            "name": "{0}$ product".format(price),
             "type": "service",
             "analytic_line_type": LINE_TYPE_RECURRENT,
             "code": "UNIT",
-            "list_price": 1.00,
+            "list_price": price,
             "taxes_id": [(4, self.tax)],
         })
 
@@ -98,6 +97,25 @@ class TestInitialInvoice(ServiceSetup, TransactionCase):
         )[0]
         return self.invoice_obj.browse(cr, uid, inv)
 
+    def _add_services(self, *price_list):
+        cr, uid = self.cr, self.uid
+        for price in price_list:
+            if price < 0:
+                price = abs(price)
+                qty = -1
+            else:
+                qty = 1
+            product_id = self._create_product(price)
+            service = self.service_obj.on_change_product_id(
+                cr, uid, [], product_id,
+            )["value"]
+            service.update({
+                "product_id": product_id,
+                "account_id": self.account_id,
+                "qty": qty,
+            })
+            self.service_obj.create(cr, uid, service)
+
     def test_rounding_1(self):
         """
         Specific example where we had rounding errors
@@ -110,25 +128,54 @@ class TestInitialInvoice(ServiceSetup, TransactionCase):
 
         With QC Taxes (5% and 9.975%)
 
-        Invoice is 102.90 + 15.41 = 118.31
+        Invoice is 102.90 + 15.41 = 118.31 with global rounding
+                                  = 118.32 with per-line rounding
         Voucher should have similar initial amount
         """
         cr, uid = self.cr, self.uid
-        for qty in (20, 49.95, 32.95, 9.95, -9.95):
-            service = self.service_obj.on_change_product_id(
-                cr, uid, [], self.p_unit,
-            )["value"]
-            service.update({
-                "product_id": self.p_unit,
-                "account_id": self.account_id,
-                "qty": qty,
-            })
-            self.service_obj.create(cr, uid, service)
+        self._add_services(20, 49.95, 32.95, 9.95, -9.95)
 
-        voucher = self.account_obj.prepare_voucher(
-            cr, uid, [self.account_id])
+        for method, total in (("round_globally", 118.31),
+                              ("round_per_line", 118.32)):
+            self.company.write({"tax_calculation_rounding_method": method})
 
-        invoice = self._create_invoice()
-        self.assertEquals(voucher["context"]["default_amount"],
-                          invoice.amount_total,
-                          "Exepcted default voucher amount to match invoice")
+            voucher = self.account_obj.prepare_voucher(
+                cr, uid, [self.account_id])
+
+            invoice = self._create_invoice()
+            self.assertAlmostEquals(
+                invoice.amount_total,
+                total,
+                msg="Expected invoice to round to 118.31 globally"
+            )
+            self.assertAlmostEquals(
+                voucher["context"]["default_amount"],
+                invoice.amount_total,
+                msg="Exepcted default voucher amount to match invoice")
+
+    def test_rounding_2(self):
+        """
+        Other specific example of rounding errors with QC Taxes
+            49.95 + 15.00 + 0.90 + 34.95 + 0.00 + 99.95
+        With QC Taxes
+        Invoice is 200.75 + 30.06 = 230.81 (global rounding)
+                                  = 230.83 (per line)
+        """
+        cr, uid = self.cr, self.uid
+        self._add_services(49.95, 15.00, 0.90, 34.95, 99.95)
+        for method, total in (("round_globally", 230.81),
+                              ("round_per_line", 230.83)):
+            self.company.write({"tax_calculation_rounding_method": method})
+            voucher = self.account_obj.prepare_voucher(
+                cr, uid, [self.account_id])
+
+            invoice = self._create_invoice()
+            self.assertAlmostEquals(
+                invoice.amount_total,
+                total,
+                "Expected invoice to round to 230.81 globally",
+            )
+            self.assertAlmostEquals(
+                voucher["context"]["default_amount"],
+                invoice.amount_total,
+                msg="Exepcted default voucher amount to match invoice")
