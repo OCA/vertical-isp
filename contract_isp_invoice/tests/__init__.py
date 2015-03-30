@@ -21,14 +21,16 @@
 ###############################################################################
 
 from . import (
-    test_prorata,
     test_deactivate,
+    test_initial,
+    test_prorata,
     test_recurrent,
     test_reseller,
 )
 
 checks = [
     test_deactivate,
+    test_initial,
     test_prorata,
     test_recurrent,
     test_reseller,
