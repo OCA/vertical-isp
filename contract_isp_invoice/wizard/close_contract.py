@@ -20,12 +20,9 @@
 #
 ##############################################################################
 
-import logging
 import calendar
 import datetime
 from openerp.osv import orm, fields
-from openerp.report import report_sxw
-from openerp.tools import convert
 from openerp.tools.translate import _
 from openerp.addons.contract_isp.contract import date_interval
 
@@ -57,7 +54,7 @@ class contract_isp_close(orm.TransientModel):
         account_invoice_obj = self.pool.get('account.invoice')
         contract = self.browse(cr, uid, ids, context=context)[0].account_id
 
-        today = datetime.date.today()
+        datetime.date.today()
 
         query = [
             ('partner_id', '=', contract.partner_id.id),
@@ -71,7 +68,8 @@ class contract_isp_close(orm.TransientModel):
                                                       last_invoice_id[-1],
                                                       context=context)
             if last_invoice.date_invoice > wizard.close_date:
-                raise orm.except_orm(_('Error!'), _('Close date before last invoice date!'))
+                raise orm.except_orm(
+                    _('Error!'), _('Close date before last invoice date!'))
 
             amount_untaxed = last_invoice.amount_untaxed
 
@@ -106,9 +104,10 @@ class contract_isp_close(orm.TransientModel):
         mail_template_id = self.pool.get('ir.model.data').get_object_reference(
             cr, uid, 'contract_isp_invoice',
             'email_template_contract_isp_invoice_close')
-        mail_id = mail_template_obj.send_mail(cr, uid, mail_template_id[1], contract.id, context=context)
-        mail_message = mail_mail_obj.browse(cr, uid, mail_id, context=context).mail_message_id
+        mail_id = mail_template_obj.send_mail(
+            cr, uid, mail_template_id[1], contract.id, context=context)
+        mail_message = mail_mail_obj.browse(
+            cr, uid, mail_id, context=context).mail_message_id
         mail_message.write({'type': 'email'})
         contract.write({'state': 'close'})
         return {}
-        

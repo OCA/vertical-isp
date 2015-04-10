@@ -20,6 +20,6 @@
 #
 ##############################################################################
 
-import wizard
-import workflow
-import company
+from . import wizard
+from . import workflow
+from . import company

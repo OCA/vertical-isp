@@ -20,5 +20,5 @@
 #
 ##############################################################################
 
-import contract
-import wizard
+from . import contract
+from . import wizard

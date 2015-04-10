@@ -20,6 +20,6 @@
 #
 ##############################################################################
 
-import contract
+from . import contract
 import report
-import wizard
+from . import wizard

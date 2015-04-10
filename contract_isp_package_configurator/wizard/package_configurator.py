@@ -27,7 +27,7 @@ from openerp.tools.translate import _
 class contract_service_configurator_line(orm.TransientModel):
     _name = 'contract.service.configurator.line'
 
-    #def _get_stock_production_lot_available(self, cr, uid, )
+    # def _get_stock_production_lot_available(self, cr, uid, )
     _columns = {
         'name': fields.char('Name'),
         'product_id': fields.many2one('product.product', 'Product'),
@@ -202,8 +202,10 @@ class contract_service_configurator(orm.TransientModel):
         return ret
 
     def do_next(self, cr, uid, ids, context=None):
-        contract_service_configurator_line_obj = self.pool.get('contract.service.configurator.line')
-        contract_service_configurator_dependency_line_obj = self.pool.get('contract.service.configurator.dependency.line')
+        contract_service_configurator_line_obj = self.pool.get(
+            'contract.service.configurator.line')
+        contract_service_configurator_dependency_line_obj = self.pool.get(
+            'contract.service.configurator.dependency.line')
         product_product_obj = self.pool.get('product.product')
 
         wizard = self.browse(cr, uid, ids[0], context=context)
@@ -225,7 +227,8 @@ class contract_service_configurator(orm.TransientModel):
                     'message': line.product_id.description,
                     'state': state
                 }
-                contract_service_configurator_line_obj.create(cr, uid, l, context=context)
+                contract_service_configurator_line_obj.create(
+                    cr, uid, l, context=context)
 
         query = [('configurator_id', '=', wizard.id)]
         ids_to_unlink = contract_service_configurator_dependency_line_obj.search(cr,
@@ -328,10 +331,9 @@ class contract_service_configurator(orm.TransientModel):
         contract_service_configurator_dependency_line_obj = self.pool.get(
             'contract.service.configurator.dependency.line')
         product_product_obj = self.pool.get('product.product')
-        contract_service_serial_obj = self.pool.get('contract.service.serial')
 
         if wizard.current_product_id:
-            #if group_agent_n2_id not in res_user.groups_id and \
+            # if group_agent_n2_id not in res_user.groups_id and \
             #        wizard.current_product_id.type == 'product' and \
             #        wizard.current_product_id.qty_available <= 0:
             #    raise orm.except_orm(_('Error!'), _('Product not available!'))
@@ -424,10 +426,7 @@ class contract_service_configurator(orm.TransientModel):
         raise orm.except_orm(_('Error'), _('Product not found!'))
 
     def do_done(self, cr, uid, ids, context=None):
-        account_analytic_account_obj = self.pool.get('account.analytic.account')
         contract_service_obj = self.pool.get('contract.service')
-        stock_move_obj = self.pool.get('stock.move')
-        contract_service_serial_obj = self.pool.get('contract.service.serial')
         ret = self.write(cr, uid, ids, {'state': 'done'}, context=context)
         wizard = self.browse(cr, uid, ids[0], context=context)
         for line in wizard.line_ids:
@@ -487,15 +486,16 @@ class contract_service_configurator(orm.TransientModel):
         for line in wizard.line_ids:
             if line.state in ('message', 'serial', 'stock'):
                 if line.state == 'serial':
-                    stock_production_lot_obj = self.pool.get('stock.production.lot')
-                    product_product_obj = self.pool.get('product.product')
+                    stock_production_lot_obj = self.pool.get(
+                        'stock.production.lot')
 
                     query = [
                         ('product_id', '=', line.product_id.id),
                         ('stock_available', '>', 0)
                     ]
 
-                    serial_ids = stock_production_lot_obj.search(cr, uid, query, context=context)
+                    serial_ids = stock_production_lot_obj.search(
+                        cr, uid, query, context=context)
 
                     if not serial_ids:
                         line.write({'state': 'stock'})

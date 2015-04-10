@@ -22,7 +22,6 @@
 
 import datetime
 from openerp.osv import orm, fields
-from openerp.addons.contract_isp.contract import add_months
 
 
 class contract_service_activate(orm.TransientModel):
@@ -62,7 +61,7 @@ class contract_service_activate(orm.TransientModel):
         wizard = self.browse(cr, uid, ids[0], context)
         company_obj = self.pool.get('res.company')
         company_id = company_obj._company_default_get(cr, uid, context)
-        cutoff = company_obj.read(cr, uid, company_id, 'cutoff_day', context)
+        company_obj.read(cr, uid, company_id, 'cutoff_day', context)
         contract_service_obj = self.pool.get('contract.service')
         contract_service = contract_service_obj.browse(
             cr, uid, wizard.service_id.id, context)
