@@ -28,7 +28,8 @@
 Manage service based contracts
 ==============================
 
-This module adds a service based contract category were you can manage diferent services and service types that are included in the contract.
+This module adds a service based contract category were you can manage diferent
+services and service types that are included in the contract.
 
 Features:
 ---------

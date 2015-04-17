@@ -46,5 +46,6 @@ class account_analytic_account(orm.Model):
 
         for contract_id in ids_to_invoice:
             self.create_analytic_lines(cr, uid, [contract_id], context=context)
-            self.create_invoice(cr, uid, contract_id, PROCESS_CRON, context=context)
+            self.create_invoice(cr, uid, contract_id, PROCESS_CRON,
+                                context=context)
             cr.commit()
