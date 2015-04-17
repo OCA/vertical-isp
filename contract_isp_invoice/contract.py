@@ -801,6 +801,9 @@ class account_analytic_account(orm.Model):
 class account_analytic_line(orm.Model):
     _inherit = 'account.analytic.line'
 
+    def _get_line_prefix(self, partner_rec):
+        return partner_rec.name
+
     def _get_product_sequence(self, cr, uid, product_id, company_id=None,
                               context=None):
         return False
@@ -838,10 +841,7 @@ class account_analytic_line(orm.Model):
             # jgama - If there's a parent, invoice the parent
             if account.partner_id.parent_id:
                 partner = account.partner_id.parent_id
-                line_prefix = u" - ".join(filter(None, (
-                    account.partner_id.code,
-                    account.partner_id.name,
-                )))
+                line_prefix = self._get_line_prefix(account.partner_id)
             else:
                 partner = account.partner_id
                 line_prefix = None
