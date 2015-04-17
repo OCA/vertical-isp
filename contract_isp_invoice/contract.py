@@ -584,8 +584,7 @@ class account_analytic_account(orm.Model):
                         cr, uid, ids_to_invoice, context=ctx.copy())
 
                     if isinstance(inv, list):
-                        for i in inv:
-                            res.append(i)
+                        res.extend(inv)
                     else:
                         res.append(inv)
 
