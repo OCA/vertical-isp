@@ -30,5 +30,6 @@ class res_company(orm.Model):
             'product.category',
             'Default Product Category',
             required=True,
-            help='''Set the default starting point for the package configuration wizard'''),
+            help='Set the default starting point for the '
+                 'package configuration wizard'),
     }

@@ -63,10 +63,12 @@ class contract_service_configurator_line(orm.TransientModel):
         ret = {}
         product_product_obj = self.pool.get('product.product')
 
-        if product_product_obj.browse(cr, uid, product_id, context).description:
+        description = product_product_obj.browse(cr, uid, product_id,
+                                                 context=context).description
+        if description:
             ret['warning'] = {
                 'title': _('Information'),
-                'message': product_product_obj.browse(cr, uid, product_id, context).description
+                'message': description,
             }
         return ret
 
@@ -111,11 +113,12 @@ class contract_service_configurator(orm.TransientModel):
                                     'Line'),
         'current_product_id': fields.many2one('product.product',
                                               'Add Product'),
-        'dependency_ids': fields.many2many('contract.service.configurator.dependency.line',
-                                           'contract_service_configurator_dependency_rel',
-                                           'configurator_id',
-                                           'dependency_id',
-                                           'Dependencies'),
+        'dependency_ids': fields.many2many(
+            'contract.service.configurator.dependency.line',
+            'contract_service_configurator_dependency_rel',
+            'configurator_id',
+            'dependency_id',
+            'Dependencies'),
         'root_category_id': fields.many2one('product.category', 'Category'),
         'product_category_id': fields.many2one('product.category', 'Category'),
         'is_level2': fields.boolean('Is level 2')
@@ -123,9 +126,9 @@ class contract_service_configurator(orm.TransientModel):
 
     _defaults = {
         'state': 'draft',
-        'product_category_id': lambda s, cr, uid, ctx: s._get_default_category(cr, uid, ctx),
-        'root_category_id': lambda s, cr, uid, ctx: s._get_default_category(cr, uid, ctx),
-        'is_level2': lambda s, cr, uid, ctx: s._get_is_level2(cr, uid, ctx)
+        'product_category_id': _get_default_category,
+        'root_category_id': _get_default_category,
+        'is_level2': _get_is_level2,
     }
 
     def onchange_product_category_id(self, cr, uid, ids,
@@ -141,8 +144,10 @@ class contract_service_configurator(orm.TransientModel):
         return ret
 
     def do_next(self, cr, uid, ids, context=None):
-        contract_service_configurator_line_obj = self.pool.get('contract.service.configurator.line')
-        contract_service_configurator_dependency_line_obj = self.pool.get('contract.service.configurator.dependency.line')
+        contract_service_configurator_line_obj = self.pool[
+            'contract.service.configurator.line']
+        csc_dependency_line_obj = self.pool[
+            'contract.service.configurator.dependency.line']
         product_product_obj = self.pool.get('product.product')
 
         wizard = self.browse(cr, uid, ids[0], context=context)
@@ -155,21 +160,24 @@ class contract_service_configurator(orm.TransientModel):
                     'name': line.product_id.name,
                     'product_id': line.product_id.id,
                     'configurator_id': wizard.id,
-                    'handle_dependency': line.product_id.dependency_ids and True or False,
+                    'handle_dependency': (
+                        line.product_id.dependency_ids and True or False
+                    ),
                     'message': line.product_id.description,
                     'state': state
                 }
-                contract_service_configurator_line_obj.create(cr, uid, l, context=context)
+                contract_service_configurator_line_obj.create(
+                    cr, uid, l, context=context)
 
         query = [('configurator_id', '=', wizard.id)]
-        ids_to_unlink = contract_service_configurator_dependency_line_obj.search(cr,
-                                                                                 uid,
-                                                                                 query,
-                                                                                 context=context)
+        ids_to_unlink = csc_dependency_line_obj.search(cr,
+                                                       uid,
+                                                       query,
+                                                       context=context)
         if ids_to_unlink:
-            contract_service_configurator_dependency_line_obj.unlink(cr, uid,
-                                                                     ids_to_unlink,
-                                                                     context)
+            csc_dependency_line_obj.unlink(cr, uid,
+                                           ids_to_unlink,
+                                           context)
 
         loop_deps = False
         for line in wizard.line_ids:
@@ -190,7 +198,7 @@ class contract_service_configurator(orm.TransientModel):
                             'message': line.product_id.description,
                             'state': state
                         }
-                        new_dep = contract_service_configurator_dependency_line_obj.create(
+                        new_dep = csc_dependency_line_obj.create(
                             cr, uid, wl, context=context)
 
                         if dep.auto:
@@ -198,10 +206,12 @@ class contract_service_configurator(orm.TransientModel):
 
                     elif dep.type == 'category':
                         query = [('categ_id', '=', dep.category_id.id)]
-                        product_ids = product_product_obj.search(cr, uid,
-                                                                 query,
-                                                                 context=context)
-                        for product in product_product_obj.browse(cr, uid, product_ids, context=context):
+                        product_ids = product_product_obj.search(
+                            cr, uid, query,
+                            context=context)
+                        for product in product_product_obj.browse(
+                                cr, uid, product_ids,
+                                context=context):
                             if not wizard.is_level2 and dep.list_price < 0:
                                 continue
 
@@ -215,8 +225,8 @@ class contract_service_configurator(orm.TransientModel):
                                 'message': product.description,
                                 'state': state
                             }
-                            contract_service_configurator_dependency_line_obj.create(cr, uid, wl,
-                                                                                     context=context)
+                            csc_dependency_line_obj.create(cr, uid, wl,
+                                                           context=context)
                 line.write({'handle_dependency': False})
                 break
 
@@ -236,10 +246,8 @@ class contract_service_configurator(orm.TransientModel):
             wizard.write(record)
 
             query = [('configurator_id', '=', wizard.id)]
-            ids_to_unlink = contract_service_configurator_dependency_line_obj.search(cr,
-                                                                                     uid,
-                                                                                     query,
-                                                                                     context=context)
+            ids_to_unlink = csc_dependency_line_obj.search(cr, uid, query,
+                                                           context=context)
             return self.router(cr, uid, ids, {}, context=context)
 
     def do_add_current_product_id(self, cr, uid, ids, context=None):
@@ -249,7 +257,7 @@ class contract_service_configurator(orm.TransientModel):
         wizard = self.browse(cr, uid, ids[0], context=context)
         contract_service_configurator_line_obj = self.pool.get(
             'contract.service.configurator.line')
-        contract_service_configurator_dependency_line_obj = self.pool.get(
+        csc_dependency_line_obj = self.pool.get(
             'contract.service.configurator.dependency.line')
         product_product_obj = self.pool.get('product.product')
 
@@ -285,8 +293,8 @@ class contract_service_configurator(orm.TransientModel):
                         'message': dep.product_id.description,
                         'state': state
                     }
-                    new_dep = contract_service_configurator_dependency_line_obj.create(cr, uid, wl,
-                                                                                       context=context)
+                    new_dep = csc_dependency_line_obj.create(cr, uid, wl,
+                                                             context=context)
 
                     if dep.auto:
                         wizard.write({'dependency_ids': [(4, new_dep)]})
@@ -298,7 +306,8 @@ class contract_service_configurator(orm.TransientModel):
                     for product in product_product_obj.browse(cr, uid,
                                                               product_ids,
                                                               context=context):
-                        if not wizard.is_level2 and dep.product_id.list_price < 0:
+                        if (not wizard.is_level2 and
+                                dep.product_id.list_price < 0):
                             continue
 
                         state = 'done'
@@ -312,12 +321,13 @@ class contract_service_configurator(orm.TransientModel):
                             'message': product.description,
                             'state': state
                         }
-                        contract_service_configurator_dependency_line_obj.create(
+                        csc_dependency_line_obj.create(
                             cr, uid, record, context=context)
 
             record = {
                 'current_product_id': None,
-                'product_category_id': self._get_default_category(cr, uid, context),
+                'product_category_id': self._get_default_category(
+                    cr, uid, context=context),
                 'state': deps and 'dependency' or 'product'
             }
 
@@ -539,7 +549,8 @@ class ManageEquipmentWizard(orm.TransientModel):
                                'name': wizard.prodlot_id.name})
                 break
         else:
-            raise orm.except_orm(_('Error'), _('Product without serial not found'))
+            raise orm.except_orm(
+                _('Error'), _('Product without serial not found'))
 
         self._move_to_client(cr, uid,
                              contract_br, product_br, prodlot_id,
@@ -570,7 +581,8 @@ class ManageEquipmentWizard(orm.TransientModel):
                                'name': wizard.prodlot_id.name})
                 break
         else:
-            raise orm.except_orm(_('Error'), _('Product with serial not found'))
+            raise orm.except_orm(
+                _('Error'), _('Product with serial not found'))
 
         self._move_to_scrap(cr, uid,
                             contract_br, product_br, previous_lot,
@@ -604,7 +616,8 @@ class ManageEquipmentWizard(orm.TransientModel):
                                'name': ''})
                 break
         else:
-            raise orm.except_orm(_('Error'), _('Product with serial not found'))
+            raise orm.except_orm(
+                _('Error'), _('Product with serial not found'))
 
         self._move_to_stock(cr, uid,
                             contract_br, product_br, previous_lot,
