@@ -26,7 +26,7 @@ import logging
 import sys
 import time
 
-from dateutil import relativedelta
+from dateutil.relativedelta import relativedelta
 
 from openerp.osv import orm, fields
 from openerp.tools.translate import _
