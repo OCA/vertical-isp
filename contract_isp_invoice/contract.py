@@ -26,6 +26,8 @@ import logging
 import sys
 import time
 
+from dateutil import relativedelta
+
 from openerp.osv import orm, fields
 from openerp.tools.translate import _
 from openerp.addons.contract_isp.contract import add_months
@@ -38,18 +40,13 @@ from .invoice import PROCESS_PRORATA, PROCESS_RECURRENT, PROCESS_INITIAL
 _logger = logging.getLogger(__name__)
 
 
-def count_months_stupid(from_date, to_date):
+def count_months(from_date, to_date):
+    """ Count months elapsed between two dates, ignoring the day """
     from_date = from_date.replace(day=1)
     to_date = to_date.replace(day=1)
-    # Don't even bother making this smart for now
-    count = 0
-    while from_date < to_date:
-        count += 1
-        from_date = (
-            from_date + datetime.timedelta(days=32)
-        ).replace(day=1)
+    delta = relativedelta(to_date, from_date)
+    return delta.years * 12 + delta.months
 
-    return count
 
 
 class res_partner(orm.Model):
@@ -61,8 +58,7 @@ class res_partner(orm.Model):
             'account_payment_term_end_of_month')[1]
 
     _defaults = {
-        'property_payment_term': lambda s, cr, uid, ctx: (
-            s._get_default_payment_term(cr, uid, ctx))
+        'property_payment_term': _get_default_payment_term,
     }
 
 
@@ -257,7 +253,7 @@ class contract_service(orm.Model):
                 (month_days - start_date.day) + 1,
                 month_days,
             )
-            ptx += count_months_stupid(start_date, end_date)
+            ptx += count_months(start_date, end_date)
 
         else:  # if today_date <= invoice_day:
             if change_date < today.replace(day=1):
@@ -270,7 +266,7 @@ class contract_service(orm.Model):
                     (month_days - start_date.day) + 1,
                     month_days,
                 )
-                ptx += count_months_stupid(start_date, end_date)
+                ptx += count_months(start_date, end_date)
             else:
                 # Activation is in current month (or future - same)
                 end_date = add_months(change_date, 1)
@@ -302,7 +298,7 @@ class contract_service(orm.Model):
                 (month_days - start_date.day) + 1,
                 month_days,
             )
-            ptx -= count_months_stupid(start_date, end_date)
+            ptx -= count_months(start_date, end_date)
         else:  # if today <= invoice_day
             if change_date < today:
                 # Deactivation in the past, refund period from
@@ -319,7 +315,7 @@ class contract_service(orm.Model):
                     (month_days - start_date.day) + 1,
                     month_days,
                 )
-                ptx -= count_months_stupid(start_date, end_date)
+                ptx -= count_months(start_date, end_date)
             else:
                 # Deactivation in future, bill period from now to deactivation
                 start_date = today
@@ -341,7 +337,7 @@ class contract_service(orm.Model):
                             (start_month_days - start_date.day) + 1,
                             start_month_days),
                         # Each full month excluding end month
-                        count_months_stupid(start_date, end_date) - 1,
+                        count_months(start_date, end_date) - 1,
                         # Rate for end month
                         self._prorata_rate(end_date.day,
                                            end_month_days),
@@ -409,9 +405,7 @@ class account_analytic_account(orm.Model):
         mail_mail_obj = self.pool.get('mail.mail')
 
         for inv in ids:
-            _logger.info(
-                "Mailing invoice %s" % account_invoice_obj.browse(
-                    cr, uid, inv, context=context).name)
+            _logger.info("Mailing invoice %s",inv)
 
             try:
                 mail_id = mail_template_obj.send_mail(
@@ -422,11 +416,10 @@ class account_analytic_account(orm.Model):
                 mail_message.write({'type': 'email'})
             except:
                 _logger.error(
-                    'Error generating mail for invoice %s:'
-                    '\n\n%s' % (
-                        account_invoice_obj.browse(
-                            cr, uid, inv, context=context).name,
-                        sys.exc_info()[0]))
+                    'Error generating mail for invoice %s: \n\n %s',
+                    account_invoice_obj.browse(
+                        cr, uid, inv, context=context).name,
+                    sys.exc_info()[0])
 
         return True
 
@@ -542,9 +535,7 @@ class account_analytic_account(orm.Model):
             account_invoice_obj.write(cr, uid, inv, to_write, context=context)
 
         if context.get('not_subscription_voucher', True):
-            _logger.debug(
-                "Opening invoice %s" % account_invoice_obj.browse(
-                    cr, uid, inv, context=context).name)
+            _logger.debug("Opening invoice %s", inv)
             wf_service.trg_validate(
                 uid, 'account.invoice', inv, 'invoice_open', cr)
 
@@ -624,8 +615,7 @@ class account_analytic_account(orm.Model):
                     cr, uid, ids_to_invoice, context=ctx)
 
                 if isinstance(inv, list):
-                    for i in inv:
-                        res.append(i)
+                    res.extend(inv)
                 else:
                     res.append(inv)
 

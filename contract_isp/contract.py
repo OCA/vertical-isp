@@ -37,7 +37,7 @@ LINE_TYPE_ONETIME = 'o'
 
 def add_months(sourcedate, months):
     month = sourcedate.month - 1 + months
-    year = sourcedate.year + month / 12
+    year = sourcedate.year + month // 12
     month = month % 12 + 1
     day = min(sourcedate.day, calendar.monthrange(year, month)[1])
     return datetime.date(year, month, day)
@@ -235,7 +235,7 @@ class contract_service(orm.Model):
         Current method is days_used / days_in_month, rounded DOWN
         to 2 digits
         """
-        return (100 * days_used / days_in_month) / 100.0
+        return (100 * days_used // days_in_month) / 100.0
 
     def _get_prorata_interval_rate(self, cr, uid, change_date, context=None):
         """ Get the prorata interval and price rate.
