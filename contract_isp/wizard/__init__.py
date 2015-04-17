@@ -20,4 +20,4 @@
 #
 ##############################################################################
 
-from . activate_contract_service
+from . import activate_contract_service
