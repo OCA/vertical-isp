@@ -22,6 +22,7 @@
 
 import calendar
 import datetime
+import json
 import logging
 import sys
 import time
@@ -31,11 +32,17 @@ from dateutil.relativedelta import relativedelta
 from openerp.osv import orm, fields
 from openerp.tools.translate import _
 from openerp.addons.contract_isp.contract import add_months
-from openerp.tools import DEFAULT_SERVER_DATE_FORMAT
+from openerp.tools import (
+    DEFAULT_SERVER_DATE_FORMAT,
+    DEFAULT_SERVER_DATETIME_FORMAT,
+)
 from openerp import netsvc
 import openerp.exceptions
 
-from .invoice import PROCESS_PRORATA, PROCESS_RECURRENT, PROCESS_INITIAL
+from .invoice import (
+    PROCESS_PRORATA, PROCESS_RECURRENT, PROCESS_INITIAL,
+    Invoice,
+)
 
 _logger = logging.getLogger(__name__)
 
@@ -1024,3 +1031,113 @@ class account_analytic_line(orm.Model):
                 cr, uid, [last_invoice], context)
 
         return invoices
+
+
+class PendingInvoice(orm.Model):
+    """
+    Pending Invoice keeps track of invoices that should be created, allowing
+    a delay between actions like activations and deactivations and the actual
+    invoicing.
+    """
+    _name = 'contract.pending.invoice'
+    _description = "Indicated contracts waiting to be invoiced"
+    _columns = {
+        'contract_id': fields.many2one('account.analytic.account', "Contract"),
+        'trigger_dt': fields.datetime('Trigger Time'),
+        'source_process': Invoice._columns["source_process"],
+        'context': fields.text('Context'),
+    }
+
+    def _save_context(self, cr, uid, context=None):
+        """ Dump the context to a JSON string. Everything is expected to be
+        serializable for now """
+        if context is None:
+            context = {}
+        context["uid"] = uid
+        return json.dumps(context)
+
+    _defaults = {
+        'trigger_dt': fields.datetime.now,
+        'context': _save_context,
+    }
+
+    def trigger_or_invoice(self, cr, uid, contract_id, source_process, context=None):
+        bill_delay = self.pool["res.company"].get_prorata_bill_delay(
+            cr, uid, context=context)
+
+        if bill_delay:
+            self.trigger(cr, uid, contract_id, source_process, context=context)
+        else:
+            self.pool["account.analytic.account"].create_invoice(
+                cr, uid, contract_id,
+                source_process=source_process,
+                context=context)
+
+
+    def trigger(self, cr, uid, contract_id, source_process, context=None):
+        """ Trigger the invoicing for a contract and return the trigger id """
+        existing = self.search(cr, uid, [('contract_id', '=', contract_id)])
+        if existing:
+            return existing[0]
+        else:
+            return self.create(
+                cr, uid, {
+                    'contract_id': contract_id,
+                    'source_process': source_process,
+                },
+                context=context)
+
+    def invoice(self, cr, uid, ids, autocommit=True, context=None):
+        """ Invoice pending invoices
+
+        If autocommit is True, commit between each invoice
+        """
+        contract_obj = self.pool["account.analytic.account"]
+        if context is None:
+            context = {}
+        res = []
+        for pending in self.browse(cr, uid, ids, context=context):
+            invoice_uid = uid
+            ctx = json.loads(pending.context)
+            if ctx and "uid" in ctx:
+                invoice_uid = ctx["uid"]
+            ids = contract_obj.create_invoice(
+                cr, invoice_uid,
+                [pending.contract_id.id], pending.source_process,
+                context=ctx,
+            )
+            res.extend(ids)
+            pending.unlink()
+
+            if autocommit:
+                cr.commit()
+
+        return res
+
+
+    def cron_send_pending(self, cr, uid, curtime=None, autocommit=True, context=None):
+        """
+        Send pending invoices that have gone through the grace delay
+
+        Params:
+        - curtime: current time to use as treshold. as UTC datetime string
+        """
+
+        if curtime is None:
+            curtime = fields.datetime.now()
+
+        bill_delay = self.pool["res.company"].get_prorata_bill_delay(
+            cr, uid, context=context)
+
+        if bill_delay:
+            curtime = datetime.datetime.strptime(
+                curtime, DEFAULT_SERVER_DATETIME_FORMAT,
+            )
+            curtime = curtime - datetime.timedelta(minutes=bill_delay)
+            curtime = curtime.strftime(DEFAULT_SERVER_DATETIME_FORMAT)
+
+        ids = self.search(
+            cr, uid,
+            [('trigger_dt', '<', curtime)],
+        )
+        self.invoice(cr, uid, ids, autocommit=autocommit, context=context)
