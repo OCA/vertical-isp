@@ -48,7 +48,6 @@ def count_months(from_date, to_date):
     return delta.years * 12 + delta.months
 
 
-
 class res_partner(orm.Model):
     _inherit = "res.partner"
 
@@ -405,7 +404,7 @@ class account_analytic_account(orm.Model):
         mail_mail_obj = self.pool.get('mail.mail')
 
         for inv in ids:
-            _logger.info("Mailing invoice %s",inv)
+            _logger.info("Mailing invoice %s", inv)
 
             try:
                 mail_id = mail_template_obj.send_mail(
