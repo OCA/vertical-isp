@@ -119,7 +119,7 @@ class product_product(orm.Model):
              (LINE_TYPE_EXCEPTION, 'Exception'),
              (LINE_TYPE_ONETIME, 'One time')),
             'Type in contract',
-            required=True),
+        ),
         'require_activation': fields.boolean('Require activation')
     }
 

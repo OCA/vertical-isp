@@ -57,7 +57,7 @@
             <field name="qty" on_change="on_change_qty(qty, unit_price)" />
             <field name="unit_price" invisible="1" />
             <field name="price" readonly="1" sum="Total Price" />
-            <field name="analytic_line_type" />
+            <field name="analytic_line_type" required="True" />
             <field name="require_activation" invisible="True" />
             <field
               name="duration"
@@ -85,68 +85,68 @@
     </field>
   </record>
 
-	<record id="view_contract_service_form" model="ir.ui.view">
-            <field name="name">contract.service.form</field>
-            <field name="model">contract.service</field>
-            <field name="arch" type="xml">
-		<form string="Contract Services" version="7.0">
-		    <sheet string="Analytic Account">
-			<field name="activation_date" />
-			<field name="analytic_line_type" />
-			<field name="duration" />
-			<field name="product_id" />
-		    </sheet>
-		</form>
-	    </field>
-	</record>
+  <record id="view_contract_service_form" model="ir.ui.view">
+    <field name="name">contract.service.form</field>
+    <field name="model">contract.service</field>
+    <field name="arch" type="xml">
+      <form string="Contract Services" version="7.0">
+        <sheet string="Analytic Account">
+          <field name="activation_date" />
+          <field name="analytic_line_type" required="True" />
+          <field name="duration" />
+          <field name="product_id" />
+        </sheet>
+      </form>
+    </field>
+  </record>
 
-	<record id="view_contract_service_tree" model="ir.ui.view">
-            <field name="name">contract.service.tree</field>
-            <field name="model">contract.service</field>
-            <field name="arch" type="xml">
-		<tree editable="top" string="Contract Services">
-		    <field name="account_id" invisible="1"/>
-		    <field name="state" readonly="True" />
-		    <field name="activation_date"
-			   attrs="{'readonly': [('state', 'in', ('draft', 'active'))]}" />
-		    <field name="category_id" invisible="1" />
-		    <field name="product_id"
-			   on_change="on_change_product_id(product_id)"
-			   domain="[('&amp;', ('analytic_line_type', 'in', ('r', 'x', 'o')), ('categ_id', '=', category_id))]" />
-		    <field name="analytic_line_type" />
-		    <field 
-			name="duration"
-			attrs="{'readonly': [('state', 'in', ('draft', 'active')), ('analytic_line_type', 'in', ('r', 'o'))]}" />
-		    <field name="account_id" invisible="True" />
-		    <button
-			name="%(action_view_contract_service_activate)d"
-			string="Activate"
-			type="action"
-			icon="gtk-yes"
-			states="draft"
-			groups="contract_isp.group_isp_agent" />
-		    <button
-			name="%(action_view_contract_service_deactivate)d"
-			string="Desactivate"
-			icon="gtk-no"
-			states="active"
-			type="action"
-			groups="contract_isp.group_isp_agent" />
-		</tree>
-	    </field>
-	</record>
+  <record id="view_contract_service_tree" model="ir.ui.view">
+    <field name="name">contract.service.tree</field>
+    <field name="model">contract.service</field>
+    <field name="arch" type="xml">
+      <tree editable="top" string="Contract Services">
+        <field name="account_id" invisible="1"/>
+        <field name="state" readonly="True" />
+        <field name="activation_date"
+          attrs="{'readonly': [('state', 'in', ('draft', 'active'))]}" />
+        <field name="category_id" invisible="1" />
+        <field name="product_id"
+          on_change="on_change_product_id(product_id)"
+          domain="[('&amp;', ('analytic_line_type', 'in', ('r', 'x', 'o')), ('categ_id', '=', category_id))]" />
+        <field name="analytic_line_type" required="True" />
+        <field
+          name="duration"
+          attrs="{'readonly': [('state', 'in', ('draft', 'active')), ('analytic_line_type', 'in', ('r', 'o'))]}" />
+        <field name="account_id" invisible="True" />
+        <button
+          name="%(action_view_contract_service_activate)d"
+          string="Activate"
+          type="action"
+          icon="gtk-yes"
+          states="draft"
+          groups="contract_isp.group_isp_agent" />
+        <button
+          name="%(action_view_contract_service_deactivate)d"
+          string="Desactivate"
+          icon="gtk-no"
+          states="active"
+          type="action"
+          groups="contract_isp.group_isp_agent" />
+      </tree>
+    </field>
+  </record>
 
-	<record id="view_contract_isp__product_form" model="ir.ui.view">
-            <field name="name">contract.isp.product.form</field>
-            <field name="model">product.product</field>
-	    <field name="inherit_id" ref="product.product_normal_form_view"/>
-            <field name="arch" type="xml">
-		<field name="list_price" position="after">
-		    <field name="analytic_line_type" />
-		    <field name="require_activation" />
-		</field>
-	    </field>
-	</record>
+  <record id="view_contract_isp__product_form" model="ir.ui.view">
+    <field name="name">contract.isp.product.form</field>
+    <field name="model">product.product</field>
+    <field name="inherit_id" ref="product.product_normal_form_view"/>
+    <field name="arch" type="xml">
+      <field name="list_price" position="after">
+        <field name="analytic_line_type" required="True" />
+        <field name="require_activation" />
+      </field>
+    </field>
+  </record>
 
   <record id="contract_isp_form_buttons_adjust" model="ir.ui.view">
     <field name="name">contract.isp.form.suspend</field>
