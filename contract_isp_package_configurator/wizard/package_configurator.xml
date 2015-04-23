@@ -4,7 +4,6 @@
     <record id="view_contract_service_configurator_line_tree" model="ir.ui.view">
       <field name="name">Package Configurator Line</field>
       <field name="model">contract.service.configurator.line</field>
-      <field name="type">tree</field>
       <field name="arch" type="xml">
         <tree string="Package Configurator" version="7.0">
           <field name="product_id" />
