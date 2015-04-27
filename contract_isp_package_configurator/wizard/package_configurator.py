@@ -260,7 +260,7 @@ class contract_service_configurator(orm.TransientModel):
         wizard = self.browse(cr, uid, ids[0], context=context)
         contract_service_configurator_line_obj = self.pool.get(
             'contract.service.configurator.line')
-        contract_service_configurator_dependency_line_obj = self.pool.get(
+        csc_dependency_line_obj = self.pool.get(
             'contract.service.configurator.dependency.line')
         product_product_obj = self.pool.get('product.product')
 
