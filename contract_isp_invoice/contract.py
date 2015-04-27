@@ -1061,7 +1061,8 @@ class PendingInvoice(orm.Model):
         'context': _save_context,
     }
 
-    def trigger_or_invoice(self, cr, uid, contract_id, source_process, context=None):
+    def trigger_or_invoice(self, cr, uid, contract_id, source_process,
+                           context=None):
         bill_delay = self.pool["res.company"].get_prorata_bill_delay(
             cr, uid, context=context)
 
@@ -1072,7 +1073,6 @@ class PendingInvoice(orm.Model):
                 cr, uid, contract_id,
                 source_process=source_process,
                 context=context)
-
 
     def trigger(self, cr, uid, contract_id, source_process, context=None):
         """ Trigger the invoicing for a contract and return the trigger id """
@@ -1114,8 +1114,8 @@ class PendingInvoice(orm.Model):
 
         return res
 
-
-    def cron_send_pending(self, cr, uid, curtime=None, autocommit=True, context=None):
+    def cron_send_pending(self, cr, uid, curtime=None, autocommit=True,
+                          context=None):
         """
         Send pending invoices that have gone through the grace delay
 

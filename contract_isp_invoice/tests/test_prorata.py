@@ -205,7 +205,7 @@ class test_prorata_activate_service(TransactionCase, ServiceSetup):
         )
         max_invoice = self.cr.fetchone()[0]
         now = datetime.utcnow()
-        sid = self._create_activate_service(self.p_internet,  act_date)
+        sid = self._create_activate_service(self.p_internet, act_date)
         self.wiz_deactivate_obj.deactivate(
             cr, uid,
             [self.wiz_deactivate_obj.create(
@@ -230,11 +230,10 @@ class test_prorata_activate_service(TransactionCase, ServiceSetup):
 
         new_invoices = self.invoice_obj.search(
             cr, su_uid, [('partner_id', '=', self.partner_id),
-                      ('id', '>', max_invoice)],
+                         ('id', '>', max_invoice)],
         )
         self.assertEquals(new_invoices, [],
                           "No new invoice expected")
-
 
         self.registry("contract.pending.invoice").cron_send_pending(
             cr, su_uid, curtime=(
@@ -245,7 +244,7 @@ class test_prorata_activate_service(TransactionCase, ServiceSetup):
 
         new_invoices = self.invoice_obj.search(
             cr, su_uid, [('partner_id', '=', self.partner_id),
-                      ('id', '>', max_invoice)],
+                         ('id', '>', max_invoice)],
         )
         self.assertEquals(len(new_invoices), 1,
                           "One new invoice expected")
