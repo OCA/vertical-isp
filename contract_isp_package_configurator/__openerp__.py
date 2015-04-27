@@ -28,13 +28,16 @@
 Contract ISP Package Configurator
 =================================
 
-This module provides a wizard to help create service packages based on product inter-dependencies. It uses the dependency tree provided by the product_dependencies module.""",
+This module provides a wizard to help create service packages based on product
+inter-dependencies. It uses the dependency tree provided by the
+product_dependencies module.""",
     'author': "Savoir-faire Linux,Odoo Community Association (OCA)",
     'website': 'www.savoirfairelinux.com',
     'license': 'AGPL-3',
     'depends': ['contract_isp', 'product_dependencies', 'stock'],
     'data': [
         'security/ir.model.access.csv',
+        'security/groups.xml',
         'wizard/package_configurator.xml',
         'workflow/contract_isp_package_configurator.xml',
         'contract_isp_package_configurator_view.xml',

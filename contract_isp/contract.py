@@ -21,24 +21,29 @@
 ##############################################################################
 
 import logging
+_logger = logging.getLogger(__name__)
 import calendar
 import datetime
+
 import openerp.addons.decimal_precision as dp
 from openerp.osv import orm, fields
-from openerp.report import report_sxw
-from openerp.tools import convert
+from openerp.tools import SUPERUSER_ID, DEFAULT_SERVER_DATE_FORMAT
 from openerp.tools.translate import _
+
+LINE_TYPE_EXCEPTION = 'x'
+LINE_TYPE_RECURRENT = 'r'
+LINE_TYPE_ONETIME = 'o'
 
 
 def add_months(sourcedate, months):
     month = sourcedate.month - 1 + months
-    year = sourcedate.year + month / 12
+    year = sourcedate.year + month // 12
     month = month % 12 + 1
     day = min(sourcedate.day, calendar.monthrange(year, month)[1])
     return datetime.date(year, month, day)
 
 
-def date_interval(start_date, month_end=True, date_format='%m/%d/%Y'):
+def date_interval(start_date, month_end=True):
     if month_end:
         end_date = datetime.date(start_date.year,
                                  start_date.month,
@@ -47,33 +52,37 @@ def date_interval(start_date, month_end=True, date_format='%m/%d/%Y'):
     else:
         end_date = add_months(start_date, 1) - datetime.timedelta(days=1)
 
-    interval = '(%s - %s)' % (start_date.strftime(date_format),
-                              end_date.strftime(date_format))
-
-    return interval
+    return start_date, end_date
 
 
-class res_company(orm.Model):
-    _inherit = 'res.company'
+def format_interval(start, end, date_format=DEFAULT_SERVER_DATE_FORMAT):
+    return '(%s - %s)' % (start.strftime(date_format),
+                          end.strftime(date_format))
 
-    def _days(self, cr, uid, context=None):
-        return tuple([(str(x), str(x)) for x in range(1, 29)])
 
-    _columns = {
-        'parent_account_id': fields.many2one('account.analytic.account',
-                                             'Parent Analytic Account'),
-        'cutoff_day': fields.selection(_days, 'Cutoff day'),
-        'default_journal_id': fields.many2one('account.analytic.journal',
-                                              'Default Journal')
-    }
+def operation_date(date=None, context=None):
+    if context is None:
+        context = {}
+
+    if date is None:
+        date = context.get("operation_date", datetime.date.today())
+
+    if not isinstance(date, datetime.date):
+        date = datetime.datetime.strptime(
+            date,
+            DEFAULT_SERVER_DATE_FORMAT,
+        ).date()
+
+    return date
 
 
 class res_partner(orm.Model):
     _inherit = 'res.partner'
 
     _columns = {
-        'partner_analytic_account_id': fields.many2one('account.analytic.account',
-                                                       'Partner Analytic Account')
+        'partner_analytic_account_id': fields.many2one(
+            'account.analytic.account',
+            'Partner Analytic Account')
     }
 
     def create(self, cr, uid, values, context=None):
@@ -105,10 +114,12 @@ class product_product(orm.Model):
     _inherit = 'product.product'
 
     _columns = {
-        'analytic_line_type': fields.selection((('r', 'Recurrent'),
-                                                ('x', 'Exception'),
-                                                ('o', 'One time')),
-                                               'Type in contract'),
+        'analytic_line_type': fields.selection(
+            ((LINE_TYPE_RECURRENT, 'Recurrent'),
+             (LINE_TYPE_EXCEPTION, 'Exception'),
+             (LINE_TYPE_ONETIME, 'One time')),
+            'Type in contract',
+        ),
         'require_activation': fields.boolean('Require activation')
     }
 
@@ -117,7 +128,6 @@ class contract_service(orm.Model):
     _name = 'contract.service'
 
     def _get_product_price(self, cr, uid, ids, field_name, arg, context=None):
-        product_obj = self.pool.get('product.product')
         product_pricelist_obj = self.pool.get('product.pricelist')
         partner_id = self.browse(
             cr, uid, ids[0],
@@ -138,7 +148,8 @@ class contract_service(orm.Model):
 
         return ret
 
-    def _get_total_product_price(self, cr, uid, ids, field_name, arg, context=None):
+    def _get_total_product_price(self, cr, uid, ids, field_name, arg,
+                                 context=None):
         ret = {}
         for line in self.browse(cr, uid, ids, context=context):
             if line.qty:
@@ -150,6 +161,8 @@ class contract_service(orm.Model):
 
     _columns = {
         'activation_date': fields.datetime('Activation date'),
+        'billed_to_date': fields.date('Billed until date'),
+        'deactivation_date': fields.datetime('Deactivation date'),
         'duration': fields.integer('Duration'),
         'product_id': fields.many2one('product.product',
                                       'Product',
@@ -159,10 +172,12 @@ class contract_service(orm.Model):
             digits_compute=dp.get_precision('Product Unit of Measure')),
         'category_id': fields.many2one('product.category', 'Product Category'),
         'name': fields.char('Description', size=64),
-        'analytic_line_type': fields.selection((('r', 'Recurrent'),
-                                                ('x', 'Exception'),
-                                                ('o', 'One time')),
-                                               'Type'),
+        'analytic_line_type': fields.selection(
+            ((LINE_TYPE_RECURRENT, 'Recurrent'),
+             (LINE_TYPE_EXCEPTION, 'Exception'),
+             (LINE_TYPE_ONETIME, 'One time')),
+            'Type'),
+        # XXX Should this be a function based on product.product?
         'require_activation': fields.boolean('Require activation'),
         'account_id': fields.many2one('account.analytic.account', 'Contract'),
         'unit_price': fields.function(
@@ -201,7 +216,7 @@ class contract_service(orm.Model):
             ret['value']['require_activation'] = product.require_activation
             ret['value']['category_id'] = product.categ_id.id
             ret['value']['unit_price'] = product.list_price
-            if product.analytic_line_type in ('r', 'o'):
+            if product.analytic_line_type == LINE_TYPE_RECURRENT:
                 ret['value']['duration'] = 0
             else:
                 ret['value']['duration'] = 1
@@ -215,86 +230,183 @@ class contract_service(orm.Model):
 
         return ret
 
+    def _prorata_rate(self, days_used, days_in_month):
+        """ Returns a rate to compute prorata invoices.
+        Current method is days_used / days_in_month, rounded DOWN
+        to 2 digits
+        """
+        return (100 * days_used // days_in_month) / 100.0
+
+    def _get_prorata_interval_rate(self, cr, uid, change_date, context=None):
+        """ Get the prorata interval and price rate.
+
+        Returns a tuple (start_date, end_date, price percent)
+        """
+        month_days = calendar.monthrange(change_date.year,
+                                         change_date.month)[1]
+        start_date = add_months(change_date, 1)
+        end_date = start_date.replace(day=month_days)
+        used_days = month_days - change_date.day
+        ptx = self._prorata_rate(used_days, month_days)
+
+        return start_date, end_date, ptx
+
+    def _get_prorata_interval_rate_deactivate(self, cr, uid, change_date,
+                                              context=None):
+        start_date, end_date, ptx = self._get_prorata_interval_rate(
+            cr, uid, change_date, context=context)
+        ptx = ptx * -1
+        return start_date, end_date, ptx
+
+    def _get_date_format(self, cr, uid, obj, context):
+        partner_lang = obj.account_id.partner_id.lang
+        res_lang_obj = self.pool['res.lang']
+        query = [
+            ('code', '=', partner_lang),
+            ('active', '=', True)
+        ]
+        lang_id = res_lang_obj.search(cr, uid, query, context=context)
+        if lang_id:
+            date_format = res_lang_obj.browse(cr, uid,
+                                              lang_id[0],
+                                              context=context).date_format
+
+        else:
+            date_format = '%Y/%m/%d'
+        return date_format
+
     def create_analytic_line(self, cr, uid, ids,
                              mode='manual',
                              date=None,
                              context=None):
-
-        if not date:
-            date = datetime.date.today()
+        date = operation_date(date, context)
 
         if type(ids) is int:
             ids = [ids]
 
         ret = []
         record = {}
-        next_month = None
-        company_obj = self.pool.get('res.company')
-        company_id = company_obj._company_default_get(cr, uid, context)
-        company = company_obj.browse(cr, uid, company_id, context)
-
         account_analytic_line_obj = self.pool.get('account.analytic.line')
         for line in self.browse(cr, uid, ids, context):
-            account_id = line.account_id.id
-            partner_lang = line.account_id.partner_id.lang
-            res_lang_obj = self.pool.get('res.lang')
-            query = [
-                ('code', '=', partner_lang),
-                ('active', '=', True)
-            ]
-            lang_id = res_lang_obj.search(cr, uid, query, context=context)
-            if lang_id:
-                date_format = res_lang_obj.browse(cr, uid,
-                                                  lang_id[0],
-                                                  context=context).date_format
+            date_format = self._get_date_format(cr, uid, line, context=context)
+            start, end = None, None
+            next_month = None
 
-            else:
-                date_format = '%Y/%m/%d'
+            amount = line.price
 
-            if line.analytic_line_type == 'r':
+            if line.analytic_line_type == LINE_TYPE_RECURRENT:
                 if mode == 'prorata':
                     activation_date = date
+                    start, end, ptx = self._get_prorata_interval_rate(
+                        cr, uid,
+                        activation_date,
+                        context=context,
+                    )
 
-                    month_days = calendar.monthrange(activation_date.year,
-                                                     activation_date.month)[1]
-
-                    used_days = month_days - activation_date.day
-                    ptx = (100 * used_days / month_days) / 100.0
-
-                    amount = line.product_id.list_price * ptx
-                    interval = date_interval(add_months(date, 1),
-                                             True,
-                                             date_format)
+                    amount = amount * ptx
 
                 elif mode == 'cron':
-                    amount = line.product_id.list_price
                     next_month = add_months(date, 1)
                     next_month = datetime.date(
                         next_month.year,
                         next_month.month,
                         1)
-                    interval = date_interval(next_month,
-                                             False,
-                                             date_format)
+                    start, end = date_interval(next_month, False)
 
                 elif mode == 'manual':
-                    amount = line.product_id.list_price
-                    interval = date_interval(date, False, date_format)
+                    start, end = date_interval(date, False)
 
                 elif mode == 'subscription':
-                    amount = line.product_id.list_price
-                    interval = ''
+                    line.write({'activation_line_generated': True})
 
+            if start and end:
+                interval = format_interval(start, end, date_format)
             else:
                 interval = ''
-                amount = line.product_id.list_price
 
             general_account_id = line.product_id.property_account_expense.id \
                 or line.product_id.categ_id.property_account_expense_categ.id
 
             record = {
                 'name': ' '.join([line.product_id.name,
-                                  True and line.name or '',
+                                  line.name or '',
+                                  interval]),
+                'amount': (amount * -1),
+                'account_id': line.account_id.id,
+                'user_id': uid,
+                'general_account_id': general_account_id,
+                'product_id': line.product_id.id,
+                'contract_service_id': line.id,
+                'to_invoice': 1,
+                'unit_amount': line.qty,
+                'is_prorata': mode == 'prorata',
+                'date': (next_month or date).strftime(
+                    DEFAULT_SERVER_DATE_FORMAT),
+                'journal_id': 1
+            }
+
+            if line.analytic_line_type == LINE_TYPE_EXCEPTION:
+                new_duration = line.duration - 1
+                line.write({'duration': new_duration})
+                if new_duration <= 0:
+                    self.unlink(cr, SUPERUSER_ID, line.id)
+                    record['contract_service_id'] = False
+            elif line.analytic_line_type == LINE_TYPE_ONETIME:
+                if line.duration > 0:
+                    line.write({'duration': line.duration - 1})
+                else:
+                    # Do not create an already billed line
+                    continue
+
+            if 'default_type' in context:
+                context.pop('default_type')
+
+            ret.append(account_analytic_line_obj.create(cr, uid, record,
+                                                        context))
+
+        return ret
+
+    def create_refund_line(self, cr, uid, ids,
+                           mode='manual',
+                           date=None,
+                           context=None):
+        context = context or {}
+        date = operation_date(date, context)
+
+        if type(ids) is int:
+            ids = [ids]
+
+        ret = []
+        record = {}
+        account_analytic_line_obj = self.pool.get('account.analytic.line')
+        for line in self.browse(cr, uid, ids, context):
+            if any((line.analytic_line_type != LINE_TYPE_RECURRENT,
+                    mode != "prorata")):
+                # Not handled for now, only pro-rata deactivate
+                continue
+
+            date_format = self._get_date_format(cr, uid, line, context=context)
+
+            deactivation_date = date
+            start, end, ptx = self._get_prorata_interval_rate_deactivate(
+                cr, uid,
+                deactivation_date,
+                context=context,
+            )
+
+            amount = line.product_id.list_price * ptx
+
+            interval = format_interval(start, end,
+                                       date_format=date_format)
+
+            general_account_id = (
+                line.product_id.property_account_expense.id or
+                line.product_id.categ_id.property_account_expense_categ.id
+            )
+
+            record = {
+                'name': ' '.join([line.product_id.name,
+                                  line.name or '',
                                   interval]),
                 'amount': (amount * -1) * line.qty,
                 'account_id': line.account_id.id,
@@ -305,15 +417,9 @@ class contract_service(orm.Model):
                 'to_invoice': 1,
                 'unit_amount': line.qty,
                 'is_prorata': mode == 'prorata',
-                'date': next_month and next_month.strftime('%Y-%m-%d') or date.strftime('%Y-%m-%d'),
+                'date': date.strftime('%Y-%m-%d'),
                 'journal_id': 1
             }
-
-            if line.analytic_line_type == 'x':
-                line.write({'duration': line.duration - 1})
-                if line.duration <= 0:
-                    line.unlink()
-                    record['contract_service_id'] = False
 
             if 'default_type' in context:
                 context.pop('default_type')
@@ -330,15 +436,78 @@ class contract_service(orm.Model):
 
         return ret
 
-    def action_desactivate(self, cr, uid, ids, context):
-        return self.write(cr, uid, ids,
-                          {'state': 'inactive', 'activation_date': None},
-                          context)
+    def action_deactivate(self, cr, uid, ids, context):
+        values = {'state': 'inactive'}
+        if "deactivation_date" in context:
+            values["deactivation_date"] = context["deactivation_date"]
+        else:
+            values["deactivation_date"] = fields.datetime.now()
+
+        self.write(cr, uid, ids, values, context)
+
+        return True
 
 
 class account_analytic_account(orm.Model):
     _name = "account.analytic.account"
     _inherit = "account.analytic.account"
+
+    def _get_invoice_ids(self, cr, uid, ids, field_name, arg, context=None):
+        res = {}
+        if ids:
+            cr.execute("""
+                SELECT account_analytic_id, array_agg(invoice_id)
+                FROM account_invoice_line
+                WHERE account_analytic_id IN %s
+                GROUP BY account_analytic_id
+                """, (tuple(ids), ))
+            values = dict(cr.fetchall())
+
+            for i in ids:
+                res[i] = values.get(i, [])
+
+        return res
+
+    def _search_invoice_ids(self, cr, uid, obj, name, args, context):
+        query, params = [], []
+        for key, op, value in args:
+            if key != "invoice_ids":
+                continue
+            if op in ("=", "in") and not value:
+                query.append("agg.invoice_ids = ARRAY[NULL]::integer[]")
+            elif op in ("!=", "not in") and not value:
+                query.append("NOT agg.invoice_ids = ARRAY[NULL]::integer[]")
+            elif op in ("=", "in", "!=", "not in") and value:
+                if isinstance(value, (int, long)):
+                    value = [value]
+                query.append("{0} agg.invoice_ids && ARRAY[{1}]".format(
+                    "NOT" if op in ("!=", "not in") else "",
+                    ", ".join(["%s"] * len(value)),
+                ))
+                params.extend(value)
+            else:
+                continue
+
+        if not query:
+            return []
+
+        else:
+            cr.execute(
+                """
+                SELECT array_agg(agg.id) FROM (
+                    SELECT aaa.id as id
+                         , array_agg(ail.invoice_id) as invoice_ids
+                    FROM account_analytic_account aaa
+                    LEFT JOIN account_invoice_line ail
+                    ON ail.account_analytic_id = aaa.id
+                    GROUP BY aaa.id
+                    ) agg
+                WHERE {0}""".format(" AND ".join(query)),
+                params,
+            )
+
+            ids = cr.fetchone()[0]
+            return [('id', 'in', tuple(ids))]
 
     _columns = {
         'contract_service_ids': fields.one2many('contract.service',
@@ -353,6 +522,13 @@ class account_analytic_account(orm.Model):
                                    ('cancelled', 'Cancelled')],
                                   'Status', required=True,
                                   track_visibility='onchange'),
+        'invoice_ids': fields.function(
+            _get_invoice_ids,
+            fnct_search=_search_invoice_ids,
+            string="Invoices",
+            type="one2many", obj="account.invoice",
+            store=False, method=True,
+        ),
     }
 
     _defaults = {
@@ -364,12 +540,13 @@ class account_analytic_account(orm.Model):
         if context and context.get('create_analytic_line_mode', False):
             mode = context.get('create_analytic_line_mode')
 
-        account_analytic_line_obj = self.pool.get('account.analytic.line')
         contract_service_obj = self.pool.get('contract.service')
         query = [
             ('account_id', 'in', ids),
             ('state', '=', 'active'),
-            ('analytic_line_type', 'in', ('r', 'x'))
+            ('analytic_line_type', 'in', (LINE_TYPE_RECURRENT,
+                                          LINE_TYPE_ONETIME,
+                                          LINE_TYPE_EXCEPTION))
         ]
         contract_service_ids = contract_service_obj.search(cr, uid,
                                                            query,
@@ -381,6 +558,30 @@ class account_analytic_account(orm.Model):
                                                       contract_service_ids,
                                                       mode=mode,
                                                       context=context)
+
+        return {}
+
+    def create_refund_lines(self, cr, uid, ids, context=None):
+        context = context or {}
+        mode = context.get('create_analytic_line_mode', 'manual')
+
+        contract_service_obj = self.pool["contract.service"]
+        query = [
+            ('account_id', 'in', ids),
+            ('state', '=', 'inactive'),
+            # only recurrent is handled in refund right now
+            ('analytic_line_type', 'in', (LINE_TYPE_RECURRENT,)),
+        ]
+        contract_service_ids = contract_service_obj.search(cr, uid,
+                                                           query,
+                                                           order='account_id',
+                                                           context=context)
+
+        if contract_service_ids:
+            contract_service_obj.create_refund_line(cr, uid,
+                                                    contract_service_ids,
+                                                    mode=mode,
+                                                    context=context)
 
         return {}
 

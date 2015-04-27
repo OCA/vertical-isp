@@ -20,6 +20,10 @@
 #
 ##############################################################################
 
-import wizard
-import workflow
-import company
+from . import (
+    account_analytic,
+    company,
+    contract,
+    wizard,
+    workflow,
+)

@@ -1,24 +1,28 @@
 # Translation of OpenERP Server.
 # This file contains the translation of the following modules:
-#	* contract_isp_invoice
+# 	* contract_isp_invoice
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: OpenERP Server 7.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-09-16 16:39+0000\n"
-"PO-Revision-Date: 2014-09-16 16:39+0000\n"
-"Last-Translator: <>\n"
+"PO-Revision-Date: 2014-09-16 12:54-0500\n"
+"Last-Translator: Marc Cassuto <marc.cassuto@savoirfairelinux.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: \n"
-"Plural-Forms: \n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: fr\n"
+"X-Generator: Poedit 1.5.4\n"
 
 #. module: contract_isp_invoice
 #: model:email.template,body_html:contract_isp_invoice.email_template_contract_isp_invoice_close
-msgid "\n"
-"<div style=\"font-family: 'Lucica Grande', Ubuntu, Arial, Verdana, sans-serif; font-size: 12px; color: rgb(34, 34, 34); background-color: rgb(255, 255, 255); \">\n"
+msgid ""
+"\n"
+"<div style=\"font-family: 'Lucica Grande', Ubuntu, Arial, Verdana, sans-"
+"serif; font-size: 12px; color: rgb(34, 34, 34); background-color: rgb(255, "
+"255, 255); \">\n"
 "\n"
 "    <p>Dear Accountant,</p>\n"
 "    <p>\n"
@@ -52,199 +56,236 @@ msgid "\n"
 "</div>\n"
 "            "
 msgstr ""
+"\n"
+"<div style=\"font-family: 'Lucica Grande', Ubuntu, Arial, Verdana, sans-"
+"serif; font-size: 12px; color: rgb(34, 34, 34); background-color: rgb(255, "
+"255, 255); \">\n"
+"\n"
+"    <p>Bonjour,</p>\n"
+"    <p>\n"
+"    Prenez note que le contrat suivant vient d'être clôturé:\n"
+"\n"
+"    </p>\n"
+"<br/>\n"
+"    <table>\n"
+"    <tr>\n"
+"    <td>Contrat:</td><td>${object.name}</td>\n"
+"    </tr>\n"
+"    <tr>\n"
+"    <td>Code client:</td><td>${object.partner_id.code}</td>\n"
+"    </tr> \n"
+"    <tr>\n"
+"    <td>Client:</td><td>${object.partner_id.name}</td>\n"
+"    </tr> \n"
+"    <tr>\n"
+"    <td>Date de clôture:</td><td>${object.close_date}</td>\n"
+"    </tr>\n"
+"    </table>\n"
+"    <h3>Raison / Commentaire</h3>\n"
+"    <p>${object.close_reason}</p>\n"
+"<br/>\n"
+"Meilleurs salutations,\n"
+"<br/>\n"
+"   <br/>\n"
+"${user.name}\n"
+"\n"
+"<br/>\n"
+"\n"
+"    <br/>\n"
+"\n"
+"</div>\n"
+"            "
 
 #. module: contract_isp_invoice
 #: code:_description:0
 #: model:ir.model,name:contract_isp_invoice.model_account_voucher
 #, python-format
 msgid "Accounting Voucher"
-msgstr ""
+msgstr "Paiement"
 
 #. module: contract_isp_invoice
 #: code:_description:0
 #: model:ir.model,name:contract_isp_invoice.model_account_analytic_account
 #, python-format
 msgid "Analytic Account"
-msgstr ""
+msgstr "Contrat"
 
 #. module: contract_isp_invoice
 #: code:_description:0
 #: model:ir.model,name:contract_isp_invoice.model_account_analytic_line
 #, python-format
 msgid "Analytic Line"
-msgstr ""
+msgstr "Ligne facturable"
 
 #. module: contract_isp_invoice
 #: view:contract.isp.close:0
 msgid "Cancel"
-msgstr ""
+msgstr "Annuler"
 
 #. module: contract_isp_invoice
 #: view:account.voucher:0
 msgid "Cancel Receipt"
-msgstr ""
+msgstr "Annuler le payment"
 
 #. module: contract_isp_invoice
 #: view:contract.isp.close:0
 msgid "Close Contract"
-msgstr ""
+msgstr "Clôturer le contrat"
 
 #. module: contract_isp_invoice
 #: model:ir.actions.act_window,name:contract_isp_invoice.action_view_contract_isp_close
 msgid "Close contract"
-msgstr ""
+msgstr "Clôturer le contrat"
 
 #. module: contract_isp_invoice
 #: field:account.analytic.account,close_date:0
 #: field:contract.isp.close,close_date:0
 msgid "Close date"
-msgstr ""
+msgstr "Date de Clôture"
 
 #. module: contract_isp_invoice
 #: code:_description:0
 #: model:ir.model,name:contract_isp_invoice.model_res_company
 #, python-format
 msgid "Companies"
-msgstr ""
+msgstr "Companies"
 
 #. module: contract_isp_invoice
 #: view:contract.isp.close:0
 msgid "Confirm"
-msgstr ""
+msgstr "Confirmer"
 
 #. module: contract_isp_invoice
 #: view:contract.isp.close:0
 msgid "Confirm the termination of this contract?"
-msgstr ""
+msgstr "Souhaitez-vous clôturer ce contrat ?"
 
 #. module: contract_isp_invoice
 #: field:contract.isp.close,account_id:0
 msgid "Contract"
-msgstr ""
+msgstr "Contrat"
 
 #. module: contract_isp_invoice
 #: model:email.template,subject:contract_isp_invoice.email_template_contract_isp_invoice_close
 msgid "Contract n. ${object.name}"
-msgstr ""
+msgstr "Contrat # ${object.name}"
 
 #. module: contract_isp_invoice
 #: view:account.analytic.account:0
 msgid "Create Initial Invoice"
-msgstr ""
+msgstr "Créer la facture initiale"
 
 #. module: contract_isp_invoice
 #: code:_description:0
 #: model:ir.model,name:contract_isp_invoice.model_hr_timesheet_invoice_create
 #, python-format
 msgid "Create invoice from timesheet"
-msgstr ""
+msgstr "Créer des factures à partir des feuilles de temps"
 
 #. module: contract_isp_invoice
 #: model:account.payment.term,name:contract_isp_invoice.account_payment_term_end_of_month
 msgid "End of Month"
-msgstr ""
+msgstr "Fin de Mois"
 
 #. module: contract_isp_invoice
 #: model:account.payment.term,note:contract_isp_invoice.account_payment_term_end_of_month
 msgid "End of current month"
-msgstr ""
+msgstr "Fin du mois courant"
 
 #. module: contract_isp_invoice
 #: field:hr.timesheet.invoice.create,factor_name:0
 msgid "Invoice Factor"
-msgstr ""
+msgstr "Taux facturable"
 
 #. module: contract_isp_invoice
 #: field:res.company,invoice_day:0
 msgid "Invoice day"
-msgstr ""
+msgstr "Jour de facturation"
 
 #. module: contract_isp_invoice
 #: code:_description:0
 #: model:ir.model,name:contract_isp_invoice.model_account_journal
 #, python-format
 msgid "Journal"
-msgstr ""
+msgstr "Journal Comptable"
 
 #. module: contract_isp_invoice
 #: field:account.journal,later_validation:0
 #: field:account.voucher,later_validation:0
 msgid "Later Validation"
-msgstr ""
+msgstr "Validation Ultérieure"
 
 #. module: contract_isp_invoice
 #: code:_description:0
 #: model:ir.model,name:contract_isp_invoice.model_res_partner
 #, python-format
 msgid "Partner"
-msgstr ""
+msgstr "Partenaire"
 
 #. module: contract_isp_invoice
 #: field:hr.timesheet.invoice.create,product_name:0
 msgid "Product Name"
-msgstr ""
+msgstr "Produit"
 
 #. module: contract_isp_invoice
-#: view:contract.isp.close:0
-#: field:contract.isp.close,close_reason:0
+#: view:contract.isp.close:0 field:contract.isp.close,close_reason:0
 msgid "Reason"
-msgstr ""
+msgstr "Raison"
 
 #. module: contract_isp_invoice
 #: field:account.analytic.account,close_reason:0
 msgid "Reasons"
-msgstr ""
+msgstr "Raisons"
 
 #. module: contract_isp_invoice
 #: field:res.company,send_email_contract_invoice:0
 msgid "Send invoice by email"
-msgstr ""
+msgstr "Envoyer la facture par couriel"
 
 #. module: contract_isp_invoice
 #: help:hr.timesheet.invoice.create,factor_name:0
 msgid "Show the invoice factor"
-msgstr ""
+msgstr "Montre le taux facturable"
 
 #. module: contract_isp_invoice
 #: help:hr.timesheet.invoice.create,product_name:0
 msgid "Show the product name"
-msgstr ""
+msgstr "Montre le produit"
 
 #. module: contract_isp_invoice
 #: code:_description:0
 #: model:ir.model,name:contract_isp_invoice.model_contract_isp_close
 #, python-format
 msgid "contract.isp.close"
-msgstr ""
+msgstr "contract.isp.close"
 
 #. module: contract_isp_invoice
 #: code:_description:0
 #: model:ir.model,name:contract_isp_invoice.model_contract_service
 #, python-format
 msgid "contract.service"
-msgstr ""
+msgstr "contract.service"
 
 #. module: contract_isp_invoice
 #: code:_description:0
 #: model:ir.model,name:contract_isp_invoice.model_contract_service_activate
 #, python-format
 msgid "contract.service.activate"
-msgstr ""
+msgstr "contract.service.activate"
 
 #. module: contract_isp_invoice
 #: code:_description:0
 #: model:ir.model,name:contract_isp_invoice.model_contract_service_deactivate
 #, python-format
 msgid "contract.service.deactivate"
-msgstr ""
+msgstr "contract.service.deactivate"
 
 #. module: contract_isp_invoice
 #: view:account.voucher:0
 msgid "object"
-msgstr ""
+msgstr "objet"
 
 #. module: contract_isp_invoice
 #: view:account.voucher:0
 msgid "{'invisible': [('later_validation', '=', True)]}"
-msgstr ""
-
+msgstr "{'invisible': [('later_validation', '=', True)]}"

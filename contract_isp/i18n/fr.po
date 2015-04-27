@@ -1,345 +1,338 @@
 # Translation of OpenERP Server.
 # This file contains the translation of the following modules:
-#	* contract_isp
+# 	* contract_isp
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: OpenERP Server 7.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-09-21 02:02+0000\n"
-"PO-Revision-Date: 2014-09-21 02:02+0000\n"
-"Last-Translator: <>\n"
+"PO-Revision-Date: 2014-09-20 22:45-0500\n"
+"Last-Translator: Marc Cassuto <marc.cassuto@savoirfairelinux.com>\n"
 "Language-Team: \n"
+"Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: \n"
-"Plural-Forms: \n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.5.4\n"
 
 #. module: contract_isp
 #: field:contract.service.activate,account_id:0
 #: field:contract.service.deactivate,account_id:0
 msgid "Account"
-msgstr ""
+msgstr "Compte"
 
 #. module: contract_isp
-#: view:account.analytic.account:0
-#: view:contract.service:0
+#: view:account.analytic.account:0 view:contract.service:0
 #: view:contract.service.activate:0
 msgid "Activate"
-msgstr ""
+msgstr "Activer"
 
 #. module: contract_isp
 #: view:contract.service.activate:0
 #: model:ir.actions.act_window,name:contract_isp.action_view_contract_service_activate
 msgid "Activate Service"
-msgstr ""
+msgstr "Activer un Service"
 
 #. module: contract_isp
 #: field:contract.service.activate,activation_date:0
 msgid "Activation Date"
-msgstr ""
+msgstr "Date d'Activation"
 
 #. module: contract_isp
 #: field:contract.service,activation_line_generated:0
 msgid "Activation Line Generated?"
-msgstr ""
+msgstr "Ligne d'Activation Générée ?"
 
 #. module: contract_isp
 #: field:contract.service,activation_date:0
 msgid "Activation date"
-msgstr ""
+msgstr "Date d'Activation"
 
 #. module: contract_isp
 #: selection:contract.service,state:0
 msgid "Active"
-msgstr ""
+msgstr "Actif"
 
 #. module: contract_isp
 #: model:res.groups,name:contract_isp.group_isp_agent
 msgid "Agent Level 1"
-msgstr ""
+msgstr "Agent Niveau 1"
 
 #. module: contract_isp
 #: model:res.groups,name:contract_isp.group_isp_agent2
 msgid "Agent Level 2"
-msgstr ""
+msgstr "Agent niveau 2"
 
 #. module: contract_isp
-#: code:_description:0
-#: view:contract.service:0
+#: code:_description:0 view:contract.service:0
 #: model:ir.model,name:contract_isp.model_account_analytic_account
 #, python-format
 msgid "Analytic Account"
-msgstr ""
+msgstr "Contrat"
 
 #. module: contract_isp
 #: code:_description:0
 #: model:ir.model,name:contract_isp.model_account_analytic_line
 #, python-format
 msgid "Analytic Line"
-msgstr ""
+msgstr "Lignes facturables"
 
 #. module: contract_isp
-#: view:contract.service.activate:0
-#: view:contract.service.deactivate:0
+#: view:contract.service.activate:0 view:contract.service.deactivate:0
 msgid "Cancel"
-msgstr ""
+msgstr "Annuler"
 
 #. module: contract_isp
-#: code:_description:0
-#: model:ir.model,name:contract_isp.model_res_company
+#: code:_description:0 model:ir.model,name:contract_isp.model_res_company
 #, python-format
 msgid "Companies"
-msgstr ""
+msgstr "Companies"
 
 #. module: contract_isp
 #: field:contract.service,account_id:0
 msgid "Contract"
-msgstr ""
+msgstr "Contrat"
 
 #. module: contract_isp
 #: view:contract.service:0
 msgid "Contract Services"
-msgstr ""
+msgstr "Services du Contrat"
 
 #. module: contract_isp
 #: field:account.analytic.account,use_contract_services:0
 msgid "Contract services"
-msgstr ""
+msgstr "Services du Contrat"
 
 #. module: contract_isp
 #: field:res.company,cutoff_day:0
 msgid "Cutoff day"
-msgstr ""
+msgstr "Date de Cut-off"
 
 #. module: contract_isp
 #: model:account.analytic.journal,name:contract_isp.analytic_journal_data
 msgid "Data Use"
-msgstr ""
+msgstr "Consommations de données"
 
 #. module: contract_isp
 #: view:contract.service.deactivate:0
 msgid "Deactivate"
-msgstr ""
+msgstr "Désactiver"
 
 #. module: contract_isp
 #: model:ir.actions.act_window,name:contract_isp.action_view_contract_service_deactivate
 msgid "Deactivate Service"
-msgstr ""
+msgstr "Désactiver un Service"
 
 #. module: contract_isp
 #: field:contract.service.deactivate,deactivation_date:0
 msgid "Deactivation Date"
-msgstr ""
+msgstr "Date de Désactivation"
 
 #. module: contract_isp
 #: field:contract.service,deactivation_date:0
 msgid "Deactivation date"
-msgstr ""
+msgstr "Date de Désactivation"
 
 #. module: contract_isp
 #: view:contract.service.deactivate:0
 msgid "Dectivate Service"
-msgstr ""
+msgstr "Désactiver un Service"
 
 #. module: contract_isp
 #: field:res.company,default_journal_id:0
 msgid "Default Journal"
-msgstr ""
+msgstr "Journal Comptable par défaut"
 
 #. module: contract_isp
-#: view:account.analytic.account:0
-#: view:contract.service:0
+#: view:account.analytic.account:0 view:contract.service:0
 msgid "Desactivate"
-msgstr ""
+msgstr "Désactiver"
 
 #. module: contract_isp
 #: field:contract.service,name:0
 msgid "Description"
-msgstr ""
+msgstr "Description"
 
 #. module: contract_isp
 #: field:contract.service,duration:0
 msgid "Duration"
-msgstr ""
+msgstr "Durée"
 
 #. module: contract_isp
 #: selection:contract.service,analytic_line_type:0
 #: selection:product.product,analytic_line_type:0
 msgid "Exception"
-msgstr ""
+msgstr "Exception"
 
 #. module: contract_isp
 #: view:res.company:0
 msgid "ISP Contract Management"
-msgstr ""
+msgstr "Gestion de contrats pour les FSI"
 
 #. module: contract_isp
 #: selection:contract.service,state:0
 msgid "Inactive"
-msgstr ""
+msgstr "Inactif"
 
 #. module: contract_isp
 #: selection:contract.service,analytic_line_type:0
 #: selection:product.product,analytic_line_type:0
 msgid "One time"
-msgstr ""
+msgstr "Facturé une fois"
 
 #. module: contract_isp
 #: field:res.company,parent_account_id:0
 msgid "Parent Analytic Account"
-msgstr ""
+msgstr "Contrat parent"
 
 #. module: contract_isp
-#: code:_description:0
-#: model:ir.model,name:contract_isp.model_res_partner
+#: code:_description:0 model:ir.model,name:contract_isp.model_res_partner
 #, python-format
 msgid "Partner"
-msgstr ""
+msgstr "Partenaire"
 
 #. module: contract_isp
 #: field:res.partner,partner_analytic_account_id:0
 msgid "Partner Analytic Account"
-msgstr ""
+msgstr "Contrat du partenaire"
 
 #. module: contract_isp
 #: field:contract.service,price:0
 msgid "Price"
-msgstr ""
+msgstr "Prix"
 
 #. module: contract_isp
-#: code:_description:0
-#: field:contract.service,product_id:0
+#: code:_description:0 field:contract.service,product_id:0
 #: model:ir.model,name:contract_isp.model_product_product
 #, python-format
 msgid "Product"
-msgstr ""
+msgstr "Produit"
 
 #. module: contract_isp
 #: field:contract.service,category_id:0
 msgid "Product Category"
-msgstr ""
+msgstr "Catégorie de Produit"
 
 #. module: contract_isp
 #: field:account.analytic.line,is_prorata:0
 msgid "Prorata"
-msgstr ""
+msgstr "Pro-rata"
 
 #. module: contract_isp
 #: field:contract.service,qty:0
 msgid "Qty"
-msgstr ""
+msgstr "Qté"
 
 #. module: contract_isp
 #: selection:contract.service,analytic_line_type:0
 #: selection:product.product,analytic_line_type:0
 msgid "Recurrent"
-msgstr ""
+msgstr "Récurrent"
 
 #. module: contract_isp
 #: model:account.analytic.journal,name:contract_isp.analytic_journal_recurrent
 msgid "Recurrent Service"
-msgstr ""
+msgstr "Service Récurrent"
 
 #. module: contract_isp
 #: field:contract.service,require_activation:0
 #: field:product.product,require_activation:0
 msgid "Require activation"
-msgstr ""
+msgstr "Nécessite une acitvation"
 
 #. module: contract_isp
 #: field:account.analytic.line,contract_service_id:0
 #: field:contract.service.activate,service_id:0
 #: field:contract.service.deactivate,service_id:0
 msgid "Service"
-msgstr ""
+msgstr "Service"
 
 #. module: contract_isp
 #: view:account.analytic.account:0
 #: field:account.analytic.account,contract_service_ids:0
 #: model:ir.actions.act_window,name:contract_isp.action_contract_service_manage
 msgid "Services"
-msgstr ""
+msgstr "Services"
 
 #. module: contract_isp
 #: field:contract.service,state:0
 msgid "State"
-msgstr ""
+msgstr "Statut"
 
 #. module: contract_isp
 #: view:account.analytic.account:0
 msgid "Suspend"
-msgstr ""
+msgstr "Suspendre"
 
 #. module: contract_isp
 #: model:res.groups,comment:contract_isp.group_isp_agent
 #: model:res.groups,comment:contract_isp.group_isp_agent2
 msgid "The users in this group will be able to manage customers and contracts"
 msgstr ""
+"Les utilisateurs de ce groupe pourront gérer les clients et les contrats"
 
 #. module: contract_isp
 #: view:account.analytic.account:0
 msgid "Total Price"
-msgstr ""
+msgstr "Prix Total"
 
 #. module: contract_isp
 #: field:contract.service,analytic_line_type:0
 msgid "Type"
-msgstr ""
+msgstr "Type"
 
 #. module: contract_isp
 #: field:product.product,analytic_line_type:0
 msgid "Type in contract"
-msgstr ""
+msgstr "Type dans le contrat"
 
 #. module: contract_isp
 #: field:contract.service,unit_price:0
 msgid "Unit Price"
-msgstr ""
+msgstr "Prix Unitaire"
 
 #. module: contract_isp
 #: model:account.analytic.journal,name:contract_isp.analytic_journal_tel
 msgid "Voice Use"
-msgstr ""
+msgstr "Consommation Téléphonique"
 
 #. module: contract_isp
 #: selection:contract.service,state:0
 msgid "Waiting for activating"
-msgstr ""
+msgstr "En attente d'activation"
 
 #. module: contract_isp
 #: constraint:contract.service.activate:0
 msgid "You cannot activate a service in the future."
-msgstr ""
+msgstr "Vous ne pouvez pas activer un service dans le futur."
 
 #. module: contract_isp
 #: constraint:contract.service.deactivate:0
 msgid "You cannot deactivate a service in the future."
-msgstr ""
+msgstr "Vous ne pouvez pas désactiver un service dans le futur."
 
 #. module: contract_isp
-#: code:_description:0
-#: model:ir.model,name:contract_isp.model_contract_service
+#: code:_description:0 model:ir.model,name:contract_isp.model_contract_service
 #, python-format
 msgid "contract.service"
-msgstr ""
+msgstr "contract.service"
 
 #. module: contract_isp
 #: code:_description:0
 #: model:ir.model,name:contract_isp.model_contract_service_activate
 #, python-format
 msgid "contract.service.activate"
-msgstr ""
+msgstr "contract.service.activate"
 
 #. module: contract_isp
 #: code:_description:0
 #: model:ir.model,name:contract_isp.model_contract_service_deactivate
 #, python-format
 msgid "contract.service.deactivate"
-msgstr ""
+msgstr "contract.service.deactivate"
 
 #. module: contract_isp
 #: view:account.analytic.account:0
 msgid "contract_isp.group_isp_agent2"
-msgstr ""
-
+msgstr "contract_isp.group_isp_agent2"

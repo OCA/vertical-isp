@@ -20,5 +20,9 @@
 #
 ##############################################################################
 
-import contract
-import wizard
+from . import (
+    company,
+    contract,
+    invoice,
+    wizard,
+)

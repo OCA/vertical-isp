@@ -1,9 +1,9 @@
-# -*- coding: utf-8 -*-
-
-##############################################################################
+# -*- encoding: utf-8 -*-
+###############################################################################
 #
 #    OpenERP, Open Source Management Solution
-#    Copyright (C) 2013 Savoirfaire-Linux Inc. (<www.savoirfairelinux.com>).
+#    This module copyright (C) 2014 Savoir-faire Linux
+#    (<http://www.savoirfairelinux.com>).
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -18,6 +18,20 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-##############################################################################
+###############################################################################
 
-from . import package_configurator
+from . import (
+    test_deactivate,
+    test_initial,
+    test_prorata,
+    test_recurrent,
+    test_reseller,
+)
+
+checks = [
+    test_deactivate,
+    test_initial,
+    test_prorata,
+    test_recurrent,
+    test_reseller,
+]

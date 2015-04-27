@@ -19,7 +19,7 @@
             <field name="inherit_id" ref="analytic.view_account_analytic_account_form"/>
             <field name="arch" type="xml">
                 <xpath expr="//div[@name='buttons']" position='inside'>
-                    <button string="Create Voucher"
+                    <button string="Create Initial Invoice"
                             name="prepare_voucher"
                             context="{'default_partner_id': partner_id}"
                             type="object" />
@@ -34,7 +34,6 @@
             <field name="arch" type="xml">
                 <field name="name" position="after">
                     <field name="later_validation" invisible="1" />
-		    <field name="original_amount" invisible="1" />
                 </field>
                 <button name="proforma_voucher" position="attributes">
                     <attribute name="attrs">{'invisible': [('later_validation', '=', True)]}</attribute>

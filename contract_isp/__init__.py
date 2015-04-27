@@ -20,6 +20,8 @@
 #
 ##############################################################################
 
-import contract
-import report
-import wizard
+from . import (
+    company,
+    contract,
+    wizard,
+)

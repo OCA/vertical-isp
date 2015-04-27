@@ -3,7 +3,7 @@
 ##############################################################################
 #
 #    OpenERP, Open Source Management Solution
-#    Copyright (C) 2013 Savoir-faire Linux Inc. (<www.savoirfairelinux.com>).
+#    Copyright (C) 2014 Savoirfaire-Linux Inc. (<www.savoirfairelinux.com>).
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -20,18 +20,16 @@
 #
 ##############################################################################
 
-{
-    'name': 'Contract ISP Automatic Invoicing',
-    'version': '1.0',
-    'category': 'Account',
-    'description': """
-    A module to automatically invoice services based contracts
-    """,
-    'author': "Savoir-faire Linux,Odoo Community Association (OCA)",
-    'website': 'www.savoirfairelinux.com',
-    'license': 'AGPL-3',
-    'depends': ['contract_isp_invoice'],
-    'data': ['contract_isp_automatic_invoicing_data.xml'],
-    'active': False,
-    'installable': True,
-}
+from openerp.osv import fields, orm
+
+
+class ContractService(orm.Model):
+    _name = 'contract.service'
+    _inherit = 'contract.service'
+    _columns = {
+        'prodlot_id': fields.many2one(
+            'stock.production.lot',
+            'Serial Number',
+            required=False,
+        ),
+    }
