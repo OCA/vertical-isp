@@ -504,6 +504,15 @@ class account_analytic_account(orm.Model):
                 account_invoice_line_obj.write(
                     cr, uid, line_ids, {'invoice_id': inv[0]},
                     context=context)
+                # Assign analytic lines to first invoice
+                cr.execute(
+                    """
+                    UPDATE account_analytic_line
+                    SET invoice_id = %s
+                    WHERE invoice_id IN %s
+                    """,
+                    (inv[0], inv[1:]),
+                )
                 account_invoice_obj.button_compute(
                     cr, uid, [inv[0]], context=context)
                 account_invoice_obj.unlink(cr, uid, inv[1:], context=context)

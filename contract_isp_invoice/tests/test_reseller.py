@@ -37,6 +37,11 @@ class test_reseller_invoice(TransactionCase, ServiceSetup):
         super(test_reseller_invoice, self).setUp()
         self._common_setup()
 
+    def _create_account(self):
+        for partner in [self.partner_id1, self.partner_id2]:
+            self.partner_id = partner
+            super(test_reseller_invoice, self)._create_account()
+
     def _create_partner(self):
         cr, uid = self.cr, self.uid
         p_o = self.partner_obj
@@ -45,12 +50,17 @@ class test_reseller_invoice(TransactionCase, ServiceSetup):
             "is_reseller": True,
             "name": "Test Company",
         })
-        self.partner_id = p_o.create(cr, uid, {
+        self.partner_id1 = p_o.create(cr, uid, {
+            "name": "Test Partner",
+            "parent_id": self.parent_id,
+        })
+        self.partner_id2 = p_o.create(cr, uid, {
             "name": "Test Partner",
             "parent_id": self.parent_id,
         })
 
     def test_prorata_invoice(self):
+        self.partner_id = self.partner_id1
         self._create_activate_service(
             self.p_internet, "{0}-02-08".format(YEAR), {
                 "operation_date": date(YEAR, 2, 10),
@@ -75,7 +85,7 @@ class test_reseller_invoice(TransactionCase, ServiceSetup):
     def _get_lines_to_invoice(self):
         return self.analytic_line_obj.search(
             self.cr, self.uid, [
-                ('account_id', 'child_of', self.account_id),
+                ('account_id.partner_id', 'child_of', self.parent_id),
                 ('invoice_id', '=', False),
                 ('to_invoice', '!=', False),
             ])
@@ -89,11 +99,13 @@ class test_reseller_invoice(TransactionCase, ServiceSetup):
 
         # Activate a service on Jan 14th. This will create the pro-rata
         # invoice for Feb 14th - Feb 28th
-        self._create_activate_service(
-            self.p_internet, "{0}-01-14".format(YEAR), {
-                "operation_date": date(YEAR, 1, 14),
-            }
-        )
+        for partner in (self.partner_id1, self.partner_id2):
+            self.partner_id = partner
+            self._create_activate_service(
+                self.p_internet, "{0}-01-14".format(YEAR), {
+                    "operation_date": date(YEAR, 1, 14),
+                }
+            )
 
         self.assertFalse(self._get_lines_to_invoice(),
                          "There should not be any lines to invoice")
