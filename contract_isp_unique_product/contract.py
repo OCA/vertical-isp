@@ -25,12 +25,7 @@ from openerp.tools.translate import _
 
 
 def unique(values):
-    seen = set()
-    for v in values:
-        if v in seen:
-            return False
-        seen.add(v)
-    return True
+    return len(values) == len(set(values))
 
 
 class Contract(orm.Model):
