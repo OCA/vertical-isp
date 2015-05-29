@@ -23,8 +23,8 @@
 {
     'name': 'Contract ISP - Unique Product in Contract',
     'version': '0.1',
-    'author': 'Savoir-faire Linux',
-    'maintainer': 'Savoir-faire Linux',
+    'author': "Savoir-faire Linux,Odoo Community Association (OCA)",
+    'maintainer': 'Odoo Community Association (OCA)',
     'website': 'http://www.savoirfairelinux.com',
     'license': 'AGPL-3',
     'category': 'Contract Manage',
