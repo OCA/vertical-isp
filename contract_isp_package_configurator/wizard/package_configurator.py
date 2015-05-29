@@ -133,7 +133,10 @@ class contract_service_configurator(orm.TransientModel):
 
     def onchange_product_category_id(self, cr, uid, ids,
                                      product_category_id, is_level2):
-        domain = [('categ_id', '=', product_category_id)]
+        domain = [
+            ('categ_id', 'child_of', product_category_id),
+            ('sale_ok', '=', True),
+        ]
         ret = {'domain': {'current_product_id': None}}
 
         if not is_level2:
@@ -205,7 +208,7 @@ class contract_service_configurator(orm.TransientModel):
                             wizard.write({'dependency_ids': [(4, new_dep)]})
 
                     elif dep.type == 'category':
-                        query = [('categ_id', '=', dep.category_id.id)]
+                        query = [('categ_id', 'child_of', dep.category_id.id)]
                         product_ids = product_product_obj.search(
                             cr, uid, query,
                             context=context)
@@ -300,7 +303,7 @@ class contract_service_configurator(orm.TransientModel):
                         wizard.write({'dependency_ids': [(4, new_dep)]})
 
                 elif dep.type == 'category':
-                    query = [('categ_id', '=', dep.category_id.id)]
+                    query = [('categ_id', 'child_of', dep.category_id.id)]
                     product_ids = product_product_obj.search(cr, uid, query,
                                                              context=context)
                     for product in product_product_obj.browse(cr, uid,

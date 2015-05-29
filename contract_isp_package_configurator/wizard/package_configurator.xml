@@ -35,17 +35,16 @@
               <div width="100%%">
                 <field
                   name="current_product_id"
-                  width="70%%"
-                  class="oe_inline"
+                  nolabel="1"
+                  class="w70pct"
                   options="{'no_open': True}"
-                  domain = "[('categ_id', '=', product_category_id)]"
+                  domain = "[('categ_id', 'child_of', product_category_id), ('sale_ok', '=', True)]"
                   placeholder="Product" />
                 <button
                   name="do_add_current_product_id"
                   string="Add"
                   type="object"
                   states="draft,product"
-                  width="15%%"
                   class="oe_inline oe_highlight" />
               </div>
             </group>

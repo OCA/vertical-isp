@@ -42,6 +42,9 @@ product_dependencies module.""",
         'workflow/contract_isp_package_configurator.xml',
         'contract_isp_package_configurator_view.xml',
     ],
+    'css': [
+        'static/src/css/configurator.css',
+    ],
     'active': False,
     'installable': True,
 }
