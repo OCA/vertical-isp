@@ -44,6 +44,7 @@ Contributors
         'python': [],
     },
     'data': [
+        'contract_view.xml',
     ],
     'demo': [],
     'test': [],

@@ -22,6 +22,7 @@
 
 from openerp.osv import fields, orm
 from openerp.tools.translate import _
+from openerp.tools import SUPERUSER_ID
 
 
 def unique(values):
@@ -59,8 +60,36 @@ class Contract(orm.Model):
                 raise orm.except_orm(
                     _("Validation Error"),
                     _("You are not allowed to have multiple identical "
-                      "products in a contract"),
+                      "products in a contract, remove the inactive "
+                      "duplicate services first."),
                 )
+
+    def _unlink_only_duplicates(self, cr, uid, ids, values, context=None):
+        if "contract_service_ids" not in values:
+            return
+
+        cs_obj = self.pool["contract.service"]
+
+        csi_vals = []
+        for val in values["contract_service_ids"]:
+            # Only handle unlinks
+            if val[0] != 2:
+                csi_vals.append(val)
+                continue
+
+            rm_cs = cs_obj.browse(cr, uid, val[1])
+            if not rm_cs.is_duplicate:
+                csi_vals.append(val)
+                continue
+
+            # Use super write to avoid infinite recursion
+            # Write one at a time to avoid removing all duplicates
+            super(Contract, self).write(cr, SUPERUSER_ID, ids,
+                                        {'contract_service_ids': [val]},
+                                        context=context)
+
+        values["contract_service_ids"] = csi_vals
+        return values
 
     def create(self, cr, uid, values, context=None):
         # Do it simple, check after creation
@@ -69,15 +98,42 @@ class Contract(orm.Model):
         return res
 
     def write(self, cr, uid, ids, values, context=None):
+        self._unlink_only_duplicates(cr, uid, ids, values, context=context)
+
         res = super(Contract, self).write(cr, uid, ids, values,
                                           context=context)
-        if "contract_service_ids" in values:
+        if values.get("contract_service_ids"):
             self._check_unique_products(cr, uid, ids, context=context)
         return res
 
 
 class ContractService(orm.Model):
     _inherit = 'contract.service'
+
+    def _get_is_duplicate(self, cr, uid, ids, fields, arg, context):
+        res = {}
+        account_obj = self.pool["account.analytic.account"]
+        account_ids = account_obj.search(
+            cr, uid,
+            [('contract_service_ids', 'in', ids)],
+            context=context)
+        for account in account_obj.browse(cr, uid, account_ids,
+                                          context=context):
+            codes = {}
+            for cs in account.contract_service_ids:
+                codes.setdefault(cs.product_id.default_code, []).append(cs.id)
+
+            for key, vals in codes.iteritems():
+                is_dup = (key and len(vals) > 1)
+                for v in vals:
+                    res[v] = is_dup
+
+        return res
+
+    _columns = {
+        'is_duplicate': fields.function(_get_is_duplicate,
+                                        type="bool", store=False),
+    }
 
     def create(self, cr, uid, values, context=None):
         res = super(ContractService, self).create(cr, uid, values,
