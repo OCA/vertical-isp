@@ -25,6 +25,8 @@ from openerp.tools.translate import _
 
 
 def unique(values):
+    if iter(values) is values:
+        values = list(values)
     return len(values) == len(set(values))
 
 
