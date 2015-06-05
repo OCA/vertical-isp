@@ -43,7 +43,7 @@
       <field name="inherit_id" ref="contract_isp.view_contract_isp_form" />
       <field name="arch" type="xml">
         <xpath expr="//button[@string='Desactivate']" position="after">
-          <field name="is_duplicate" invisible="1" />
+          <field name="is_duplicate" invisible="1" widget="boolean" />
           <button
             name="%(action_view_contract_service_delete)s"
             string="Delete"

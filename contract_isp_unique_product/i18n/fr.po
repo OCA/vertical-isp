@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: OpenERP Server 7.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-06-05 16:01+0000\n"
-"PO-Revision-Date: 2015-06-05 05:49-0500\n"
+"PO-Revision-Date: 2015-06-05 15:27-0500\n"
 "Last-Translator: Vincent Vinet <vincent.vinet@savoirfairelinux.com>\n"
 "Language-Team: \n"
 "Language: fr_CA\n"
@@ -66,16 +66,18 @@ msgstr "Erreur de validation"
 msgid ""
 "When deleting a duplicate service, make sure you are deleting the inactive "
 "one"
-msgstr "Lorsque vous effacez un service en double, assurez vous de supprimer "
-"le service inactif"
+msgstr ""
+"Lorsque vous effacez un service en double, assurez vous de supprimer le "
+"service inactif"
 
 #. module: contract_isp_unique_product
 #: code:addons/contract_isp_unique_product/contract.py:62
 msgid ""
 "You are not allowed to have multiple identical products in a contract, "
 "remove the inactive duplicate services first."
-msgstr "Il est interdit d'avoir plusieurs fois le même produit dans un contrat "
-", veuillez supprimer les services, en débutant par les inactifs."
+msgstr ""
+"Il est interdit d'avoir plusieurs fois le même produit dans un contrat , "
+"veuillez supprimer les services, en débutant par les inactifs."
 
 #. module: contract_isp_unique_product
 #: code:_description:0
