@@ -511,7 +511,7 @@ class account_analytic_account(orm.Model):
                     SET invoice_id = %s
                     WHERE invoice_id IN %s
                     """,
-                    (inv[0], inv[1:]),
+                    (inv[0], tuple(inv[1:])),
                 )
                 account_invoice_obj.button_compute(
                     cr, uid, [inv[0]], context=context)
