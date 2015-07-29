@@ -620,14 +620,16 @@ class account_analytic_account(orm.Model):
             # We go fetch the invoice number the same way using the period_id
             # and journal_id that action_move_create uses to create the move
             journal = inv.journal_id
-            period_id = inv.period_id and inv.period_id.id or False
+            period_id = inv.period_id
             ctx = dict(context or {})
             ctx.update(company_id=inv.company_id.id,
                        account_period_prefer_normal=True)
             if not period_id:
                 period_ids = period_obj.find(cr, uid, inv.date_invoice,
                                              context=ctx)
-                period_id = period_ids and period_ids[0] or False
+                if period_ids:
+                    period_id = period_obj.browse(cr, uid, period_ids[0],
+                                                  context=ctx)
             if period_id and journal and journal.sequence_id:
                 c = {'fiscalyear_id': period_id.fiscalyear_id.id}
                 new_name = sequence_obj.next_by_id(cr, uid,
@@ -658,6 +660,12 @@ class account_analytic_account(orm.Model):
                                            context=context)
         self.open_invoices(cr, uid, invoice_ids, context=context)
         return invoice_ids
+
+    def create_lines_and_prepare(self, cr, uid, ids, source_process=None,
+                                 context=None):
+        self.create_analytic_lines(cr, uid, ids, context=context)
+        return self.prepare_invoice(cr, uid, ids, source_process,
+                                    context=context)
 
     def create_lines_and_invoice(self, cr, uid, ids, source_process=None,
                                  context=None):
