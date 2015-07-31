@@ -125,7 +125,7 @@ class account_voucher(orm.Model):
                         mode='subscription',
                         date=date_today)
 
-                inv = account_analytic_account_obj.create_invoice(
+                account_analytic_account_obj.create_invoice(
                     cr, uid, context.get('active_id'),
                     source_process=PROCESS_INITIAL,
                     context=context)
@@ -534,12 +534,6 @@ class account_analytic_account(orm.Model):
         account_analytic_account_obj = self.pool['account.analytic.account']
         account_analytic_line_obj = self.pool['account.analytic.line']
 
-        res_company_obj = self.pool['res.company']
-        res_company_data = res_company_obj.read(
-            cr, uid,
-            res_company_obj._company_default_get(cr, uid, context),
-            context=context)
-
         res = []
         if context.get('create_invoice_mode', 'contract') != 'reseller':
             for contract_id in ids:
@@ -567,10 +561,6 @@ class account_analytic_account(orm.Model):
                         res.extend(inv)
                     else:
                         res.append(inv)
-
-                    if res_company_data['send_email_contract_invoice']:
-                        self.send_email_contract_invoice(
-                            cr, uid, inv, context=context)
 
         else:
             query = [('account_id', 'in', ids),
