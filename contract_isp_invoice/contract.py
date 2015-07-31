@@ -166,18 +166,6 @@ class account_voucher(orm.Model):
                             period_id, journal_id,
                             context=context)
 
-            mail_template_obj = self.pool.get('email.template')
-            ir_model_data_obj = self.pool.get('ir.model.data')
-            mail_template_id = ir_model_data_obj.get_object_reference(
-                cr, uid, 'account', 'email_template_edi_invoice')[1]
-            mail_mail_obj = self.pool.get('mail.mail')
-            if isinstance(inv, list):
-                for i in inv:
-                    mail_id = mail_template_obj.send_mail(
-                        cr, uid, mail_template_id, i, context=context)
-                    mail_message = mail_mail_obj.browse(
-                        cr, uid, mail_id, context=context).mail_message_id
-                    mail_message.write({'type': 'email'})
         else:
             ret = super(account_voucher, self).proforma_voucher(
                 cr, uid, ids, context=context)
