@@ -8,19 +8,19 @@ msgstr ""
 "Project-Id-Version: vertical-isp (7.0)\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-07-25 02:26+0000\n"
-"PO-Revision-Date: 2015-05-27 15:36+0000\n"
-"Last-Translator: Maxime Chambreuil <maxime.chambreuil@gmail.com>\n"
-"Language-Team: French (http://www.transifex.com/oca/OCA-vertical-isp-7-0/language/fr/)\n"
+"PO-Revision-Date: 2015-05-27 15:32+0000\n"
+"Last-Translator: OCA Transbot <transbot@odoo-community.org>\n"
+"Language-Team: English (http://www.transifex.com/oca/OCA-vertical-isp-7-0/language/en/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
-"Language: fr\n"
-"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"Language: en\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #. module: product_dependencies
 #: selection:product.dependency,type:0
 msgid "Category"
-msgstr "Catégorie"
+msgstr "Category"
 
 #. module: product_dependencies
 #: model:ir.model,name:product_dependencies.model_product_dependency
@@ -31,37 +31,37 @@ msgstr "product.dependency"
 #: model:ir.model,name:product_dependencies.model_product_product
 #: selection:product.dependency,type:0
 msgid "Product"
-msgstr "Produit"
+msgstr "Product"
 
 #. module: product_dependencies
 #: field:product.dependency,name:0
 msgid "Name"
-msgstr "Nom"
+msgstr "Name"
 
 #. module: product_dependencies
 #: field:product.dependency,auto:0
 msgid "Automatically added"
-msgstr "Ajouté automatiquement"
+msgstr "Automatically added"
 
 #. module: product_dependencies
 #: field:product.dependency,category_id:0
 msgid "Category Dependency"
-msgstr "Dépendance de catégories"
+msgstr "Category Dependency"
 
 #. module: product_dependencies
 #: view:product.dependency:0
 msgid "Dependency"
-msgstr "Dépendance"
+msgstr "Dependency"
 
 #. module: product_dependencies
 #: field:product.dependency,product_id:0
 msgid "Product Dependency"
-msgstr "Dépendance de Produits"
+msgstr "Product Dependency"
 
 #. module: product_dependencies
 #: view:product.product:0 field:product.product,dependency_ids:0
 msgid "Dependencies"
-msgstr "Dépendances"
+msgstr "Dependencies"
 
 #. module: product_dependencies
 #: field:product.dependency,type:0
