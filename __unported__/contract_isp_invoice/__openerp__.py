@@ -48,5 +48,5 @@ Features:
         'wizard/close_contract_view.xml'
     ],
     'active': False,
-    'installable': True,
+    'installable': False,
 }

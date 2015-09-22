@@ -31,5 +31,5 @@
     'depends': ['contract_isp_invoice'],
     'data': ['contract_isp_automatic_invoicing_data.xml'],
     'active': False,
-    'installable': True,
+    'installable': False,
 }

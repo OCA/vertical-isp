@@ -40,5 +40,5 @@ This module provides a wizard to help create service packages based on product i
         'contract_isp_package_configurator_view.xml',
     ],
     'active': False,
-    'installable': True,
+    'installable': False,
 }

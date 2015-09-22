@@ -48,5 +48,5 @@ Features:
              'contract_isp_data.xml',
              'contract_isp_workflow.xml'],
     'active': False,
-    'installable': True,
+    'installable': False,
 }
