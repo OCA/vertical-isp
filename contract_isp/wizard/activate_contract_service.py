@@ -21,93 +21,65 @@
 ##############################################################################
 
 import datetime
-from openerp.osv import orm, fields
-from openerp.addons.contract_isp.contract import add_months
+from openerp.addons.contract_isp.models.contract import add_months
+from openerp import models, fields, api, _
 
 
-class contract_service_activate(orm.TransientModel):
+class contract_service_activate(models.TransientModel):
     _name = 'contract.service.activate'
 
-    def _get_account_id(self, cr, uid, context=None):
-        if context.get('active_model', '') == 'contract.service':
-            contract_id = context.get('active_id')
-            contract_service = self.pool.get('contract.service').browse(
-                cr, uid, contract_id, context)
 
+    @api.one
+    def _get_account_id(self):
+        if self._context.get('active_model', '') == 'contract.service':
+            contract_id = self._context.get('active_id')
+            contract_service = self.env['contract.service'].browse(contract_id)
             return contract_service.account_id.id
         return None
-
-    def _get_service_id(self, cr, uid, context=None):
-        if context.get('active_model', '') == 'contract.service':
-            service_id = context.get('active_id')
-            contract_service = self.pool.get('contract.service').browse(
-                cr, uid, service_id, context)
-
+    
+    @api.one
+    def _get_service_id(self):
+        if self._context.get('active_model', '') == 'contract.service':
+            service_id = self._context.get('active_id')
+            contract_service = self.pool.get('contract.service').browse(service_id)
             return contract_service.id
         return None
 
-    _columns = {
-        'activation_date': fields.datetime('Activation Date'),
-        'account_id': fields.many2one('account.analytic.account', 'Account'),
-        'service_id': fields.many2one('contract.service', 'Service')
-    }
+    activation_date = fields.Datetime('Activation Date', default=fields.datetime.now())
+    account_id = fields.Many2one('account.analytic.account', 'Account', default=lambda s: s._get_account_id())
+    service_id = fields.Many2one('contract.service', 'Service', default=lambda s: s._get_service_id())
 
-    _defaults = {
-        'activation_date': fields.datetime.now,
-        'account_id': lambda s, cr, uid, ctx: s._get_account_id(cr, uid, ctx),
-        'service_id': lambda s, cr, uid, ctx: s._get_service_id(cr, uid, ctx)
-    }
-
-    def activate(self, cr, uid, ids, context=None):
-        wizard = self.browse(cr, uid, ids[0], context)
-        company_obj = self.pool.get('res.company')
-        company_id = company_obj._company_default_get(cr, uid, context)
-        cutoff = company_obj.read(cr, uid, company_id, 'cutoff_day', context)
-        contract_service_obj = self.pool.get('contract.service')
-        contract_service = contract_service_obj.browse(
-            cr, uid, wizard.service_id.id, context)
+    @api.multi
+    def activate(self):
+        company_obj = self.env['res.company']
+        company_id = company_obj._company_default_get()
+        company_ids = company_obj.search([('id','=',company_id)])
+        cutoff = company_ids[0].cutoff_day
+        contract_service_obj = self.env['contract.service']
+        contract_service = contract_service_obj.browse(self.service_id.id)
 
         activation_date = datetime.date(
-            int(wizard.activation_date[:4]),
-            int(wizard.activation_date[5:7]),
-            int(wizard.activation_date[8:10]))
+            int(self.activation_date[:4]),
+            int(self.activation_date[5:7]),
+            int(self.activation_date[8:10]))
 
-        cuttoff_day = company_obj.read(
-            cr, uid,
-            company_id,
-            fields=['cutoff_day'],
-            context=context)['cutoff_day']
-
-        invoice_day = company_obj.read(
-            cr, uid,
-            company_id,
-            fields=['invoice_day'],
-            context=context)['invoice_day']
-
-        cutoff_date = datetime.date(
-            datetime.date.today().year,
-            datetime.date.today().month,
-            int(cuttoff_day))
-
-        invoice_date = datetime.date(
-            datetime.date.today().year,
-            datetime.date.today().month,
-            int(invoice_day))
-
+        cuttoff_day = company_ids[0].cutoff_day
+        invoice_day = company_ids[0].invoice_day
+        cutoff_date = datetime.date(datetime.date.today().year, datetime.date.today().month, int(cuttoff_day))
+        invoice_date = datetime.date(datetime.date.today().year, datetime.date.today().month, int(invoice_day))
         contract_service.write({
-            'activation_date': wizard.activation_date,
+            'activation_date': self.activation_date,
             'state': 'active'
         })
 
         query = [
-            ('account_id', '=', wizard.account_id.id),
+            ('account_id', '=', self.account_id.id),
             ('state', '=', 'draft')
         ]
-        draft_line_ids = contract_service_obj.search(cr, uid, query,
-                                                     context=context)
+        draft_line_ids = contract_service_obj.search(query)
 
         if not draft_line_ids:
-            for line in wizard.account_id.contract_service_ids:
+            for line in self.account_id.contract_service_ids:
                 if line.activation_line_generated is False:
                     line.create_analytic_line(mode='manual',
                                               date=activation_date)

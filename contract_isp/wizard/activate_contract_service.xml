@@ -9,7 +9,7 @@
 		    <group>
 			<field name="activation_date" />
 			<field name="account_id" invisible="1" />
-			<field name="service_id" invisible="1" />
+		    <field name="service_id" invisible="1" /> 
 		    </group>
 		    <footer>
 			<button 

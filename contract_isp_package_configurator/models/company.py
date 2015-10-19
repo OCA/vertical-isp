@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
-
 ##############################################################################
 #
 #    OpenERP, Open Source Management Solution
-#    Copyright (C) 2013 Savoirfaire-Linux Inc. (<www.savoirfairelinux.com>).
+#    Copyright (C) 2013 Savoir-faire Linux (<http://www.savoirfairelinux.com>).
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -20,4 +19,13 @@
 #
 ##############################################################################
 
-from . import models
+from openerp import models, fields, api, _
+
+class res_company(models.Model):
+    _inherit = 'res.company'
+
+    default_product_category= fields.Many2one(
+            'product.category',
+            'Default Product Category',
+            required=True,
+            help='''Set the default starting point for the package configuration wizard''')
