@@ -54,7 +54,6 @@ def date_interval(start_date, month_end=True, date_format='%m/%d/%Y'):
 
 
 class res_company(models.Model):
-    _name = "res.company"
     _inherit = "res.company"
     
     @api.multi
@@ -62,7 +61,7 @@ class res_company(models.Model):
         return tuple([(str(x), str(x)) for x in range(1, 29)])
     
     parent_account_id = fields.Many2one('account.analytic.account','Parent Analytic Account')
-    cutoff_day= fields.Selection(_days, 'Cutoff day')
+    cutoff_day= fields.Selection(_days,'Cutoff day')
     default_journal_id = fields.Many2one('account.analytic.journal','Default Journal')
                 
 
@@ -285,7 +284,6 @@ class contract_service(models.Model):
 
 
 class account_analytic_account(models.Model):
-    _name = "account.analytic.account"
     _inherit = "account.analytic.account"
     
 
@@ -355,7 +353,6 @@ class account_analytic_account(models.Model):
     
 
 class account_analytic_line(models.Model):
-    _name = "account.analytic.line"
     _inherit = "account.analytic.line"
 
     contract_service_id = fields.Many2one('contract.service','Service')

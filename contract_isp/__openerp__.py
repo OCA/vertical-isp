@@ -22,13 +22,14 @@
 
 {
     'name': 'Contract ISP',
-    'version': '8.0.1',
+    'version': '1.0',
     'category': 'Contract Management',
     'description': """
 Manage service based contracts
 ==============================
 
-This module adds a service based contract category were you can manage diferent services and service types that are included in the contract.
+This module adds a service based contract category were you can manage
+diferent services and service types that are included in the contract.
 
 Features:
 ---------
@@ -38,7 +39,7 @@ Features:
 * Service activation wizard.
 """,
     'author': "Savoir-faire Linux Inc,Odoo Community Association (OCA)",
-    'website': 'www.serpentcs.com',
+    'website': 'www.savoirfairelinux.com',
     'license': 'AGPL-3',
     'depends': ['account_analytic_analysis'],
     'data': ['security/contract_isp_security.xml',

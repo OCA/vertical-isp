@@ -114,7 +114,6 @@ class contract_service_configurator_line(models.TransientModel):
 
 
 class contract_service_configurator_dependency_line(models.TransientModel):
-    _name = 'contract.service.configurator.dependency.line'
     _inherit = 'contract.service.configurator.line'
 
 

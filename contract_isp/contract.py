@@ -337,7 +337,6 @@ class contract_service(orm.Model):
 
 
 class account_analytic_account(orm.Model):
-    _name = "account.analytic.account"
     _inherit = "account.analytic.account"
 
     _columns = {
@@ -419,7 +418,6 @@ class account_analytic_account(orm.Model):
 
 
 class account_analytic_line(orm.Model):
-    _name = "account.analytic.line"
     _inherit = "account.analytic.line"
 
     _columns = {

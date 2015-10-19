@@ -22,7 +22,7 @@
 
 {
     'name': 'Product Dependencies',
-    'version': '8.0.1',
+    'version': '1.0',
     'category': 'Product Management',
     'description': """
 Product Dependencies
