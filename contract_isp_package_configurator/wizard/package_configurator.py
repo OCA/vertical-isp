@@ -20,82 +20,71 @@
 #
 ##############################################################################
 
-from openerp.osv import orm, fields
 from openerp.tools.translate import _
+from openerp import models, fields, api, _
 
 
-class contract_service_configurator_line(orm.TransientModel):
+class contract_service_configurator_line(models.TransientModel):
     _name = 'contract.service.configurator.line'
 
     #def _get_stock_production_lot_available(self, cr, uid, )
-    _columns = {
-        'name': fields.char('Name'),
-        'product_id': fields.many2one('product.product', 'Product'),
-        'configurator_id': fields.many2one('contract.service.configurator',
-                                           'Package Configurator'),
-        'parent_id': fields.many2one('contract.service.configurator.line',
-                                     'Parent'),
-        'serial': fields.many2one('stock.production.lot', 'Serial Number'),
-        'message': fields.text('Message'),
-        'handle_dependency': fields.boolean('Handle dependencies'),
-        'stock_move_id': fields.many2one('stock.move', 'Stock Move'),
-        'state': fields.selection((('draft', _('Added')),
-                                   ('message', _('Information')),
-                                   ('serial', _('Select serial number')),
-                                   ('stock', ('No Stock')),
-                                   ('done', _('Done'))), 'State'),
-    }
+    name = fields.Char('Name')
+    product_id = fields.Many2one('product.product', 'Product')
+    configurator_id = fields.Many2one('contract.service.configurator',
+                                       'Package Configurator')
+    parent_id = fields.Many2one('contract.service.configurator.line',
+                                 'Parent')
+    serial = fields.Many2one('stock.production.lot', 'Serial Number')
+    message = fields.Text('Message')
+    handle_dependency = fields.Boolean('Handle dependencies')
+    stock_move_id = fields.Many2one('stock.move', 'Stock Move')
+    state = fields.Selection((('draft', _('Added')),
+                               ('message', _('Information')),
+                               ('serial', _('Select serial number')),
+                               ('stock', ('No Stock')),
+                               ('done', _('Done'))), 'State', default='draft')
 
-    _defaults = {
-        'state': 'draft'
-    }
-
-    def router(self, cr, uid, ids, data=None, context=None):
+    @api.multi
+    def router(self, data=None):
         stock_move_id = None
-        if isinstance(ids, list):
-            ids = ids[0]
-        line = self.browse(cr, uid, ids, context=context)
-        if line.state == 'message':
-            if line.product_id.type == 'product' and \
-                    line.product_id.qty_available > 0.0:
+        if isinstance(self._ids, list):
+            ids = self._ids[0]
+        if self.state == 'message':
+            if self.product_id.type == 'product' and \
+                    self.product_id.qty_available > 0.0:
                 state = 'serial'
             else:
                 state = 'stock'
-        elif line.state in ('serial', 'stock'):
-            stock_move_obj = self.pool.get('stock.move')
-            location_id = self.pool.get('ir.model.data').get_object_reference(
-                cr, uid, 'stock', 'stock_location_stock')[1]
-            location_dest_id = line.configurator_id.contract_id.partner_id.property_stock_customer.id
+        elif self.state in ('serial', 'stock'):
+            stock_move_obj = self.env['stock.move']
+            location_id = self.env['ir.model.data'].get_object_reference('stock', 'stock_location_stock')[1]
+            location_dest_id = self.configurator_id.contract_id.partner_id.property_stock_customer.id
             move = {
-                'name': line.product_id and line.product_id.name or '',
-                'product_id': line.product_id and line.product_id.id,
-                'product_uom': line.product_id and line.product_id.uom_id and line.product_id.uom_id.id or None,
-                'prodlot_id': line.serial and line.serial.id or None,
+                'name': self.product_id and self.product_id.name or '',
+                'product_id': self.product_id and self.product_id.id,
+                'product_uom': self.product_id and self.product_id.uom_id and self.product_id.uom_id.id or None,
+                'prodlot_id': self.serial and self.serial.id or None,
                 'location_id': location_id,
                 'location_dest_id': location_dest_id,
-                'partner_id': line.configurator_id.contract_id.partner_id.id,
+                'partner_id': self.configurator_id.contract_id.partner_id.id,
                 'type': 'out'
             }
-            stock_move_id = stock_move_obj.create(
-                cr, uid, move, context=context)
-            stock_move_obj.action_confirm(
-                cr, uid, [stock_move_id], context=context)
-            stock_move_obj.action_done(
-                cr, uid, [stock_move_id], context=context)
-
+            stock_move_id = stock_move_obj.create(move)
+            stock_move_id.action_confirm()
+            stock_move_id.action_done()
             state = 'done'
+        self.write({'state': state, 'stock_move_id': stock_move_id and stock_move_id.id})
 
-        line.write({'state': state, 'stock_move_id': stock_move_id})
-
-        return line.configurator_id.router(data={})
-
-    def unlink(self, cr, uid, ids, context=None):
-        if isinstance(ids, int):
+        return self.configurator_id.router(data={})
+    
+    @api.multi
+    def unlink(self):
+        if isinstance(self.ids, int):
             ids = [ids]
 
-        for line in self.browse(cr, uid, ids, context=context):
+        for line in self:
             if line.product_id.type == 'product' and line.stock_move_id:
-                stock_move_obj = self.pool.get('stock.move')
+                stock_move_obj = self.env['stock.move']
                 move = {
                     'name': ' '.join([_('Cancel'), line.product_id and line.product_id.name or '']),
                     'product_id': line.product_id and line.product_id.id,
@@ -106,53 +95,46 @@ class contract_service_configurator_line(orm.TransientModel):
                     'partner_id': line.configurator_id.contract_id.partner_id.id,
                     'type': 'in'
                 }
-                stock_move_id = stock_move_obj.create(
-                    cr, uid, move, context=context)
-                stock_move_obj.action_confirm(
-                    cr, uid, [stock_move_id], context=context)
-                stock_move_obj.action_done(
-                    cr, uid, [stock_move_id], context=context)
+                stock_move_id = stock_move_obj.create(move)
+                stock_move_id.action_confirm()
+                stock_move_id.action_done()
 
-        return super(contract_service_configurator_line, self).unlink(
-            cr, uid, ids, context=context)
-
-    def onchange_product_id(self, cr, uid, ids, product_id, context):
+        return super(contract_service_configurator_line, self).unlink()
+    
+    @api.onchange('product_id')
+    def onchange_product_id(self):
         ret = {}
-        product_product_obj = self.pool.get('product.product')
-
-        if product_product_obj.browse(cr, uid, product_id, context).description:
+        product_product_obj = self.env['product.product']
+        if product_product_obj.browse(self.product_id).description:
             ret['warning'] = {
                 'title': _('Information'),
-                'message': product_product_obj.browse(cr, uid, product_id, context).description
+                'message': product_product_obj.browse(self.product_id).description
             }
         return ret
 
 
-class contract_service_configurator_dependency_line(orm.TransientModel):
+class contract_service_configurator_dependency_line(models.TransientModel):
     _name = 'contract.service.configurator.dependency.line'
     _inherit = 'contract.service.configurator.line'
 
 
-class contract_service_configurator(orm.TransientModel):
+class contract_service_configurator(models.TransientModel):
     _name = 'contract.service.configurator'
 
-    def _get_default_category(self, cr, uid, context=None):
-        res_company_obj = self.pool.get("res.company")
-        company_id = res_company_obj._company_default_get(cr, uid, context)
-        res_company = res_company_obj.browse(cr, uid, company_id,
-                                             context=context)
+    @api.multi
+    def _get_default_category(self):
+        res_company_obj = self.env["res.company"]
+        company_id = res_company_obj._company_default_get()
+        res_company = res_company_obj.browse(company_id)
         return res_company.default_product_category and \
             res_company.default_product_category.id
-
-    def _get_is_level2(self, cr, uid, context=None):
-        ir_model_data_obj = self.pool.get('ir.model.data')
-        res_groups_obj = self.pool.get('res.groups')
-        res_user = self.pool.get('res.users').browse(
-            cr, uid, uid, context={})
-        group_agent_n2_id = ir_model_data_obj.get_object_reference(
-            cr, uid, 'contract_isp', 'group_isp_agent2')[1]
-        group_agent_n2 = res_groups_obj.browse(
-            cr, uid, group_agent_n2_id, context={})
+    @api.one
+    def _get_is_level2(self):
+        ir_model_data_obj = self.env['ir.model.data']
+        res_groups_obj = self.env['res.groups']
+        res_user = self.env['res.users'].browse(self._uid)
+        group_agent_n2_id = ir_model_data_obj.get_object_reference('contract_isp', 'group_isp_agent2')[1]
+        group_agent_n2 = res_groups_obj.browse(group_agent_n2_id)
 
         groups_id = [i.id for i in res_user.groups_id]
         if group_agent_n2_id not in groups_id:
@@ -160,55 +142,44 @@ class contract_service_configurator(orm.TransientModel):
         else:
             return True
 
-    _columns = {
-        'contract_id': fields.many2one('account.analytic.account', 'Contract'),
-        'state': fields.selection((('draft', _('Start')),
-                                   ('product', _('Select product')),
-                                   ('dependency', _('Select components')),
-                                   ('done', _('Done'))), 'State'),
-        'line_ids': fields.one2many('contract.service.configurator.line',
-                                    'configurator_id',
-                                    'Line'),
-        'current_product_id': fields.many2one('product.product',
-                                              'Add Product'),
-        'dependency_ids': fields.many2many('contract.service.configurator.dependency.line',
-                                           'contract_service_configurator_dependency_rel',
-                                           'configurator_id',
-                                           'dependency_id',
-                                           'Dependencies'),
-        'root_category_id': fields.many2one('product.category', 'Category'),
-        'product_category_id': fields.many2one('product.category', 'Category'),
-        'is_level2': fields.boolean('Is level 2')
-    }
+    contract_id = fields.Many2one('account.analytic.account', 'Contract')
+    state = fields.Selection((('draft', _('Start')),
+                               ('product', _('Select product')),
+                               ('dependency', _('Select components')),
+                               ('done', _('Done'))), 'State', default='draft')
+    line_ids = fields.One2many('contract.service.configurator.line',
+                                'configurator_id',
+                                'Line')
+    current_product_id = fields.Many2one('product.product',
+                                          'Add Product')
+    dependency_ids = fields.Many2many('contract.service.configurator.dependency.line',
+                                       'contract_service_configurator_dependency_rel',
+                                       'configurator_id',
+                                       'dependency_id',
+                                       'Dependencies')
+    root_category_id = fields.Many2one('product.category', 'Category')
+    product_category_id = fields.Many2one('product.category', 'Category', default=lambda s:s._get_default_category())
+    is_level2 = fields.Boolean('Is level 2', default=lambda s:s._get_is_level2())
 
-    _defaults = {
-        'state': 'draft',
-        'product_category_id': lambda s, cr, uid, ctx: s._get_default_category(cr, uid, ctx),
-        'root_category_id': lambda s, cr, uid, ctx: s._get_default_category(cr, uid, ctx),
-        'is_level2': lambda s, cr, uid, ctx: s._get_is_level2(cr, uid, ctx)
-    }
 
-    def onchange_product_category_id(self, cr, uid, ids,
-                                     product_category_id, is_level2):
-        domain = [('categ_id', '=', product_category_id)]
-        ret = {
-            'domain': {'current_product_id': None}}
-
-        if not is_level2:
-            domain.append(('list_price', '>=', 0))
-
-        ret['domain']['current_product_id'] = domain
-
+    @api.onchange('product_id','is_level2','product_category_id')
+    def onchange_product_category_id(self):
+        ret={}
+        if self.product_category_id:
+            domain = [('categ_id', '=', self.product_category_id.id)]
+            ret = {'domain': {'current_product_id': None}}
+            if not self.is_level2:
+                domain.append(('list_price', '>=', 0))
+            ret['domain']['current_product_id'] = domain
         return ret
+    
+    @api.multi
+    def do_next(self):
+        contract_service_configurator_line_obj = self.env['contract.service.configurator.line']
+        contract_service_configurator_dependency_line_obj = self.env['contract.service.configurator.dependency.line']
+        product_product_obj = self.env['product.product']
 
-    def do_next(self, cr, uid, ids, context=None):
-        contract_service_configurator_line_obj = self.pool.get('contract.service.configurator.line')
-        contract_service_configurator_dependency_line_obj = self.pool.get('contract.service.configurator.dependency.line')
-        product_product_obj = self.pool.get('product.product')
-
-        wizard = self.browse(cr, uid, ids[0], context=context)
-
-        for line in wizard.dependency_ids:
+        for line in self.dependency_ids:
             if line.configurator_id.id == ids[0]:
                 if line.product_id.description:
                     state = 'message'
@@ -220,30 +191,25 @@ class contract_service_configurator(orm.TransientModel):
                 l = {
                     'name': line.product_id.name,
                     'product_id': line.product_id.id,
-                    'configurator_id': wizard.id,
+                    'configurator_id': self.id,
                     'handle_dependency': line.product_id.dependency_ids and True or False,
                     'message': line.product_id.description,
                     'state': state
                 }
-                contract_service_configurator_line_obj.create(cr, uid, l, context=context)
+                contract_service_configurator_line_obj.create(l)
 
-        query = [('configurator_id', '=', wizard.id)]
-        ids_to_unlink = contract_service_configurator_dependency_line_obj.search(cr,
-                                                                                 uid,
-                                                                                 query,
-                                                                                 context=context)
+        query = [('configurator_id', '=', self.ids)]
+        ids_to_unlink = contract_service_configurator_dependency_line_obj.search(query)
         if ids_to_unlink:
-            contract_service_configurator_dependency_line_obj.unlink(cr, uid,
-                                                                     ids_to_unlink,
-                                                                     context)
+            contract_service_configurator_dependency_line_obj.unlink(ids_to_unlink)
 
         loop_deps = False
-        for line in wizard.line_ids:
+        for line in self.line_ids:
             if line.handle_dependency:
                 loop_deps = True
                 for dep in line.product_id.dependency_ids:
                     if dep.type == 'product':
-                        if not wizard.is_level2 and dep.list_price < 0:
+                        if not self.is_level2 and dep.list_price < 0:
                             continue
 
                         if line.product_id.description:
@@ -256,24 +222,21 @@ class contract_service_configurator(orm.TransientModel):
                         wl = {
                             'name': dep.product_id.name,
                             'product_id': dep.product_id.id,
-                            'configurator_id': wizard.id,
+                            'configurator_id': self.id,
                             'parent_id': line.id,
                             'message': line.product_id.description,
                             'state': state
                         }
-                        new_dep = contract_service_configurator_dependency_line_obj.create(
-                            cr, uid, wl, context=context)
+                        new_dep = contract_service_configurator_dependency_line_obj.create(wl)
 
                         if dep.auto:
-                            wizard.write({'dependency_ids': [(4, new_dep)]})
+                            self.write({'dependency_ids': [(4, new_dep)]})
 
                     elif dep.type == 'category':
                         query = [('categ_id', '=', dep.category_id.id)]
-                        product_ids = product_product_obj.search(cr, uid,
-                                                                 query,
-                                                                 context=context)
-                        for product in product_product_obj.browse(cr, uid, product_ids, context=context):
-                            if not wizard.is_level2 and dep.list_price < 0:
+                        product_ids = product_product_obj.search(query)
+                        for product in product_ids:
+                            if not self.is_level2 and dep.list_price < 0:
                                 continue
 
                             if line.product_id.description:
@@ -286,13 +249,12 @@ class contract_service_configurator(orm.TransientModel):
                             wl = {
                                 'name': product.name,
                                 'product_id': product.id,
-                                'configurator_id': wizard.id,
+                                'configurator_id': self.id,
                                 'parent_id': line.id,
                                 'message': product.description,
                                 'state': state
                             }
-                            contract_service_configurator_dependency_line_obj.create(cr, uid, wl,
-                                                                                     context=context)
+                            contract_service_configurator_dependency_line_obj.create(wl)
                 line.write({'handle_dependency': False})
                 break
 
@@ -300,8 +262,8 @@ class contract_service_configurator(orm.TransientModel):
             record = {
                 'state': 'dependency',
             }
-            wizard.write(record)
-            return self.router(cr, uid, ids, {}, context=context)
+            self.write(record)
+            return self.router({})
 
         else:
             record = {
@@ -309,56 +271,47 @@ class contract_service_configurator(orm.TransientModel):
                 'current_product_id': None,
                 'dependency_ids': [(5)],
             }
-            wizard.write(record)
+            self.write(record)
 
-            query = [('configurator_id', '=', wizard.id)]
-            ids_to_unlink = contract_service_configurator_dependency_line_obj.search(cr,
-                                                                                     uid,
-                                                                                     query,
-                                                                                     context=context)
-            return self.router(cr, uid, ids, {}, context=context)
+            query = [('configurator_id', '=', self.id)]
+            ids_to_unlink = contract_service_configurator_dependency_line_obj.search(query)
+            return self.router({})
 
-    def do_add_current_product_id(self, cr, uid, ids, context=None):
-        if context is None:
+    @api.multi
+    def do_add_current_product_id(self):
+        if self._context is None:
             context = {}
         deps = 0
-        wizard = self.browse(cr, uid, ids[0], context=context)
-        contract_service_configurator_line_obj = self.pool.get(
-            'contract.service.configurator.line')
-        contract_service_configurator_dependency_line_obj = self.pool.get(
-            'contract.service.configurator.dependency.line')
-        product_product_obj = self.pool.get('product.product')
-        contract_service_serial_obj = self.pool.get('contract.service.serial')
+        contract_service_configurator_line_obj = self.env['contract.service.configurator.line']
+        contract_service_configurator_dependency_line_obj = self.env[
+            'contract.service.configurator.dependency.line']
+        product_product_obj = self.env['product.product']
+#        contract_service_serial_obj = self.env['contract.service.serial']
 
-        if wizard.current_product_id:
+        if self.current_product_id:
             #if group_agent_n2_id not in res_user.groups_id and \
-            #        wizard.current_product_id.type == 'product' and \
-            #        wizard.current_product_id.qty_available <= 0:
+            #        self.current_product_id.type == 'product' and \
+            #        self.current_product_id.qty_available <= 0:
             #    raise orm.except_orm(_('Error!'), _('Product not available!'))
 
-            if wizard.current_product_id.description:
+            if self.current_product_id.description:
                 state = 'message'
-            elif wizard.current_product_id.type == 'product':
+            elif self.current_product_id.type == 'product':
                 state = 'serial'
             else:
                 state = 'done'
 
             record = {
-                'name': wizard.current_product_id.name,
-                'product_id': wizard.current_product_id.id,
-                'configurator_id': wizard.id,
-                'message': wizard.current_product_id.description,
+                'name': self.current_product_id.name,
+                'product_id': self.current_product_id.id,
+                'configurator_id': self.id,
+                'message': self.current_product_id.description,
                 'state': state
             }
-            new_line = contract_service_configurator_line_obj.create(
-                cr, uid, record, context=context)
-
-            for dep in contract_service_configurator_line_obj.browse(
-                    cr, uid, new_line,
-                    context=context).product_id.dependency_ids:
-
+            new_line = contract_service_configurator_line_obj.create(record)
+            for dep in new_line.product_id.dependency_ids:
                 if dep.type == 'product':
-                    if not wizard.is_level2 and dep.product_id.list_price < 0:
+                    if not self.is_level2 and dep.product_id.list_price < 0:
                         continue
 
                     if dep.product_id.description:
@@ -372,25 +325,21 @@ class contract_service_configurator(orm.TransientModel):
                     wl = {
                         'name': dep.product_id.name,
                         'product_id': dep.product_id.id,
-                        'configurator_id': wizard.id,
+                        'configurator_id': self.id,
                         'parent_id': new_line,
                         'message': dep.product_id.description,
                         'state': state
                     }
-                    new_dep = contract_service_configurator_dependency_line_obj.create(cr, uid, wl,
-                                                                                       context=context)
+                    new_dep = contract_service_configurator_dependency_line_obj.create(wl)
 
                     if dep.auto:
-                        wizard.write({'dependency_ids': [(4, new_dep)]})
+                        self.write({'dependency_ids': [(4, new_dep)]})
 
                 elif dep.type == 'category':
                     query = [('categ_id', '=', dep.category_id.id)]
-                    product_ids = product_product_obj.search(cr, uid, query,
-                                                             context=context)
-                    for product in product_product_obj.browse(cr, uid,
-                                                              product_ids,
-                                                              context=context):
-                        if not wizard.is_level2 and dep.product_id.list_price < 0:
+                    product_ids = product_product_obj.search(query)
+                    for product in product_ids:
+                        if not self.is_level2 and dep.product_id.list_price < 0:
                             continue
 
                         if product.description:
@@ -404,42 +353,41 @@ class contract_service_configurator(orm.TransientModel):
                         record = {
                             'name': product.name,
                             'product_id': product.id,
-                            'configurator_id': wizard.id,
+                            'configurator_id': self.id,
                             'parent_id': new_line,
                             'message': product.description,
                             'state': state
                         }
-                        contract_service_configurator_dependency_line_obj.create(
-                            cr, uid, record, context=context)
+                        contract_service_configurator_dependency_line_obj.create(record)
 
             record = {
                 'current_product_id': None,
-                'product_category_id': self._get_default_category(cr, uid, context),
+                'product_category_id': self._get_default_category(),
                 'state': deps and 'dependency' or 'product'
             }
 
-            wizard.write(record)
+            self.write(record)
 
-            return wizard.router({})
+            return self.router({})
         raise orm.except_orm(_('Error'), _('Product not found!'))
 
-    def do_done(self, cr, uid, ids, context=None):
-        account_analytic_account_obj = self.pool.get('account.analytic.account')
-        contract_service_obj = self.pool.get('contract.service')
-        stock_move_obj = self.pool.get('stock.move')
-        contract_service_serial_obj = self.pool.get('contract.service.serial')
-        ret = self.write(cr, uid, ids, {'state': 'done'}, context=context)
-        wizard = self.browse(cr, uid, ids[0], context=context)
-        for line in wizard.line_ids:
+    @api.multi
+    def do_done(self):
+        account_analytic_account_obj = self.env['account.analytic.account']
+        contract_service_obj = self.env['contract.service']
+        stock_move_obj = self.env['stock.move']
+#        contract_service_serial_obj = self.env['contract.service.serial']
+        ret = self.write({'state': 'done'})
+        for line in self.line_ids:
             l = {
                 'name': line.serial and line.serial.name or '',
-                'account_id': wizard.contract_id.id,
+                'account_id': self.contract_id.id,
                 'product_id': line.product_id.id,
                 'category_id': line.product_id.categ_id.id,
                 'analytic_line_type': line.product_id.analytic_line_type,
                 'require_activation': line.product_id.require_activation
             }
-            contract_service_obj.create(cr, uid, l, context=context)
+            contract_service_obj.create(l)
 
             if line.product_id.type == 'product' and line.stock_move_id:
                 line.write({'stock_move_id': None})
@@ -450,17 +398,18 @@ class contract_service_configurator(orm.TransientModel):
             'view_type': 'form',
             'view_mode': 'form',
             'target': 'current',
-            'res_id': wizard.contract_id.id,
-            'context': context
+            'res_id': self.contract_id.id,
+            'context': self._context
         }
 
-    def do_cancel(self, cr, uid, ids, context=None):
-        if isinstance(ids, int):
-            ids = [ids]
+    @api.multi
+    def do_cancel(self):
+        if isinstance(self.ids, int):
+            ids = [self.ids]
 
-        for line in self.browse(cr, uid, ids[0], context=context).line_ids:
+        for line in self.line_ids:
             if line.product_id.type == 'product' and line.stock_move_id:
-                stock_move_obj = self.pool.get('stock.move')
+                stock_move_obj = self.env('stock.move')
                 move = {
                     'name': ' '.join([_('Cancel'), line.product_id and line.product_id.name or '']),
                     'product_id': line.product_id and line.product_id.id,
@@ -471,31 +420,28 @@ class contract_service_configurator(orm.TransientModel):
                     'partner_id': line.configurator_id.contract_id.partner_id.id,
                     'type': 'in'
                 }
-                stock_move_id = stock_move_obj.create(
-                    cr, uid, move, context=context)
-                stock_move_obj.action_confirm(
-                    cr, uid, [stock_move_id], context=context)
-                stock_move_obj.action_done(
-                    cr, uid, [stock_move_id], context=context)
+                stock_move_id = stock_move_obj.create(move)
+                stock_move_obj.action_confirm([stock_move_id])
+                stock_move_obj.action_done([stock_move_id])
 
         return True
 
-    def router(self, cr, uid, ids, data=None, context=None):
-        if isinstance(ids, list):
-            ids = ids[0]
-        wizard = self.browse(cr, uid, ids, context=context)
-        for line in wizard.line_ids:
+    @api.multi
+    def router(self, data=None):
+        if isinstance(self.ids, list):
+            ids = self.ids[0]
+        for line in self.line_ids:
             if line.state in ('message', 'serial', 'stock'):
                 if line.state == 'serial':
-                    stock_production_lot_obj = self.pool.get('stock.production.lot')
-                    product_product_obj = self.pool.get('product.product')
+                    stock_production_lot_obj = self.env['stock.production.lot']
+                    product_product_obj = self.env['product.product']
 
                     query = [
                         ('product_id', '=', line.product_id.id),
-                        ('stock_available', '>', 0)
+                        ('quant_ids', '>', 0)
                     ]
 
-                    serial_ids = stock_production_lot_obj.search(cr, uid, query, context=context)
+                    serial_ids = stock_production_lot_obj.search(query)
 
                     if not serial_ids:
                         line.write({'state': 'stock'})
@@ -509,7 +455,7 @@ class contract_service_configurator(orm.TransientModel):
                     'target': 'new',
                     'res_id': line.id,
                     'nodestroy': True,
-                    'context': context
+                    'context': self._context
                 }
 
         return {
@@ -521,5 +467,5 @@ class contract_service_configurator(orm.TransientModel):
             'target': 'new',
             'res_id': ids,
             'nodestroy': True,
-            'context': context
+            'context': self._context
         }

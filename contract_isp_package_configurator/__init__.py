@@ -22,4 +22,4 @@
 
 import wizard
 import workflow
-import company
+import models
