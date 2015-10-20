@@ -19,12 +19,12 @@
 #
 ##############################################################################
 
-import logging
+# import logging
 import calendar
 import datetime
 from openerp.osv import orm, fields
-from openerp.report import report_sxw
-from openerp.tools import convert
+# from openerp.report import report_sxw
+# from openerp.tools import convert
 from openerp.tools.translate import _
 from openerp.addons.contract_isp.models.contract import date_interval
 from openerp import models, fields, api, _
@@ -32,7 +32,7 @@ from openerp import models, fields, api, _
 
 class contract_isp_close(models.TransientModel):
     _name = 'contract.isp.close'
-    
+
     @api.one
     def _get_account_id(self):
         if self._context.get('active_model', '') == 'account.analytic.account':
@@ -40,8 +40,10 @@ class contract_isp_close(models.TransientModel):
             return contract_id
         return False
 
-    account_id = fields.Many2one('account.analytic.account', 'Contract', default= lambda s: s._get_account_id())
-    close_date = fields.Datetime('Close date', required=True, default=fields.datetime.now())
+    account_id = fields.Many2one('account.analytic.account', 'Contract',
+                                 default= lambda s: s._get_account_id())
+    close_date = fields.Datetime('Close date', required=True,
+                                 default=fields.datetime.now())
     close_reason = fields.Text('Reason')
 
 
@@ -84,7 +86,8 @@ class contract_isp_close(models.TransientModel):
                 'amount': amount,
                 'account_id': account_analytic_account.id,
                 'user_id': uid,
-                'general_account_id': account_analytic_account.partner_id.property_account_receivable.id,
+                'general_account_id': account_analytic_account.partner_id.\
+                property_account_receivable.id,
                 'to_invoice': 1,
                 'unit_amount': 1,
                 'is_prorata': True,
@@ -96,11 +99,12 @@ class contract_isp_close(models.TransientModel):
                         'close_reason': self.close_reason})
 
         mail_template_obj = self.env['email.template']
-        mail_template_id = self.env['ir.model.data'].get_object_reference('contract_isp_invoice',
+        mail_template_id = self.env['ir.model.data'].\
+        get_object_reference('contract_isp_invoice',
             'email_template_contract_isp_invoice_close')
-        mail_id = mail_template_obj.send_mail(mail_template_id[1], account_analytic_account.id)
+        mail_id = mail_template_obj.send_mail(mail_template_id[1],
+                                              account_analytic_account.id)
         mail_message = mail_mail_obj.browse(mail_id).mail_message_id
         mail_message.write({'type': 'email'})
         account_analytic_account.write({'state': 'close'})
         return {}
-        

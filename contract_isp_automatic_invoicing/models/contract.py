@@ -27,8 +27,8 @@ class account_analytic_account(models.Model):
     _inherit = 'account.analytic.account'
 
     @api.v7
-    def cron_contract_automatic_invoicing(self, cr, uid, ids=None, context=None):
-            
+    def cron_contract_automatic_invoicing(self, cr, uid, ids=None,
+                                          context=None):
         if context is None:
             context = {}
 

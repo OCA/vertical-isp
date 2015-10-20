@@ -20,8 +20,8 @@
 ##############################################################################
 
 # import time
-import datetime
-from openerp.addons.contract_isp.models.contract import add_months
+# import datetime
+# from openerp.addons.contract_isp.models.contract import add_months
 from openerp import models, api
 
 
@@ -32,7 +32,6 @@ class contract_service_activate(models.TransientModel):
     def activate(self):
         if self._context is None:
             context = {}
-
         account_invoice_obj = self.env['account.invoice']
         account_voucher_obj = self.env['account.voucher']
         account_move_obj = self.env['account.move']

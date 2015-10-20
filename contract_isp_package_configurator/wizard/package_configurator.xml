@@ -53,7 +53,7 @@
 			<group>
 			    <field name="line_ids" nolabel="1" mode="tree">
 				<tree create="0">
-				    <field name="product_id" />
+				    <!-- <field name="product_id" /> -->
 				    <field name="serial" />
 				</tree>
 			    </field>
@@ -70,7 +70,7 @@
 			    widget="many2many"
 			    domain="[('configurator_id', '=', active_id)]">
 			    <tree>
-				<field name="product_id"/>
+				<!-- <field name="product_id"/> -->
 			    </tree>
 			</field>
 		    </group>

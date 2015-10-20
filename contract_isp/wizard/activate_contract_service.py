@@ -71,12 +71,12 @@ class contract_service_activate(models.TransientModel):
 
         cuttoff_day = cutoff
         invoice_day = company_ids[0].invoice_day
-        cutoff_date = datetime.date(datetime.date.today().year,
-                                    datetime.date.today().month,
-                                    int(cuttoff_day))
-        invoice_date = datetime.date(datetime.date.today().year,
-                                     datetime.date.today().month,
-                                     int(invoice_day))
+        #         cutoff_date = datetime.date(datetime.date.today().year,
+        #                                     datetime.date.today().month,
+        #                                     int(cuttoff_day))
+        #         invoice_date = datetime.date(datetime.date.today().year,
+        #                                      datetime.date.today().month,
+        #                                      int(invoice_day))
         contract_service.write({
             'activation_date': self.activation_date,
             'state': 'active'
