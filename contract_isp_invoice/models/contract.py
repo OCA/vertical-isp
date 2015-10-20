@@ -62,22 +62,23 @@ class account_voucher(models.Model):
     _inherit = 'account.voucher'
 
     later_validation = fields.Boolean('Later Validation', default=False)
-    original_amount = fields.Float(
-                                   'Original Amount',
+    original_amount = fields.Float('Original Amount',
                                    digits_compute=dp.get_precision('Account'),
                                    required=True, readonly=True,
                                    states={'draft': [('readonly', False)]})
 
     @api.multi
-    def onchange_journal(journal_id, line_ids,
+    def onchange_journal(journal_id, line_ids,self,
                          tax_id, partner_id, date, amount, ttype,
                          company_id, context=None):
         if not journal_id:
             return False
 
-        ret = super(account_voucher, self).onchange_journal(journal_id, line_ids,
-            tax_id, partner_id, date, amount, ttype,
-            company_id)
+        ret = super(account_voucher, self).onchange_journal(journal_id,
+                                                            line_ids, tax_id,
+                                                            partner_id, date,
+                                                            amount, ttype,
+                                                            company_id)
         journal = self.pool['account.journal'].browse(journal_id)
 
         ret['value']['later_validation'] = journal.later_validation
@@ -91,7 +92,7 @@ class account_voucher(models.Model):
         if self._context.get('original_amount', False) and data.get('amount',
                                                                     False):
             if data['amount'] < data['original_amount']:
-                raise orm.except_orm(
+                raise Warning(
                     _('Error'),
                     _('Amount cannot be less than the invoice amount'))
 
@@ -108,10 +109,14 @@ class account_voucher(models.Model):
 
         voucher = self.browse(self.id)
         if self._context.get('not_subscription_voucher', True) is False:
-            if self._context.get('active_model') == 'account.analytic.account' and self._context.get('active_id', False):
-                for line in account_analytic_account_obj.browse(self._context.get('active_id')).contract_service_ids:
-                    line.create_analytic_line(mode='subscription',date=datetime.datetime.today())
-                inv = account_analytic_account_obj.create_invoice(self._context.get('active_ids'))
+            if self._context.get('active_model') == 'account.analytic.account'\
+                and self._context.get('active_id', False):
+                for line in account_analytic_account_obj.browse\
+                    (self._context.get('active_id')).contract_service_ids:
+                    line.create_analytic_line(mode='subscription',
+                                              date=datetime.datetime.today())
+                inv = account_analytic_account_obj.\
+                    create_invoice(self._context.get('active_ids'))
                 a = account_invoice_obj.signal_workflow('invoice_open')
             else:
                 raise Warning(_('Contract not found'))
@@ -122,7 +127,7 @@ class account_voucher(models.Model):
                 account_move_line_obj = self.env['account.move.line']
                 query = [
                     ('partner_id', '=', voucher.partner_id.id),
-                    ('account_id', '=', voucher.partner_id. \
+                    ('account_id', '=', voucher.partner_id.
                      property_account_receivable.id),
                     ('reconcile_id', '=', False)
                 ]
@@ -395,7 +400,7 @@ class account_analytic_line(models.Model):
                 partner = account.partner_id.parent_id or account.partner_id
 
                 if (not partner) or not (account.pricelist_id):
-                    raise orm.except_orm(
+                    raise Warning(
                         _('Analytic Account Incomplete!'),
                         _('Contract incomplete. Please fill in the Customer'
                           'and Pricelist fields.'))
