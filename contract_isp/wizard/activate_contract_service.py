@@ -32,7 +32,8 @@ class contract_service_activate(models.TransientModel):
     def _get_account_id(self):
         if self._context.get('active_model', '') == 'contract.service':
             contract_id = self._context.get('active_id')
-            contract_service = self.env['contract.service'].browse(contract_id)
+            contract_service = self.env['contract.service'].browse(contract_id
+                                                                   )
             return contract_service.account_id.id
         return None
 
@@ -40,7 +41,7 @@ class contract_service_activate(models.TransientModel):
     def _get_service_id(self):
         if self._context.get('active_model', '') == 'contract.service':
             service_id = self._context.get('active_id')
-            contract_service = self.pool.get('contract.service'). \
+            contract_service = self.pool.get('contract.service').\
             browse(service_id)
             return contract_service.id
         return None
@@ -68,7 +69,7 @@ class contract_service_activate(models.TransientModel):
             int(self.activation_date[5:7]),
             int(self.activation_date[8:10]))
 
-        cuttoff_day = company_ids[0].cutoff_day
+        cuttoff_day = cutoff
         invoice_day = company_ids[0].invoice_day
         cutoff_date = datetime.date(datetime.date.today().year,
                                     datetime.date.today().month,

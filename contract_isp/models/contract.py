@@ -62,14 +62,16 @@ class res_company(models.Model):
         return tuple([(str(x), str(x)) for x in range(1, 29)])
 
     parent_account_id = fields.Many2one('account.analytic.account', 'Parent Analytic Account')
-    cutoff_day = fields.Selection(_days,'Cutoff day')
-    default_journal_id = fields.Many2one('account.analytic.journal', 'Default Journal')
+    cutoff_day = fields.Selection(_days, 'Cutoff day')
+    default_journal_id = fields.Many2one('account.analytic.journal',
+                                         'Default Journal')
 
 
 class res_partner(models.Model):
     _inherit = 'res.partner'
 
-    partner_analytic_account_id = fields.Many2one('account.analytic.account', 'Partner Analytic Account')
+    partner_analytic_account_id = fields.Many2one('account.analytic.account',
+                                                  'Partner Analytic Account')
 
     @api.model
     def create(self, vals):
@@ -98,7 +100,7 @@ class product_product(models.Model):
     analytic_line_type = fields.Selection((('r', 'Recurrent'),
                                            ('x', 'Exception'),
                                            ('o', 'One time')),
-                                            'Type in contract')
+                                          'Type in contract')
     require_activation = fields.Boolean(string='Require activation')
 
 
@@ -113,7 +115,9 @@ class contract_service(models.Model):
         pricelist_id = self.account_id.partner_id.property_product_pricelist
         for line in self:
             if line.product_id and partner_id:
-                self.price = pricelist_id.price_get(line.product_id.id, 1, partner_id)[pricelist_id.id]
+                self.price = pricelist_id.price_get(line.product_id.id, 1,
+                                                    partner_id)\
+                                                    [pricelist_id.id]
             else:
                 self.price = None
 
@@ -127,18 +131,19 @@ class contract_service(models.Model):
     activation_date = fields.Datetime('Activation date')
     duration = fields.Integer('Duration')
     product_id = fields.Many2one('product.product', 'Product', required=True)
-    qty = fields.Float('Qty', digits_compute=dp.get_precision('Product Unit of Measure'), default=1)
-    category_id = fields.Many2one('product.category', 'Product Category', default=1)
+    qty = fields.Float('Qty', digits_compute=dp.get_precision
+                       ('Product Unit of Measure'), default=1)
+    category_id = fields.Many2one('product.category', 'Product Category',
+                                  default=1)
     name = fields.Char('Description', size=64)
     analytic_line_type = fields.Selection((('r', 'Recurrent'),
                                            ('x', 'Exception'),
                                            ('o', 'One time')),
-                                            'Type')
+                                          'Type')
     require_activation = fields.Boolean('Require activation')
     account_id = fields.Many2one('account.analytic.account', 'Contract')
 
-    unit_price = fields.Float(
-                              compute='_get_product_price',
+    unit_price = fields.Float(compute='_get_product_price',
                               digits_compute=dp.get_precision('Product Price'),
                               string='Unit Price')
     price = fields.Float(compute='_get_total_product_price', type='float',
@@ -149,9 +154,9 @@ class contract_service(models.Model):
     state = fields.Selection((('draft', 'Waiting for activating'),
                               ('active', 'Active'),
                               ('inactive', 'Inactive')),
-                                'State', default='draft')
+                             'State', default='draft')
     _defaults = {
-                 # 'name': '',from . 
+                 # 'name': '',from .
                  }
 
     @api.onchange('product_id')
@@ -167,7 +172,7 @@ class contract_service(models.Model):
             else:
                 self.duration = 1
 
-    @api.onchange('qty','price')
+    @api.onchange('qty', 'price')
     def on_change_qty(self):
         if self.qty:
             self.price = self.qty * self.price
@@ -257,7 +262,8 @@ class contract_service(models.Model):
                 'to_invoice': 1,
                 'unit_amount': line.qty,
                 'is_prorata': mode == 'prorata',
-                'date': next_month and next_month.strftime('%Y-%m-%d') or date.strftime('%Y-%m-%d'),
+                'date': next_month and next_month.strftime('%Y-%m-%d') or
+                date.strftime('%Y-%m-%d'),
                 'journal_id': 1
             }
 
@@ -293,13 +299,13 @@ class account_analytic_account(models.Model):
                                            'Services')
     use_contract_services = fields.Boolean('Contract services', default=False)
     state = fields.Selection([('template', 'Template'),
-                                   ('draft', 'New'),
-                                   ('open', 'In Progress'),
-                                   ('pending', 'Suspended'),
-                                   ('close', 'Closed'),
-                                   ('cancelled', 'Cancelled')],
-                                  'Status', required=True,
-                                  track_visibility='onchange')
+                              ('draft', 'New'),
+                              ('open', 'In Progress'),
+                              ('pending', 'Suspended'),
+                              ('close', 'Closed'),
+                              ('cancelled', 'Cancelled')],
+                             'Status', required=True,
+                             track_visibility='onchange')
 
     @api.v7
     def on_change_partner_id(self, cr, uid, ids,
@@ -343,13 +349,16 @@ class account_analytic_account(models.Model):
                                                       context=context)
 
         return {}
+
     @api.model
     def create(self, values):
         if values['type'] == 'contract' and values['use_contract_services']:
             values['name'] = values['code']
             partner_obj = self.env['res.partner']
-            values['parent_id'] = partner_obj.read \
-            (values['partner_id'], fields=['partner_analytic_account_id'])
+            values['parent_id'] = partner_obj.read(values['partner_id'],
+                                                   fields=
+                                                   ['partner_analytic_'
+                                                    'account_id'])
             ['partner_analytic_account_id'][0]
         return super(account_analytic_account, self).create(values)
 
