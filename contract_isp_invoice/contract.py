@@ -27,7 +27,7 @@ import datetime
 from openerp.osv import orm, fields
 from openerp.tools.translate import _
 import openerp.addons.decimal_precision as dp
-from openerp.addons.contract_isp.contract import add_months, date_interval
+from openerp.addons.contract_isp.contract import add_months
 from openerp import netsvc
 import openerp.exceptions
 
@@ -306,7 +306,7 @@ class account_analytic_account(orm.Model):
 
                     wf_service.trg_validate(
                         uid, 'account.invoice', inv[0], 'invoice_open', cr)
-                    #a = account_invoice_obj._workflow_signal(
+                    #  a = account_invoice_obj._workflow_signal(
                     #    cr, uid, inv, 'invoice_open', context)
 
                     if res_company_data['send_email_contract_invoice']:
@@ -480,30 +480,40 @@ class account_analytic_line(orm.Model):
                     cr, uid, curr_invoice, context=context2)
                 invoices.append(last_invoice)
 
-                cr.execute("""SELECT product_id, user_id, to_invoice, sum(amount), sum(unit_amount), product_uom_id
-                        FROM account_analytic_line as line LEFT JOIN account_analytic_journal journal ON (line.journal_id = journal.id)
+                cr.execute("""SELECT product_id, user_id, to_invoice,
+                sum(amount), sum(unit_amount), product_uom_id
+                        FROM account_analytic_line as line LEFT JOIN
+                        account_analytic_journal journal ON
+                        (line.journal_id = journal.id)
                         WHERE account_id = %s
-                            AND line.id IN %s AND journal.type = %s AND to_invoice IS NOT NULL
-                        GROUP BY product_id, user_id, to_invoice, product_uom_id""", (account.id, tuple(ids), journal_type))
+                            AND line.id IN %s AND journal.type = %s 
+                            AND to_invoice IS NOT NULL
+                        GROUP BY product_id, user_id, to_invoice,
+                        product_uom_id""", (account.id, tuple(ids),
+                                            journal_type))
 
-                for product_id, user_id, factor_id, total_price, qty, uom in cr.fetchall():
+                for product_id, user_id, factor_id, total_price, qty, uom in\
+                cr.fetchall():
                     context2.update({'uom': uom})
 
                     if data.get('product'):
                         # force product, use its public price
                         product_id = data['product'][0]
                         unit_price = self._get_invoice_price(
-                            cr, uid, account, product_id, user_id, qty, context2)
-                    #elif journal_type == 'general' and product_id:
+                            cr, uid, account, product_id, user_id, qty,
+                            context2)
+                    #  elif journal_type == 'general' and product_id:
                     #    # timesheets, use sale price
-                    #    unit_price = self._get_invoice_price(cr, uid, account, product_id, user_id, qty, context2)
+                    #    unit_price = self._get_invoice_price(cr, uid, account
+                    #  , product_id, user_id, qty, context2)
                     else:
                         # expenses, using price from amount field
                         unit_price = qty and total_price * -1.0 / qty or 0.0
 
                     factor = invoice_factor_obj.browse(
                         cr, uid, factor_id, context=context2)
-                    # factor_name = factor.customer_name and line_name + ' - ' + factor.customer_name or line_name
+                    # factor_name = factor.customer_name and line_name + 
+                    # ' - ' + factor.customer_name or line_name
                     factor_name = ''
                     if data.get('factor_name', False):
                         factor_name = factor.customer_name
@@ -533,7 +543,8 @@ class account_analytic_line(orm.Model):
                         if not general_account:
                             raise orm.except_orm(
                                 _("Configuration Error!"),
-                                _("Please define income account for product '%s'.") % product.name)
+                                _("Please define income account for product"
+                                  " '%s'.") % product.name)
                         taxes = product.taxes_id or general_account.tax_ids
                         tax = fiscal_pos_obj.map_tax(
                             cr, uid,
@@ -548,7 +559,11 @@ class account_analytic_line(orm.Model):
                     #
                     # Compute for lines
                     #
-                    cr.execute("SELECT * FROM account_analytic_line WHERE account_id = %s and id IN %s AND product_id=%s and to_invoice=%s ORDER BY account_analytic_line.date", (account.id, tuple(ids), product_id, factor_id))
+                    cr.execute("SELECT * FROM account_analytic_line WHERE"
+                               "account_id = %s and id IN %s AND"
+                               "product_id=%s and to_invoice=%s ORDER BY"
+                               "account_analytic_line.date",
+                               (account.id, tuple(ids), product_id, factor_id))
 
                     line_ids = cr.dictfetchall()
                     note = []
@@ -580,9 +595,11 @@ class account_analytic_line(orm.Model):
                                 map(lambda x: unicode(x) or '', note))
                     invoice_line_obj.create(
                         cr, uid, curr_line, context=context)
-                    cr.execute("update account_analytic_line set invoice_id=%s WHERE account_id = %s and id IN %s", (last_invoice, account.id, tuple(ids)))
+                    cr.execute("update account_analytic_line set"
+                               "invoice_id=%s WHERE account_id = %s and"
+                               "id IN %s", (last_invoice, account.id,
+                                            tuple(ids)))
 
                 invoice_obj.button_reset_taxes(
                     cr, uid, [last_invoice], context)
         return invoices
-

@@ -24,7 +24,8 @@
     'name': 'Contract ISP Automatic Invoicing',
     'version': '1.0',
     'category': 'Account',
-    'description': """A module to automatically invoice services based contracts""",
+    'description': """A module to automatically invoice services
+    based contracts""",
     'author': "Savoir-faire Linux Inc.,Odoo Community Association (OCA)",
     'website': 'www.savoirfairelinux.com',
     'license': 'AGPL-3',

@@ -21,13 +21,12 @@
 ##############################################################################
 
 import datetime
-from openerp.addons.contract_isp.models.contract import add_months
-from openerp import models, fields, api, _
+# from openerp.addons.contract_isp.models.contract import add_months
+from openerp import models, fields, api
 
 
 class contract_service_activate(models.TransientModel):
     _name = 'contract.service.activate'
-
 
     @api.one
     def _get_account_id(self):
@@ -36,24 +35,30 @@ class contract_service_activate(models.TransientModel):
             contract_service = self.env['contract.service'].browse(contract_id)
             return contract_service.account_id.id
         return None
-    
+
     @api.one
     def _get_service_id(self):
         if self._context.get('active_model', '') == 'contract.service':
             service_id = self._context.get('active_id')
-            contract_service = self.pool.get('contract.service').browse(service_id)
+            contract_service = self.pool.get('contract.service'). \
+            browse(service_id)
             return contract_service.id
         return None
 
-    activation_date = fields.Datetime('Activation Date', default=fields.datetime.now())
-    account_id = fields.Many2one('account.analytic.account', 'Account', default=lambda s: s._get_account_id())
-    service_id = fields.Many2one('contract.service', 'Service', default=lambda s: s._get_service_id())
+    activation_date = fields.Datetime('Activation Date',
+                                      default=fields.datetime.now())
+    account_id = fields.Many2one('account.analytic.account',
+                                 'Account',
+                                 default=lambda s: s._get_account_id())
+    service_id = fields.Many2one('contract.service',
+                                 'Service',
+                                 default=lambda s: s._get_service_id())
 
     @api.multi
     def activate(self):
         company_obj = self.env['res.company']
         company_id = company_obj._company_default_get()
-        company_ids = company_obj.search([('id','=',company_id)])
+        company_ids = company_obj.search([('id', '=', company_id)])
         cutoff = company_ids[0].cutoff_day
         contract_service_obj = self.env['contract.service']
         contract_service = contract_service_obj.browse(self.service_id.id)
@@ -65,8 +70,12 @@ class contract_service_activate(models.TransientModel):
 
         cuttoff_day = company_ids[0].cutoff_day
         invoice_day = company_ids[0].invoice_day
-        cutoff_date = datetime.date(datetime.date.today().year, datetime.date.today().month, int(cuttoff_day))
-        invoice_date = datetime.date(datetime.date.today().year, datetime.date.today().month, int(invoice_day))
+        cutoff_date = datetime.date(datetime.date.today().year,
+                                    datetime.date.today().month,
+                                    int(cuttoff_day))
+        invoice_date = datetime.date(datetime.date.today().year,
+                                     datetime.date.today().month,
+                                     int(invoice_day))
         contract_service.write({
             'activation_date': self.activation_date,
             'state': 'active'

@@ -26,9 +26,9 @@ import time
 import datetime
 from openerp.tools.translate import _
 import openerp.addons.decimal_precision as dp
-from openerp.addons.contract_isp.models.contract import add_months, date_interval
+from openerp.addons.contract_isp.models.contract import add_months
 from openerp import netsvc
-from openerp.exceptions import except_orm, Warning, RedirectWarning
+from openerp.exceptions import Warning
 from openerp import models, fields, api, _
 
 _logger = logging.getLogger(__name__)
@@ -36,24 +36,25 @@ _logger = logging.getLogger(__name__)
 
 class res_company(models.Model):
     _inherit = "res.company"
-    
+
     @api.multi
     def _days(self):
         return tuple([(str(x), str(x)) for x in range(1, 29)])
 
     invoice_day = fields.Selection(_days, 'Invoice day')
-    send_email_contract_invoice = fields.Boolean('Send invoice by email', default=True)
-
+    send_email_contract_invoice = fields.Boolean('Send invoice by email',
+                                                 default=True)
 
 
 class res_partner(models.Model):
     _inherit = "res.partner"
 
     def _get_default_payment_term(self):
-        return self.env['ir.model.data'].get_object_reference('contract_isp_invoice','account_payment_term_end_of_month')[1]
-
+        return self.env['ir.model.data'].get_object_reference('contract_isp_invoice',
+                                                              'account_payment_term_end_of_month')[1]
 #    _defaults = {
-#        'property_payment_term': lambda s, cr, uid, ctx: s._get_default_payment_term(cr, uid, ctx)
+#        'property_payment_term': lambda s, cr, uid, ctx:
+#         s._get_default_payment_term(cr, uid, ctx)
 #    }
 
 
@@ -64,9 +65,8 @@ class account_voucher(models.Model):
     original_amount = fields.Float(
             'Original Amount', digits_compute=dp.get_precision('Account'),
             required=True, readonly=True,
-            states={'draft':[('readonly',False)]})
+            states={'draft': [('readonly', False)]})
 
-    
     @api.multi
     def onchange_journal(journal_id, line_ids,
                          tax_id, partner_id, date, amount, ttype,
@@ -82,7 +82,7 @@ class account_voucher(models.Model):
         ret['value']['later_validation'] = journal.later_validation
 
         return ret
-    
+
     @api.model
     def create(self, data):
         if self._context is None:
@@ -109,22 +109,19 @@ class account_voucher(models.Model):
             if self._context.get('active_model') == 'account.analytic.account' and self._context.get('active_id', False):
                 for line in account_analytic_account_obj.browse(self._context.get('active_id')).contract_service_ids:
                     line.create_analytic_line(mode='subscription',date=datetime.datetime.today())
-                    
                 inv = account_analytic_account_obj.create_invoice(self._context.get('active_ids'))
                 a = account_invoice_obj.signal_workflow('invoice_open')
-                
             else:
                 raise openerp.exceptions.Warning(_('Contract not found'))
 
             if voucher.journal_id.later_validation is False:
                 ret = super(account_voucher, self).proforma_voucher()
-
-
             if voucher.journal_id.later_validation is False:
                 account_move_line_obj = self.env['account.move.line']
                 query = [
                     ('partner_id', '=', voucher.partner_id.id),
-                    ('account_id', '=', voucher.partner_id.property_account_receivable.id),
+                    ('account_id', '=', voucher.partner_id. \
+                     property_account_receivable.id),
                     ('reconcile_id', '=', False)
                 ]
 
@@ -139,20 +136,24 @@ class account_voucher(models.Model):
                     account_id = False
 
                     date = time.strftime('%Y-%m-%d')
-                    ctx = dict(self._context or {}, account_period_prefer_normal=True)
+                    ctx = dict(self._context or {},
+                               account_period_prefer_normal=True)
                     period_ids = period_obj.find(dt=date, context=ctx)
                     if period_ids:
                         period_id = self.ids[0]
-                        ids_to_reconcile.reconcile('manual', account_id, period_id, journal_id)
+                        ids_to_reconcile.reconcile('manual', account_id,
+                                                   period_id, journal_id)
 
             mail_template_obj = self.env['email.template']
             ir_model_data_obj = self.env['ir.model.data']
-            mail_template_id = ir_model_data_obj.get_object_reference('account', 'email_template_edi_invoice')[1]
+            mail_template_id = ir_model_data_obj.get_object_reference
+            ('account', 'email_template_edi_invoice')[1]
             mail_mail_obj = self.env['mail.mail']
             if isinstance(inv, list):
                 for i in inv:
                     mail_id = mail_template_obj.send_mail(mail_template_id, i)
-                    mail_message = mail_mail_obj.browse(mail_id).mail_message_id
+                    mail_message = mail_mail_obj.browse(mail_id). \
+                    mail_message_id
                     mail_message.write({'type': 'email'})
         else:
             ret = super(account_voucher, self).proforma_voucher()
@@ -173,7 +174,7 @@ class account_analytic_account(models.Model):
     close_reason = fields.Text('Reasons')
 
     @api.multi
-    def create_invoice(self,prorata=False):
+    def create_invoice(self, prorata=False):
         return_int = False
         if isinstance(self.ids, int):
             return_int = True
@@ -184,13 +185,16 @@ class account_analytic_account(models.Model):
         contract_service_obj = self.env['contract.service']
         res_company_obj = self.env['res.company']
         account_invoice_obj = self.env['account.invoice']
-        res_company_data = res_company_obj.search([('id','=',res_company_obj._company_default_get())])
+        res_company_data = res_company_obj.search([('id','=',
+                                                    res_company_obj. \
+                                                    _company_default_get())])
         wf_service = netsvc.LocalService("workflow")
 
         if res_company_data['send_email_contract_invoice']:
             mail_template_obj = self.env['email.template']
             ir_model_data_obj = self.env['ir.model.data']
-            mail_template_id = ir_model_data_obj.get_object_reference('account','email_template_edi_invoice')[1]
+            mail_template_id = ir_model_data_obj.get_object_reference
+            ('account', 'email_template_edi_invoice')[1]
             mail_mail_obj = self.env['mail.mail']
 
         cuttoff_day = res_company_data['cutoff_day']
@@ -243,25 +247,32 @@ class account_analytic_account(models.Model):
                 # jgama - If its a prorata invoice, change the invoice date
                 #         according to the invoice_day variable
                 if prorata:
-                    account_invoice_obj.write(inv, {'date_invoice': date_invoice})
+                    account_invoice_obj.write(inv,
+                                              {'date_invoice':
+                                               date_invoice})
 
                 if self._context.get('not_subscription_voucher', True):
                     _logger.debug(
-                        "Opening invoice %s" % account_invoice_obj.browse(inv[0]).name)
+                        "Opening invoice %s" % account_invoice_obj.browse
+                        (inv[0]).name)
 
-                    wf_service.trg_validate('account.invoice', inv[0], 'invoice_open')
-                    #a = account_invoice_obj._workflow_signal(
+                    wf_service.trg_validate('account.invoice', inv[0],
+                                            'invoice_open')
+                    # a = account_invoice_obj._workflow_signal(
                     #    cr, uid, inv, 'invoice_open', context)
 
                     if res_company_data['send_email_contract_invoice']:
                         _logger.info(
-                            "Mailing invoice %s" % account_invoice_obj.browse(inv[0]).name)
+                            "Mailing invoice %s" % account_invoice_obj.browse
+                            (inv[0]).name)
 
                         ctx = dict(self._context, default_type='email')
 
                         try:
-                            mail_id = mail_template_obj.send_mail(mail_template_id, inv[0])
-                            mail_message = mail_mail_obj.browse(mail_id).mail_message_id
+                            mail_id = mail_template_obj.send_mail
+                            (mail_template_id, inv[0])
+                            mail_message = mail_mail_obj.browse(mail_id). \
+                            mail_message_id
                             mail_message.write({'type': 'email'})
                         except:
                             _logger.error(
@@ -277,7 +288,7 @@ class account_analytic_account(models.Model):
                 return ret[0]
         else:
             return ret
-        
+
     @api.multi
     def set_close(self):
 
@@ -294,18 +305,23 @@ class account_analytic_account(models.Model):
     def prepare_voucher(self):
         if self._context is None:
             context = {}
-        context = dict(self._context) 
+        context = dict(self._context)
         res_currency_obj = self.env['res.currency']
         account_analytic_account_obj = self.env['account.analytic.account']
         account_invoice_obj = self.env['account.invoice']
-        #commet becuase round problem
-       # cur = self.browse(self.ids[0]).pricelist_id.currency_id
+        # commet becuase round problem
+        # cur = self.browse(self.ids[0]).pricelist_id.currency_id
 
         amount_tax = amount_untaxed = 0
-        for line in self.browse(self._context.get('active_id')).contract_service_ids:
-            for c in self.env['account.tax'].compute_all(line.product_id.taxes_id.id, line.unit_price or 0.0,
-                    line.qty or 0.0, line.product_id,
-                    line.account_id.partner_id)['taxes']:
+        for line in self.browse(self._context.get('active_id')). \
+        contract_service_ids:
+            for c in self.env['account.tax'].compute_all(line.product_id.taxes_id.id,
+                                                         line.unit_price or
+                                                         0.0,
+                                                         line.qty or 0.0,
+                                                         line.product_id,
+                                                         line.account_id.partner_id)\
+            ['taxes']:
                 amount_tax += c.get('amount', 0.0)
 
             amount_untaxed += line.unit_price * line.qty
@@ -318,7 +334,8 @@ class account_analytic_account(models.Model):
         # amount = account_invoice_obj.browse(
         #     cr, uid, inv, context=context).amount_total
 
-        view_id = self.env['ir.model.data'].get_object_reference('account_voucher', 'view_vendor_receipt_form')[1]
+        view_id = self.env['ir.model.data']. \
+        get_object_reference('account_voucher', 'view_vendor_receipt_form')[1]
 
         partner = self.browse(self.ids[0]).partner_id
 
@@ -378,12 +395,14 @@ class account_analytic_line(models.Model):
                 if (not partner) or not (account.pricelist_id):
                     raise orm.except_orm(
                         _('Analytic Account Incomplete!'),
-                        _('Contract incomplete. Please fill in the Customer and Pricelist fields.'))
+                        _('Contract incomplete. Please fill in the Customer'
+                          'and Pricelist fields.'))
 
                 date_due = False
                 if partner.property_payment_term:
-                    pterm_list = account_payment_term_obj.compute(partner.property_payment_term.id, value=1,
-                        date_ref=time.strftime('%Y-%m-%d'))
+                    pterm_list = account_payment_term_obj.compute \
+                    (partner.property_payment_term.id, value=1,
+                    date_ref = time.strftime('%Y-%m-%d'))
                     if pterm_list:
                         pterm_list = [line[0] for line in pterm_list]
                         pterm_list.sort()
@@ -411,28 +430,39 @@ class account_analytic_line(models.Model):
                 last_invoice = invoice_obj.create(curr_invoice)
                 invoices.append(last_invoice.id)
 
-                self._cr.execute("""SELECT product_id, user_id, to_invoice, sum(amount), sum(unit_amount), product_uom_id
-                        FROM account_analytic_line as line LEFT JOIN account_analytic_journal journal ON (line.journal_id = journal.id)
+                self._cr.execute("""SELECT product_id, user_id, to_invoice,
+                sum(amount), sum(unit_amount), product_uom_id
+                        FROM account_analytic_line as line LEFT JOIN
+                        account_analytic_journal journal ON
+                        (line.journal_id = journal.id)
                         WHERE account_id = %s
-                            AND line.id IN %s AND journal.type = %s AND to_invoice IS NOT NULL
-                        GROUP BY product_id, user_id, to_invoice, product_uom_id""", (account.id, tuple(self.ids), journal_type))
+                            AND line.id IN %s AND journal.type = %s AND
+                            to_invoice IS NOT NULL
+                        GROUP BY product_id, user_id, to_invoice,"""
+                        """ product_uom_id""", (account.id, tuple(self.ids),
+                                                journal_type))
 
-                for product_id, user_id, factor_id, total_price, qty, uom in self._cr.fetchall():
+                for product_id, user_id, factor_id, total_price, qty, \
+                uom in self._cr.fetchall():
                     context2.update({'uom': uom})
 
                     if data.get('product'):
                         # force product, use its public price
                         product_id = data['product'][0]
-                        unit_price = self._get_invoice_price(account, product_id, user_id, qty)
-                    #elif journal_type == 'general' and product_id:
+                        unit_price = self._get_invoice_price(account,
+                                                             product_id,
+                                                             user_id, qty)
+                    #  elif journal_type == 'general' and product_id:
                     #    # timesheets, use sale price
-                    #    unit_price = self._get_invoice_price(cr, uid, account, product_id, user_id, qty, context2)
+                    #    unit_price = self._get_invoice_price(cr, uid,
+                    #`   account, product_id, user_id, qty, context2)
                     else:
                         # expenses, using price from amount field
                         unit_price = qty and total_price * -1.0 / qty or 0.0
 
                     factor = invoice_factor_obj.browse(factor_id)
-                    # factor_name = factor.customer_name and line_name + ' - ' + factor.customer_name or line_name
+                    # factor_name = factor.customer_name and line_name +
+                    # ' - ' + factor.customer_name or line_name
                     factor_name = ''
                     if data.get('factor_name', False):
                         factor_name = factor.customer_name
@@ -460,19 +490,25 @@ class account_analytic_line(models.Model):
                         if not general_account:
                             raise orm.except_orm(
                                 _("Configuration Error!"),
-                                _("Please define income account for product '%s'.") % product.name)
+                                _("Please define income account for"
+                                  "product '%s'.") % product.name)
                         taxes = product.taxes_id or general_account.tax_ids
                         tax = fiscal_pos_obj.map_tax(taxes)
                         curr_line.update({
                             'invoice_line_tax_id': [(6, 0, [tax.id])],
                             'name': factor_name,
-                         #   'invoice_line_tax_id': [(6, 0, tax.id)],
+                            #   'invoice_line_tax_id': [(6, 0, tax.id)],
                             'account_id': general_account.id,
                         })
                     #
                     # Compute for lines
                     #
-                    self._cr.execute("SELECT * FROM account_analytic_line WHERE account_id = %s and id IN %s AND product_id=%s and to_invoice=%s ORDER BY account_analytic_line.date", (account.id, tuple(self.ids), product_id, factor_id))
+                    self._cr.execute("SELECT * FROM account_analytic_line"
+                                     "WHERE account_id = %s and id IN %s AND"
+                                     "product_id=%s and to_invoice=%s ORDER"
+                                     "BY account_analytic_line.date",
+                                     (account.id, tuple(self.ids), product_id,
+                                      factor_id))
 
                     line_ids = self._cr.dictfetchall()
                     note = []
@@ -485,7 +521,9 @@ class account_analytic_line(models.Model):
                             if line['product_uom_id']:
                                 details.append("%s %s" % (
                                     line['unit_amount'],
-                                    product_uom_obj.browse([line['product_uom_id']])[0].name))
+                                    product_uom_obj.browse([line
+                                                            ['product_uom_id']
+                                                            ])[0].name))
                             else:
                                 details.append("%s" % (line['unit_amount'], ))
                         if data.get('name', False):
@@ -500,8 +538,8 @@ class account_analytic_line(models.Model):
                             curr_line['name'] = "\n".join(
                                 map(lambda x: unicode(x) or '', note))
                     invoice_line_obj.create(curr_line)
-                    #TODO
-                    #self._cr.execute("update account_analytic_line set invoice_id=%s WHERE account_id = %s and id IN %s", (last_invoice.id, account.id, tuple(self.ids)))
-               # invoice_obj.button_reset_taxes(last_invoice.id)
+                    # TODO
+                    # self._cr.execute("update account_analytic_line set invoice_id=%s WHERE account_id = %s and id IN %s", (last_invoice.id, account.id, tuple(self.ids)))
+                    # invoice_obj.button_reset_taxes(last_invoice.id)
         return invoices
 

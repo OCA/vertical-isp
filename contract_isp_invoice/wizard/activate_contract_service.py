@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 ##############################################################################
 #
 #    OpenERP, Open Source Management Solution
@@ -20,10 +19,10 @@
 #
 ##############################################################################
 
-import time
+# import time
 import datetime
 from openerp.addons.contract_isp.models.contract import add_months
-from openerp import models, fields, api, _
+from openerp import models, api
 
 
 class contract_service_activate(models.TransientModel):

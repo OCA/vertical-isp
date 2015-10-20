@@ -20,6 +20,6 @@
 #
 ##############################################################################
 
-import wizard
-import workflow
-import models
+from . import wizard
+from . import workflow
+from . import models

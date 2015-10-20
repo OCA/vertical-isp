@@ -22,5 +22,5 @@
 
 #import contract
 #import report
-import models
-import wizard
+from . import models
+from . import wizard

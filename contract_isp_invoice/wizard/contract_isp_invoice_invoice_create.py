@@ -20,16 +20,16 @@
 #
 ##############################################################################
 
-from openerp import models, fields, api, _
+from openerp import models, fields
 
 
 class contract_isp_invoice_invoice_create(models.TransientModel):
     _inherit = 'hr.timesheet.invoice.create'
 
     factor_name = fields.Boolean('Invoice Factor',
-                                  help='Show the invoice factor',default=False)
+                                 help='Show the invoice factor', default=False)
     product_name = fields.Boolean('Product Name',
-                                       help='Show the product name',default=False)
+                                  help='Show the product name', default=False)
 
     _defaults = {
         'name': True

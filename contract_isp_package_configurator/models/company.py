@@ -19,13 +19,16 @@
 #
 ##############################################################################
 
-from openerp import models, fields, api, _
+from openerp import models, fields
+
 
 class res_company(models.Model):
     _inherit = 'res.company'
 
-    default_product_category= fields.Many2one(
-            'product.category',
-            'Default Product Category',
-            required=True,
-            help='''Set the default starting point for the package configuration wizard''')
+    default_product_category = fields.Many2one('product.category',
+                                               'Default Product Category',
+                                                required=True,
+                                                help='''Set the default'''
+                                                '''starting point for'''
+                                                ''' the package'''
+                                                '''configuration wizard''')
