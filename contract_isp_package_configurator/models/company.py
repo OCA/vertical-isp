@@ -27,8 +27,8 @@ class res_company(models.Model):
 
     default_product_category = fields.Many2one('product.category',
                                                'Default Product Category',
-                                                required=True,
-                                                help='''Set the default'''
-                                                '''starting point for'''
-                                                ''' the package'''
-                                                '''configuration wizard''')
+                                               required=True,
+                                               help='''Set the default'''
+                                               '''starting point for'''
+                                               ''' the package'''
+                                               '''configuration wizard''')

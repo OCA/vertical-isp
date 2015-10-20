@@ -28,7 +28,7 @@ from openerp.exceptions import Warning
 class contract_service_configurator_line(models.TransientModel):
     _name = 'contract.service.configurator.line'
 
-#   def _get_stock_production_lot_available(self, cr, uid, )
+#   def _get_stock_production_lot_available(self, cr, uid,)
     name = fields.Char('Name')
     product_id = fields.Many2one('product.product', 'Product')
     configurator_id = fields.Many2one('contract.service.configurator',
@@ -41,9 +41,9 @@ class contract_service_configurator_line(models.TransientModel):
     stock_move_id = fields.Many2one('stock.move', 'Stock Move')
     state = fields.Selection((('draft', _('Added')),
                               ('message', _('Information')),
-                            ('serial', _('Select serial number')),
-                            ('stock', ('No Stock')),
-                            ('done', _('Done'))), 'State', default='draft')
+                              ('serial', _('Select serial number')),
+                              ('stock', ('No Stock')),
+                              ('done', _('Done'))), 'State', default='draft')
 
     @api.multi
     def router(self, data=None):
@@ -58,8 +58,10 @@ class contract_service_configurator_line(models.TransientModel):
                 state = 'stock'
         elif self.state in ('serial', 'stock'):
             stock_move_obj = self.env['stock.move']
-            location_id = self.env['ir.model.data'].get_object_reference('stock', 'stock_location_stock')[1]
-            location_dest_id = self.configurator_id.contract_id.partner_id.property_stock_customer.id
+            location_id = self.env['ir.model.data'].get_object_reference
+            ('stock', 'stock_location_stock')[1]
+            location_dest_id = self.configurator_id.contract_id.partner_id.\
+            property_stock_customer.id
             move = {
                 'name': self.product_id and self.product_id.name or '',
                 'product_id': self.product_id and self.product_id.id,
@@ -79,7 +81,7 @@ class contract_service_configurator_line(models.TransientModel):
                     stock_move_id.id})
 
         return self.configurator_id.router(data={})
-    
+
     @api.multi
     def unlink(self):
         if isinstance(self.ids, int):
@@ -160,14 +162,17 @@ class contract_service_configurator(models.TransientModel):
                                'Line')
     current_product_id = fields.Many2one('product.product',
                                          'Add Product')
-    dependency_ids = fields.Many2many('contract.service.configurator.dependency.line',
-                                      'contract_service_configurator_dependency_rel',
+    dependency_ids = fields.Many2many('contract.service.configurator.'
+                                      'dependency.line',
+                                      'contract_service_configurator_'
+                                      'dependency_rel',
                                       'configurator_id',
                                       'dependency_id',
                                       'Dependencies')
     root_category_id = fields.Many2one('product.category', 'Category')
     product_category_id = fields.Many2one('product.category', 'Category',
-                                          default=lambda s: s._get_default_category())
+                                          default=lambda s: s.
+                                          _get_default_category())
     is_level2 = fields.Boolean('Is level 2',
                                default=lambda s: s._get_is_level2())
 
@@ -376,8 +381,8 @@ class contract_service_configurator(models.TransientModel):
                             'message': product.description,
                             'state': state
                         }
-                        contract_service_configurator_dependency_line_obj. \
-                        create(record)
+                        contract_service_configurator_dependency_line_obj\
+                        .create(record)
 
             record = {
                 'current_product_id': None,
@@ -438,7 +443,8 @@ class contract_service_configurator(models.TransientModel):
                     'prodlot_id': line.serial and line.serial.id or None,
                     'location_id': line.stock_move_id.location_dest_id.id,
                     'location_dest_id': line.stock_move_id.location_id.id,
-                    'partner_id': line.configurator_id.contract_id.partner_id.id,
+                    'partner_id': line.configurator_id.contract_id.
+                    partner_id.id,
                     'type': 'in'
                 }
                 stock_move_id = stock_move_obj.create(move)

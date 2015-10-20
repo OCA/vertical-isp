@@ -50,8 +50,8 @@ class res_partner(models.Model):
     _inherit = "res.partner"
 
     def _get_default_payment_term(self):
-        return self.env['ir.model.data'].get_object_reference('contract_isp_invoice',
-                                                              'account_payment_term_end_of_month')[1]
+        return self.env['ir.model.data'].get_object_reference
+    ('contract_isp_invoice', 'account_payment_term_end_of_month')[1]
 #    _defaults = {
 #        'property_payment_term': lambda s, cr, uid, ctx:
 #         s._get_default_payment_term(cr, uid, ctx)
@@ -63,9 +63,10 @@ class account_voucher(models.Model):
 
     later_validation = fields.Boolean('Later Validation', default=False)
     original_amount = fields.Float(
-            'Original Amount', digits_compute=dp.get_precision('Account'),
-            required=True, readonly=True,
-            states={'draft': [('readonly', False)]})
+                                   'Original Amount',
+                                   digits_compute=dp.get_precision('Account'),
+                                   required=True, readonly=True,
+                                   states={'draft': [('readonly', False)]})
 
     @api.multi
     def onchange_journal(journal_id, line_ids,
@@ -87,7 +88,8 @@ class account_voucher(models.Model):
     def create(self, data):
         if self._context is None:
             context = {}
-        if self._context.get('original_amount', False) and data.get('amount', False):
+        if self._context.get('original_amount', False) and data.get('amount',
+                                                                    False):
             if data['amount'] < data['original_amount']:
                 raise orm.except_orm(
                     _('Error'),
@@ -112,7 +114,7 @@ class account_voucher(models.Model):
                 inv = account_analytic_account_obj.create_invoice(self._context.get('active_ids'))
                 a = account_invoice_obj.signal_workflow('invoice_open')
             else:
-                raise openerp.exceptions.Warning(_('Contract not found'))
+                raise Warning(_('Contract not found'))
 
             if voucher.journal_id.later_validation is False:
                 ret = super(account_voucher, self).proforma_voucher()
@@ -442,8 +444,8 @@ class account_analytic_line(models.Model):
                         """ product_uom_id""", (account.id, tuple(self.ids),
                                                 journal_type))
 
-                for product_id, user_id, factor_id, total_price, qty, \
-                uom in self._cr.fetchall():
+                for product_id, user_id, factor_id, total_price, qty,\
+                    uom in self._cr.fetchall():
                     context2.update({'uom': uom})
 
                     if data.get('product'):
@@ -453,7 +455,7 @@ class account_analytic_line(models.Model):
                                                              product_id,
                                                              user_id, qty)
                     #  elif journal_type == 'general' and product_id:
-                    #    # timesheets, use sale price
+                    #  timesheets, use sale price
                     #    unit_price = self._get_invoice_price(cr, uid,
                     #`   account, product_id, user_id, qty, context2)
                     else:
@@ -488,7 +490,7 @@ class account_analytic_line(models.Model):
                         general_account = product.property_account_income or \
                             product.categ_id.property_account_income_categ
                         if not general_account:
-                            raise orm.except_orm(
+                            raise Warning(
                                 _("Configuration Error!"),
                                 _("Please define income account for"
                                   "product '%s'.") % product.name)
@@ -539,7 +541,8 @@ class account_analytic_line(models.Model):
                                 map(lambda x: unicode(x) or '', note))
                     invoice_line_obj.create(curr_line)
                     # TODO
-                    # self._cr.execute("update account_analytic_line set invoice_id=%s WHERE account_id = %s and id IN %s", (last_invoice.id, account.id, tuple(self.ids)))
+                    # self._cr.execute("update account_analytic_line set
+                    # invoice_id=%s WHERE account_id = %s and id IN %s",
+                    # (last_invoice.id, account.id, tuple(self.ids)))
                     # invoice_obj.button_reset_taxes(last_invoice.id)
         return invoices
-
