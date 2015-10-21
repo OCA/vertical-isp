@@ -56,7 +56,7 @@ class contract_isp_close(models.TransientModel):
         # contract = self.account_id
         account_analytic_account = self.env['account.analytic.account']\
             .browse(self._context.get('active_id', False))
-        today = datetime.date.today()
+        # today = datetime.date.today()
 
         query = [
             ('partner_id', '=', account_analytic_account.partner_id.id),

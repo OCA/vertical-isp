@@ -157,7 +157,7 @@ class contract_service(models.Model):
                               ('inactive', 'Inactive')),
                              'State', default='draft')
     _defaults = {
-                 # 'name': '',from .
+                 # 'name': '',from
                  }
 
     @api.onchange('product_id')
@@ -185,13 +185,14 @@ class contract_service(models.Model):
             date = datetime.date.today()
 
         if type(self.ids) is int:
-            ids = [self.ids]
+            #             ids = [self.ids]
+            pass
         context = dict(self._context)
         ret = []
         record = {}
         next_month = None
         company_obj = self.env['res.company']
-        company_id = company_obj._company_default_get()
+        #         company_id = company_obj._company_default_get()
         #         company = company_obj.browse(company_id)
 
         account_analytic_line_obj = self.env['account.analytic.line']
@@ -335,10 +336,10 @@ class account_analytic_account(models.Model):
             mode = context.get('create_analytic_line_mode')
 
         contract_service_obj = self.pool.get('contract.service')
-        query = [
-            ('account_id', 'in', ids),
-            ('state', '=', 'active'),
-        ]
+        #         query = [
+        #             ('account_id', 'in', ids),
+        #             ('state', '=', 'active'),
+        #         ]
         contract_service_ids = contract_service_obj.search(cr, uid,
                                                            [],
                                                            order='account_id',
@@ -358,7 +359,7 @@ class account_analytic_account(models.Model):
             partner_obj = self.env['res.partner']
             values['parent_id'] = partner_obj.read(values['partner_id'],
                                                    fields=['partner_analytic_'
-                                                    'account_id'])
+                                                           'account_id'])
             ['partner_analytic_account_id'][0]
         return super(account_analytic_account, self).create(values)
 

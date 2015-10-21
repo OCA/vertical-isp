@@ -88,7 +88,8 @@ class account_voucher(models.Model):
     @api.model
     def create(self, data):
         if self._context is None:
-            context = {}
+            # context = {}
+            pass
         if self._context.get('original_amount', False) and data.get('amount',
                                                                     False):
             if data['amount'] < data['original_amount']:
@@ -101,8 +102,8 @@ class account_voucher(models.Model):
     @api.multi
     def proforma_voucher(self):
         if self._context is None:
-            context = {}
-
+            # context = {}
+            pass
         ret = True
         account_analytic_account_obj = self.env['account.analytic.account']
         account_invoice_obj = self.env['account.invoice']
@@ -110,9 +111,9 @@ class account_voucher(models.Model):
         voucher = self.browse(self.id)
         if self._context.get('not_subscription_voucher', True) is False:
             if self._context.get('active_model') == 'account.analytic.account'\
-            and self._context.get('active_id', False):
-                for line in account_analytic_account_obj.browse\
-                    (self._context.get('active_id')).contract_service_ids:
+                and self._context.get('active_id', False):
+                for line in account_analytic_account_obj.\
+                browse(self._context.get('active_id')).contract_service_ids:
                     line.create_analytic_line(mode='subscription',
                                               date=datetime.datetime.today())
                     inv = account_analytic_account_obj.\
