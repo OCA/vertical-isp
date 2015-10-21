@@ -113,7 +113,8 @@ class account_voucher(models.Model):
             if self._context.get('active_model') == 'account.analytic.account'and\
                self._context.get('active_id', False):
                 for line in account_analytic_account_obj.\
-                    browse(self._context.get('active_id')).contract_service_ids:
+                    browse(self._context.get('active_id'))\
+                    .contract_service_ids:
                     line.create_analytic_line(mode='subscription',
                                               date=datetime.datetime.today())
                     inv = account_analytic_account_obj.\
@@ -323,7 +324,7 @@ class account_analytic_account(models.Model):
 
         amount_tax = amount_untaxed = 0
         for line in self.browse(self._context.get('active_id')).\
-            contract_service_ids:
+        contract_service_ids:
             for c in self.env['account.tax'].compute_all(line.product_id.
                                                          taxes_id.id,
                                                          line.unit_price or
@@ -449,8 +450,8 @@ class account_analytic_line(models.Model):
                         WHERE account_id = %s
                             AND line.id IN %s AND journal.type = %s AND
                             to_invoice IS NOT NULL
-                        GROUP BY product_id, user_id, to_invoice,"""
-                        """ product_uom_id""", (account.id, tuple(self.ids),
+                            GROUP BY product_id, user_id, to_invoice,"""
+                            """ product_uom_id""", (account.id, tuple(self.ids),
                                                 journal_type))
 
                 for product_id, user_id, factor_id, total_price, qty, uom in\
