@@ -22,12 +22,13 @@
 # import logging
 import calendar
 import datetime
-from openerp.osv import orm, fields
+from openerp.osv import fields
 # from openerp.report import report_sxw
 # from openerp.tools import convert
 from openerp.tools.translate import _
 from openerp.addons.contract_isp.models.contract import date_interval
 from openerp import models, fields, api, _
+from openerp.exceptions import Warning
 
 
 class contract_isp_close(models.TransientModel):
@@ -41,7 +42,7 @@ class contract_isp_close(models.TransientModel):
         return False
 
     account_id = fields.Many2one('account.analytic.account', 'Contract',
-                                 default= lambda s:s._get_account_id())
+                                 default=lambda s: s._get_account_id())
     close_date = fields.Datetime('Close date', required=True,
                                  default=fields.datetime.now())
     close_reason = fields.Text('Reason')
@@ -54,7 +55,7 @@ class contract_isp_close(models.TransientModel):
         account_invoice_obj = self.env['account.invoice']
         # contract = self.account_id
         account_analytic_account = self.env['account.analytic.account']\
-        .browse(self._context.get('active_id', False))
+            .browse(self._context.get('active_id', False))
         today = datetime.date.today()
 
         query = [

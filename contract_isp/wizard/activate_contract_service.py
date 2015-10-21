@@ -42,7 +42,7 @@ class contract_service_activate(models.TransientModel):
         if self._context.get('active_model', '') == 'contract.service':
             service_id = self._context.get('active_id')
             contract_service = self.pool.get('contract.service').\
-            browse(service_id)
+                browse(service_id)
             return contract_service.id
         return None
 

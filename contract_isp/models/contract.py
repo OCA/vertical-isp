@@ -357,8 +357,7 @@ class account_analytic_account(models.Model):
             values['name'] = values['code']
             partner_obj = self.env['res.partner']
             values['parent_id'] = partner_obj.read(values['partner_id'],
-                                                   fields=
-                                                   ['partner_analytic_'
+                                                   fields=['partner_analytic_'
                                                     'account_id'])
             ['partner_analytic_account_id'][0]
         return super(account_analytic_account, self).create(values)
