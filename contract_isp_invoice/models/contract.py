@@ -110,14 +110,14 @@ class account_voucher(models.Model):
         voucher = self.browse(self.id)
         if self._context.get('not_subscription_voucher', True) is False:
             if self._context.get('active_model') == 'account.analytic.account'\
-                and self._context.get('active_id', False):
-                    for line in account_analytic_account_obj.browse\
-                        (self._context.get('active_id')).contract_service_ids:
-                        line.create_analytic_line(mode='subscription',
+            and self._context.get('active_id', False):
+                for line in account_analytic_account_obj.browse\
+                    (self._context.get('active_id')).contract_service_ids:
+                    line.create_analytic_line(mode='subscription',
                                               date=datetime.datetime.today())
-                        inv = account_analytic_account_obj.\
-                        create_invoice(self._context.get('active_ids'))
-                        a = account_invoice_obj.signal_workflow('invoice_open')
+                    inv = account_analytic_account_obj.\
+                    create_invoice(self._context.get('active_ids'))
+                    a = account_invoice_obj.signal_workflow('invoice_open')
             else:
                 raise Warning(_('Contract not found'))
 
@@ -192,7 +192,7 @@ class account_analytic_account(models.Model):
         contract_service_obj = self.env['contract.service']
         res_company_obj = self.env['res.company']
         account_invoice_obj = self.env['account.invoice']
-        res_company_data = res_company_obj.search([('id','=',
+        res_company_data = res_company_obj.search([('id', '=',
                                                     res_company_obj.
                                                     _company_default_get())])
         wf_service = netsvc.LocalService("workflow")
@@ -278,8 +278,8 @@ class account_analytic_account(models.Model):
                         try:
                             mail_id = mail_template_obj.send_mail
                             (mail_template_id, inv[0])
-                            mail_message = mail_mail_obj.browse(mail_id). \
-                            mail_message_id
+                            mail_message = mail_mail_obj.browse(mail_id).\
+                                        mail_message_id
                             mail_message.write({'type': 'email'})
                         except:
                             _logger.error(
@@ -320,15 +320,16 @@ class account_analytic_account(models.Model):
         # cur = self.browse(self.ids[0]).pricelist_id.currency_id
 
         amount_tax = amount_untaxed = 0
-        for line in self.browse(self._context.get('active_id')). \
-        contract_service_ids:
-            for c in self.env['account.tax'].compute_all(line.product_id.taxes_id.id,
+        for line in self.browse(self._context.get('active_id')).\
+            contract_service_ids:
+            for c in self.env['account.tax'].compute_all(line.product_id.
+                                                         taxes_id.id,
                                                          line.unit_price or
                                                          0.0,
                                                          line.qty or 0.0,
                                                          line.product_id,
-                                                         line.account_id.partner_id)\
-            ['taxes']:
+                                                         line.account_id.
+                                                         partner_id)['taxes']:
                 amount_tax += c.get('amount', 0.0)
 
             amount_untaxed += line.unit_price * line.qty
@@ -342,7 +343,7 @@ class account_analytic_account(models.Model):
         #     cr, uid, inv, context=context).amount_total
 
         view_id = self.env['ir.model.data']. \
-        get_object_reference('account_voucher', 'view_vendor_receipt_form')[1]
+            get_object_reference('account_voucher', 'view_vendor_receipt_form')[1]
 
         partner = self.browse(self.ids[0]).partner_id
 
@@ -407,8 +408,8 @@ class account_analytic_line(models.Model):
 
                 date_due = False
                 if partner.property_payment_term:
-                    pterm_list = account_payment_term_obj.compute\
-                    (partner.property_payment_term.id, value=1,
+                    pterm_list = account_payment_term_obj.\
+                        compute(partner.property_payment_term.id, value=1,
                     date_ref = time.strftime('%Y-%m-%d'))
                     if pterm_list:
                         pterm_list = [line[0] for line in pterm_list]
