@@ -219,10 +219,10 @@ class contract_service_configurator(models.TransientModel):
 
         query = [('configurator_id', '=', self.ids)]
         ids_to_unlink = contract_service_configurator_dependency_line_obj \
-        .search(query)
+            .search(query)
         if ids_to_unlink:
             contract_service_configurator_dependency_line_obj \
-            .unlink(ids_to_unlink)
+                .unlink(ids_to_unlink)
 
         loop_deps = False
         for line in self.line_ids:
@@ -250,7 +250,7 @@ class contract_service_configurator(models.TransientModel):
                         }
                         new_dep =\
                             contract_service_configurator_dependency_line_obj\
-                                .create(wl)
+                            .create(wl)
 
                         if dep.auto:
                             self.write({'dependency_ids': [(4, new_dep)]})
@@ -358,7 +358,7 @@ class contract_service_configurator(models.TransientModel):
                         }
                     new_dep =\
                         contract_service_configurator_dependency_line_obj\
-                            .create(wl)
+                        .create(wl)
 
                     if dep.auto:
                         self.write({'dependency_ids': [(4, new_dep)]})
@@ -369,7 +369,7 @@ class contract_service_configurator(models.TransientModel):
                     for product in product_ids:
                         if not self.is_level2 and dep.product_id. \
                             list_price < 0:
-                            continue
+                                continue
 
                         if product.description:
                             state = 'message'
