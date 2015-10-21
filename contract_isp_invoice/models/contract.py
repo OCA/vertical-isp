@@ -111,7 +111,7 @@ class account_voucher(models.Model):
         voucher = self.browse(self.id)
         if self._context.get('not_subscription_voucher', True) is False:
             if self._context.get('active_model') == 'account.analytic.account'and\
-                self._context.get('active_id', False):
+               self._context.get('active_id', False):
                 for line in account_analytic_account_obj.\
                     browse(self._context.get('active_id')).contract_service_ids:
                     line.create_analytic_line(mode='subscription',
