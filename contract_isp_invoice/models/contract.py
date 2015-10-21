@@ -106,19 +106,19 @@ class account_voucher(models.Model):
             pass
         ret = True
         account_analytic_account_obj = self.env['account.analytic.account']
-        account_invoice_obj = self.env['account.invoice']
+        # account_invoice_obj = self.env['account.invoice']
 
         voucher = self.browse(self.id)
         if self._context.get('not_subscription_voucher', True) is False:
-            if self._context.get('active_model') == 'account.analytic.account'\
-                and self._context.get('active_id', False):
-                for line in account_analytic_account_obj.\
-                    browse(self._context.get('active_id')).contract_service_ids:
-                    line.create_analytic_line(mode='subscription',
-                                              date=datetime.datetime.today())
-                    inv = account_analytic_account_obj.\
-                        create_invoice(self._context.get('active_ids'))
-                    # a = account_invoice_obj.signal_workflow('invoice_open')
+            if self._context.get('active_model') == 'account.analytic.account'and\
+                self._context.get('active_id', False):
+                    for line in account_analytic_account_obj.\
+                        browse(self._context.get('active_id')).contract_service_ids:
+                        line.create_analytic_line(mode='subscription',
+                                                  date=datetime.datetime.today())
+                        inv = account_analytic_account_obj.\
+                            create_invoice(self._context.get('active_ids'))
+                        # a = account_invoice_obj.signal_workflow('invoice_open')
             else:
                 raise Warning(_('Contract not found'))
 

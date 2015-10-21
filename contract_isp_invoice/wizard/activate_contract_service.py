@@ -40,7 +40,7 @@ class contract_service_activate(models.TransientModel):
         ret = super(contract_service_activate, self).activate()
 
         contract_service_obj = self.env['contract.service']
-        account_analytic_account_obj = self.env['account.analytic.account']
+        # account_analytic_account_obj = self.env['account.analytic.account']
         # account_move_line_obj = self.env['account.move.line']
 
         query = [

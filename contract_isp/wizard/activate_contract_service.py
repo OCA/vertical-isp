@@ -59,7 +59,7 @@ class contract_service_activate(models.TransientModel):
     def activate(self):
         company_obj = self.env['res.company']
         company_id = company_obj._company_default_get()
-        company_ids = company_obj.search([('id', '=', company_id)])
+        # company_ids = company_obj.search([('id', '=', company_id)])
         # cutoff = company_ids[0].cutoff_day
         contract_service_obj = self.env['contract.service']
         contract_service = contract_service_obj.browse(self.service_id.id)

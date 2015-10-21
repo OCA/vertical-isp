@@ -142,7 +142,7 @@ class contract_service_configurator(models.TransientModel):
     @api.one
     def _get_is_level2(self):
         ir_model_data_obj = self.env['ir.model.data']
-        res_groups_obj = self.env['res.groups']
+        # res_groups_obj = self.env['res.groups']
         res_user = self.env['res.users'].browse(self._uid)
         group_agent_n2_id = ir_model_data_obj.get_object_reference
         ('contract_isp', 'group_isp_agent2')[1]
@@ -248,7 +248,9 @@ class contract_service_configurator(models.TransientModel):
                             'message': line.product_id.description,
                             'state': state
                         }
-                        new_dep = contract_service_configurator_dependency_line_obj.create(wl)
+                        new_dep =\
+                            contract_service_configurator_dependency_line_obj\
+                                .create(wl)
 
                         if dep.auto:
                             self.write({'dependency_ids': [(4, new_dep)]})
@@ -276,7 +278,7 @@ class contract_service_configurator(models.TransientModel):
                                 'state': state
                             }
                             contract_service_configurator_dependency_line_obj \
-                            .create(wl)
+                                .create(wl)
                 line.write({'handle_dependency': False})
                 break
 
@@ -297,16 +299,16 @@ class contract_service_configurator(models.TransientModel):
 
             query = [('configurator_id', '=', self.id)]
             ids_to_unlink = contract_service_configurator_dependency_line_obj \
-            .search(query)
+                .search(query)
             return self.router({})
 
     @api.multi
     def do_add_current_product_id(self):
-        if self._context is None:
-            context = {}
+        #         if self._context is None:
+        #             context = {}
         deps = 0
-        contract_service_configurator_line_obj = \
-        self.env['contract.service.configurator.line']
+        contract_service_configurator_line_obj = self.env[
+            'contract.service.configurator.line']
         contract_service_configurator_dependency_line_obj = self.env[
             'contract.service.configurator.dependency.line']
         product_product_obj = self.env['product.product']
@@ -353,8 +355,10 @@ class contract_service_configurator(models.TransientModel):
                         'parent_id': new_line,
                         'message': dep.product_id.description,
                         'state': state
-                    }
-                    new_dep = contract_service_configurator_dependency_line_obj.create(wl)
+                        }
+                    new_dep =\
+                        contract_service_configurator_dependency_line_obj\
+                            .create(wl)
 
                     if dep.auto:
                         self.write({'dependency_ids': [(4, new_dep)]})
@@ -364,7 +368,7 @@ class contract_service_configurator(models.TransientModel):
                     product_ids = product_product_obj.search(query)
                     for product in product_ids:
                         if not self.is_level2 and dep.product_id. \
-                        list_price < 0:
+                            list_price < 0:
                             continue
 
                         if product.description:
@@ -384,7 +388,7 @@ class contract_service_configurator(models.TransientModel):
                             'state': state
                         }
                         contract_service_configurator_dependency_line_obj\
-                        .create(record)
+                            .create(record)
 
             record = {
                 'current_product_id': None,
@@ -399,9 +403,9 @@ class contract_service_configurator(models.TransientModel):
 
     @api.multi
     def do_done(self):
-        account_analytic_account_obj = self.env['account.analytic.account']
+        # account_analytic_account_obj = self.env['account.analytic.account']
         contract_service_obj = self.env['contract.service']
-        stock_move_obj = self.env['stock.move']
+        # stock_move_obj = self.env['stock.move']
         # contract_service_serial_obj = self.env['contract.service.serial']
         # ret = self.write({'state': 'done'})
         for line in self.line_ids:
