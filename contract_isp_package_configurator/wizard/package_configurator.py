@@ -368,8 +368,8 @@ class contract_service_configurator(models.TransientModel):
                     product_ids = product_product_obj.search(query)
                     for product in product_ids:
                         if not self.is_level2 and dep.product_id. \
-                            list_price < 0:
-                                continue
+                        list_price < 0:
+                            continue
 
                         if product.description:
                             state = 'message'

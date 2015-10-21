@@ -111,14 +111,15 @@ class account_voucher(models.Model):
         voucher = self.browse(self.id)
         if self._context.get('not_subscription_voucher', True) is False:
             if self._context.get('active_model') == 'account.analytic.account'and\
-                self._context.get('active_id', False):
-                    for line in account_analytic_account_obj.\
-                        browse(self._context.get('active_id')).contract_service_ids:
-                        line.create_analytic_line(mode='subscription',
-                                                  date=datetime.datetime.today())
-                        inv = account_analytic_account_obj.\
-                            create_invoice(self._context.get('active_ids'))
-                        # a = account_invoice_obj.signal_workflow('invoice_open')
+            self._context.get('active_id', False):
+                for line in account_analytic_account_obj.\
+                    browse(self._context.get('active_id')).contract_service_ids:
+                    line.create_analytic_line(mode='subscription',
+                                              date=datetime.datetime.today())
+                    inv = account_analytic_account_obj.\
+                        create_invoice(self._context.get('active_ids'))
+                        # a = account_invoice_obj.signal_workflow
+                        # ('invoice_open')
             else:
                 raise Warning(_('Contract not found'))
 
@@ -322,7 +323,7 @@ class account_analytic_account(models.Model):
 
         amount_tax = amount_untaxed = 0
         for line in self.browse(self._context.get('active_id')).\
-            contract_service_ids:
+        contract_service_ids:
             for c in self.env['account.tax'].compute_all(line.product_id.
                                                          taxes_id.id,
                                                          line.unit_price or
@@ -411,7 +412,7 @@ class account_analytic_line(models.Model):
                 date_due = False
                 if partner.property_payment_term:
                     pterm_list = account_payment_term_obj.\
-                            compute(partner.property_payment_term.id, value=1,
+                        compute(partner.property_payment_term.id, value=1,
                     date_ref = time.strftime('%Y-%m-%d'))
                     if pterm_list:
                         pterm_list = [line[0] for line in pterm_list]
