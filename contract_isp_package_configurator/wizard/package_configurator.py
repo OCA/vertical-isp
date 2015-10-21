@@ -28,7 +28,7 @@ from openerp.exceptions import Warning
 class contract_service_configurator_line(models.TransientModel):
     _name = 'contract.service.configurator.line'
 
-#   def _get_stock_production_lot_available(self, cr, uid,)
+    # def _get_stock_production_lot_available(self, cr, uid,)
     name = fields.Char('Name')
     product_id = fields.Many2one('product.product', 'Product')
     configurator_id = fields.Many2one('contract.service.configurator',
@@ -49,7 +49,8 @@ class contract_service_configurator_line(models.TransientModel):
     def router(self, data=None):
         stock_move_id = None
         if isinstance(self._ids, list):
-            ids = self._ids[0]
+            # ids = self._ids[0]
+            pass
         if self.state == 'message':
             if self.product_id.type == 'product' and \
                     self.product_id.qty_available > 0.0:
@@ -58,10 +59,10 @@ class contract_service_configurator_line(models.TransientModel):
                 state = 'stock'
         elif self.state in ('serial', 'stock'):
             stock_move_obj = self.env['stock.move']
-            location_id = self.env['ir.model.data'].get_object_reference
-            ('stock', 'stock_location_stock')[1]
+            location_id = self.env['ir.model.data'].\
+                get_object_reference('stock', 'stock_location_stock')[1]
             location_dest_id = self.configurator_id.contract_id.partner_id.\
-            property_stock_customer.id
+                property_stock_customer.id
             move = {
                 'name': self.product_id and self.product_id.name or '',
                 'product_id': self.product_id and self.product_id.id,
@@ -85,7 +86,8 @@ class contract_service_configurator_line(models.TransientModel):
     @api.multi
     def unlink(self):
         if isinstance(self.ids, int):
-            ids = [ids]
+            # ids = [ids]
+            pass
 
         for line in self:
             if line.product_id.type == 'product' and line.stock_move_id:
@@ -144,7 +146,7 @@ class contract_service_configurator(models.TransientModel):
         res_user = self.env['res.users'].browse(self._uid)
         group_agent_n2_id = ir_model_data_obj.get_object_reference
         ('contract_isp', 'group_isp_agent2')[1]
-        group_agent_n2 = res_groups_obj.browse(group_agent_n2_id)
+        # group_agent_n2 = res_groups_obj.browse(group_agent_n2_id)
 
         groups_id = [i.id for i in res_user.groups_id]
         if group_agent_n2_id not in groups_id:
@@ -190,9 +192,9 @@ class contract_service_configurator(models.TransientModel):
     @api.multi
     def do_next(self):
         contract_service_configurator_line_obj = \
-        self.env['contract.service.configurator.line']
+            self.env['contract.service.configurator.line']
         contract_service_configurator_dependency_line_obj = \
-        self.env['contract.service.configurator.dependency.line']
+            self.env['contract.service.configurator.dependency.line']
         product_product_obj = self.env['product.product']
 
         for line in self.dependency_ids:
@@ -400,8 +402,8 @@ class contract_service_configurator(models.TransientModel):
         account_analytic_account_obj = self.env['account.analytic.account']
         contract_service_obj = self.env['contract.service']
         stock_move_obj = self.env['stock.move']
-#        contract_service_serial_obj = self.env['contract.service.serial']
-        ret = self.write({'state': 'done'})
+        # contract_service_serial_obj = self.env['contract.service.serial']
+        # ret = self.write({'state': 'done'})
         for line in self.line_ids:
             l = {
                 'name': line.serial and line.serial.name or '',
@@ -429,8 +431,8 @@ class contract_service_configurator(models.TransientModel):
     @api.multi
     def do_cancel(self):
         if isinstance(self.ids, int):
-            ids = [self.ids]
-
+            # ids = [self.ids]
+            pass
         for line in self.line_ids:
             if line.product_id.type == 'product' and line.stock_move_id:
                 stock_move_obj = self.env('stock.move')
@@ -461,7 +463,7 @@ class contract_service_configurator(models.TransientModel):
             if line.state in ('message', 'serial', 'stock'):
                 if line.state == 'serial':
                     stock_production_lot_obj = self.env['stock.production.lot']
-                    product_product_obj = self.env['product.product']
+                    # product_product_obj = self.env['product.product']
 
                     query = [
                         ('product_id', '=', line.product_id.id),

@@ -113,12 +113,12 @@ class account_voucher(models.Model):
             if self._context.get('active_model') == 'account.analytic.account'\
                 and self._context.get('active_id', False):
                 for line in account_analytic_account_obj.\
-                browse(self._context.get('active_id')).contract_service_ids:
+                    browse(self._context.get('active_id')).contract_service_ids:
                     line.create_analytic_line(mode='subscription',
                                               date=datetime.datetime.today())
                     inv = account_analytic_account_obj.\
-                    create_invoice(self._context.get('active_ids'))
-                    a = account_invoice_obj.signal_workflow('invoice_open')
+                        create_invoice(self._context.get('active_ids'))
+                    # a = account_invoice_obj.signal_workflow('invoice_open')
             else:
                 raise Warning(_('Contract not found'))
 
@@ -186,11 +186,11 @@ class account_analytic_account(models.Model):
         return_int = False
         if isinstance(self.ids, int):
             return_int = True
-            ids = [self.ids]
+            # ids = [self.ids]
 
         account_analytic_account_obj = self.env['account.analytic.account']
         account_analytic_line = self.env['account.analytic.line']
-        contract_service_obj = self.env['contract.service']
+        # contract_service_obj = self.env['contract.service']
         res_company_obj = self.env['res.company']
         account_invoice_obj = self.env['account.invoice']
         res_company_data = res_company_obj.search([('id', '=',
@@ -274,13 +274,13 @@ class account_analytic_account(models.Model):
                             "Mailing invoice %s" % account_invoice_obj.browse
                             (inv[0]).name)
 
-                        ctx = dict(self._context, default_type='email')
+                        # ctx = dict(self._context, default_type='email')
 
                         try:
                             mail_id = mail_template_obj.send_mail
                             (mail_template_id, inv[0])
                             mail_message = mail_mail_obj.browse(mail_id).\
-                                        mail_message_id
+                                mail_message_id
                             mail_message.write({'type': 'email'})
                         except:
                             _logger.error(
@@ -315,8 +315,8 @@ class account_analytic_account(models.Model):
             context = {}
         context = dict(self._context)
         res_currency_obj = self.env['res.currency']
-        account_analytic_account_obj = self.env['account.analytic.account']
-        account_invoice_obj = self.env['account.invoice']
+        # account_analytic_account_obj = self.env['account.analytic.account']
+        # account_invoice_obj = self.env['account.invoice']
         # commet becuase round problem
         # cur = self.browse(self.ids[0]).pricelist_id.currency_id
 
@@ -344,7 +344,8 @@ class account_analytic_account(models.Model):
         #     cr, uid, inv, context=context).amount_total
 
         view_id = self.env['ir.model.data']. \
-            get_object_reference('account_voucher', 'view_vendor_receipt_form')[1]
+            get_object_reference('account_voucher',
+                                 'view_vendor_receipt_form')[1]
 
         partner = self.browse(self.ids[0]).partner_id
 
@@ -410,7 +411,7 @@ class account_analytic_line(models.Model):
                 date_due = False
                 if partner.property_payment_term:
                     pterm_list = account_payment_term_obj.\
-                        compute(partner.property_payment_term.id, value=1,
+                            compute(partner.property_payment_term.id, value=1,
                     date_ref = time.strftime('%Y-%m-%d'))
                     if pterm_list:
                         pterm_list = [line[0] for line in pterm_list]
@@ -452,7 +453,7 @@ class account_analytic_line(models.Model):
                                                 journal_type))
 
                 for product_id, user_id, factor_id, total_price, qty, uom in\
-                self._cr.fetchall():
+                    self._cr.fetchall():
                     context2.update({'uom': uom})
 
                     if data.get('product'):

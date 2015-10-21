@@ -87,7 +87,7 @@ class contract_isp_close(models.TransientModel):
                 'name': ' '.join([_('Credit refund'), interval]),
                 'amount': amount,
                 'account_id': account_analytic_account.id,
-                'user_id': uid,
+                'user_id': self.uid,
                 'general_account_id': account_analytic_account.partner_id.
                 property_account_receivable.id,
                 'to_invoice': 1,

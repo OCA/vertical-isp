@@ -156,9 +156,8 @@ class contract_service(models.Model):
                               ('active', 'Active'),
                               ('inactive', 'Inactive')),
                              'State', default='draft')
-    _defaults = {
-                 # 'name': '',from
-                 }
+    #     _defaults = {# 'name': '',from
+    #                  }
 
     @api.onchange('product_id')
     def on_change_product_id(self):
@@ -191,7 +190,7 @@ class contract_service(models.Model):
         ret = []
         record = {}
         next_month = None
-        company_obj = self.env['res.company']
+        #         company_obj = self.env['res.company']
         #         company_id = company_obj._company_default_get()
         #         company = company_obj.browse(company_id)
 

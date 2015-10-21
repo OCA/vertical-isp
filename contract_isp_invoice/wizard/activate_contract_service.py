@@ -51,6 +51,7 @@ class contract_service_activate(models.TransientModel):
         if not contract_service_obj.search(query):
 
             # jgama - Try to create the prorata invoice
-            pro_inv = account_analytic_account_obj.create_invoice(prorata=True)
-
+            # pro_inv = account_analytic_account_obj.create_invoice
+            # (prorata=True)
+            pass
         return ret
