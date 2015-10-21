@@ -454,7 +454,7 @@ class account_analytic_line(models.Model):
                                                 journal_type))
 
                 for product_id, user_id, factor_id, total_price, qty, uom in\
-                    self._cr.fetchall():
+                self._cr.fetchall():
                     context2.update({'uom': uom})
 
                     if data.get('product'):
