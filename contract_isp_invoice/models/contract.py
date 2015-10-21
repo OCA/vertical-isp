@@ -113,7 +113,7 @@ class account_voucher(models.Model):
             if self._context.get('active_model') == 'account.analytic.account'and\
                 self._context.get('active_id', False):
                 for line in account_analytic_account_obj.\
-                browse(self._context.get('active_id')).contract_service_ids:
+                    browse(self._context.get('active_id')).contract_service_ids:
                     line.create_analytic_line(mode='subscription',
                                               date=datetime.datetime.today())
                     inv = account_analytic_account_obj.\
@@ -413,7 +413,7 @@ class account_analytic_line(models.Model):
                 if partner.property_payment_term:
                     pterm_list = account_payment_term_obj.\
                         compute(partner.property_payment_term.id, value=1,
-                    date_ref = time.strftime('%Y-%m-%d'))
+                                date_ref=time.strftime('%Y-%m-%d'))
                     if pterm_list:
                         pterm_list = [line[0] for line in pterm_list]
                         pterm_list.sort()
