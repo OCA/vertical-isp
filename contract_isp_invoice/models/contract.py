@@ -68,7 +68,7 @@ class account_voucher(models.Model):
                                    states={'draft': [('readonly', False)]})
 
     @api.multi
-    def onchange_journal(journal_id, line_ids,self,
+    def onchange_journal(journal_id, line_ids, self,
                          tax_id, partner_id, date, amount, ttype,
                          company_id, context=None):
         if not journal_id:
@@ -111,13 +111,13 @@ class account_voucher(models.Model):
         if self._context.get('not_subscription_voucher', True) is False:
             if self._context.get('active_model') == 'account.analytic.account'\
                 and self._context.get('active_id', False):
-                for line in account_analytic_account_obj.browse\
-                    (self._context.get('active_id')).contract_service_ids:
-                    line.create_analytic_line(mode='subscription',
+                    for line in account_analytic_account_obj.browse\
+                        (self._context.get('active_id')).contract_service_ids:
+                        line.create_analytic_line(mode='subscription',
                                               date=datetime.datetime.today())
-                inv = account_analytic_account_obj.\
-                    create_invoice(self._context.get('active_ids'))
-                a = account_invoice_obj.signal_workflow('invoice_open')
+                        inv = account_analytic_account_obj.\
+                        create_invoice(self._context.get('active_ids'))
+                        a = account_invoice_obj.signal_workflow('invoice_open')
             else:
                 raise Warning(_('Contract not found'))
 
@@ -160,7 +160,7 @@ class account_voucher(models.Model):
                 for i in inv:
                     mail_id = mail_template_obj.send_mail(mail_template_id, i)
                     mail_message = mail_mail_obj.browse(mail_id). \
-                    mail_message_id
+                        mail_message_id
                     mail_message.write({'type': 'email'})
         else:
             ret = super(account_voucher, self).proforma_voucher()
@@ -193,7 +193,7 @@ class account_analytic_account(models.Model):
         res_company_obj = self.env['res.company']
         account_invoice_obj = self.env['account.invoice']
         res_company_data = res_company_obj.search([('id','=',
-                                                    res_company_obj. \
+                                                    res_company_obj.
                                                     _company_default_get())])
         wf_service = netsvc.LocalService("workflow")
 
@@ -407,7 +407,7 @@ class account_analytic_line(models.Model):
 
                 date_due = False
                 if partner.property_payment_term:
-                    pterm_list = account_payment_term_obj.compute \
+                    pterm_list = account_payment_term_obj.compute\
                     (partner.property_payment_term.id, value=1,
                     date_ref = time.strftime('%Y-%m-%d'))
                     if pterm_list:
@@ -449,8 +449,8 @@ class account_analytic_line(models.Model):
                         """ product_uom_id""", (account.id, tuple(self.ids),
                                                 journal_type))
 
-                for product_id, user_id, factor_id, total_price, qty,\
-                    uom in self._cr.fetchall():
+                for product_id, user_id, factor_id, total_price, qty, uom in\
+                self._cr.fetchall():
                     context2.update({'uom': uom})
 
                     if data.get('product'):
@@ -461,10 +461,10 @@ class account_analytic_line(models.Model):
                                                              user_id, qty)
                     #  elif journal_type == 'general' and product_id:
                     #  timesheets, use sale price
-                    #    unit_price = self._get_invoice_price(cr, uid,
-                    #`   account, product_id, user_id, qty, context2)
+                    #  unit_price = self._get_invoice_price(cr, uid,
+                    #  account, product_id, user_id, qty, context2)
                     else:
-                        # expenses, using price from amount field
+                        #  expenses, using price from amount field
                         unit_price = qty and total_price * -1.0 / qty or 0.0
 
                     factor = invoice_factor_obj.browse(factor_id)
