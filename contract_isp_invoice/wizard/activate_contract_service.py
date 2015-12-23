@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 ##############################################################################
 #
 #    OpenERP, Open Source Management Solution
@@ -20,10 +19,10 @@
 #
 ##############################################################################
 
-import time
-import datetime
-from openerp.addons.contract_isp.models.contract import add_months
-from openerp import models, fields, api, _
+# import time
+# import datetime
+# from openerp.addons.contract_isp.models.contract import add_months
+from openerp import models, api
 
 
 class contract_service_activate(models.TransientModel):
@@ -31,19 +30,18 @@ class contract_service_activate(models.TransientModel):
 
     @api.multi
     def activate(self):
-        if self._context is None:
-            context = {}
-
-        account_invoice_obj = self.env['account.invoice']
-        account_voucher_obj = self.env['account.voucher']
-        account_move_obj = self.env['account.move']
-        res_company_obj = self.env['res.company']
+        # if self._context is None:
+            # context = {}
+        # account_invoice_obj = self.env['account.invoice']
+        # account_voucher_obj = self.env['account.voucher']
+        # account_move_obj = self.env['account.move']
+        # res_company_obj = self.env['res.company']
 
         ret = super(contract_service_activate, self).activate()
 
         contract_service_obj = self.env['contract.service']
-        account_analytic_account_obj = self.env['account.analytic.account']
-        account_move_line_obj = self.env['account.move.line']
+        # account_analytic_account_obj = self.env['account.analytic.account']
+        # account_move_line_obj = self.env['account.move.line']
 
         query = [
             ('account_id', '=', self.account_id.id),
@@ -53,6 +51,7 @@ class contract_service_activate(models.TransientModel):
         if not contract_service_obj.search(query):
 
             # jgama - Try to create the prorata invoice
-            pro_inv = account_analytic_account_obj.create_invoice(prorata=True)
-
+            # pro_inv = account_analytic_account_obj.create_invoice
+            # (prorata=True)
+            pass
         return ret

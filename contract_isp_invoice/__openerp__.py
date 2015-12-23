@@ -36,7 +36,8 @@ Features:
 * Refund on contract closing
 * Exception services invoice logic
 """,
-    'author': "Savoir-faire Linux (joao.gama@savoirfairelinux.com),Odoo Community Association (OCA)",
+    'author': "Savoir-faire Linux (joao.gama@savoirfairelinux.com),Odoo"
+    "Community Association (OCA)",
     'website': 'www.savoirfairelinux.com',
     'license': 'AGPL-3',
     'depends': ['contract_isp'],

@@ -20,4 +20,4 @@
 #
 ##############################################################################
 
-import package_configurator
+from . import package_configurator

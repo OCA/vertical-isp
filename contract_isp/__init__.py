@@ -20,7 +20,7 @@
 #
 ##############################################################################
 
-#import contract
-#import report
-import models
-import wizard
+# import contract
+# import report
+from . import models
+from . import wizard

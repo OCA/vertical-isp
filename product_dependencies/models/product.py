@@ -22,15 +22,20 @@
 
 from openerp import models, fields, api
 
-#from openerp.osv import orm, fields
+# from openerp.osv import orm, fields
+
 
 class ProductDependency(models.Model):
     _name = 'product.dependency'
 
-    name = fields.Char(string='Name')
-    ptype = fields.Selection([('product', 'Product'),('category', 'Category')], string='Type', default='product')
-    product_id = fields.Many2one('product.product', string='Product Dependency')
-    category_id = fields.Many2one('product.category', string='Category Dependency')
+    name = fields.Char('Name')
+    ptype = fields.Selection([('product', 'Product'),
+                              ('category', 'Category')], string='Type',
+                             default='product')
+    product_id = fields.Many2one('product.product',
+                                 string='Product Dependency')
+    category_id = fields.Many2one('product.category',
+                                  string='Category Dependency')
     auto = fields.Boolean(string='Automatically added')
 
     @api.onchange('ptype')
@@ -43,7 +48,7 @@ class ProductDependency(models.Model):
         values['name'] = ''
         return values
 
-    @api.onchange('product_id')    
+    @api.onchange('product_id')
     def onchange_product_id(self):
         values = {'value': {'name': None}}
         if self.product_id:
@@ -61,11 +66,13 @@ class ProductDependency(models.Model):
             values['value']['name'] = '%s (Category)' % name
         return values
 
+
 class ProductProduct(models.Model):
     _inherit = 'product.product'
 
     dependency_ids = fields.Many2many(comodel_name='product.dependency',
-                                      relation='product_product_dependency_rel',
+                                      relation='product_product_'
+                                      'dependency_rel',
                                       column1='dependency_id',
-                                      column2='product_id', string='Dependencies')
-    
+                                      column2='product_id',
+                                      string='Dependencies')
