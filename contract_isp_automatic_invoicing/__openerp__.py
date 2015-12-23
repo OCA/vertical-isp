@@ -26,7 +26,7 @@
     'category': 'Account',
     'description': """A module to automatically invoice services
     based contracts""",
-    'author': "Savoir-faire Linux Inc.,Odoo Community Association (OCA)",
+    'author': "Savoir-faire Linux Inc, Odoo Community Association (OCA), Serpent Consulting Services Pvt. Ltd.",
     'website': 'www.savoirfairelinux.com',
     'license': 'AGPL-3',
     'depends': ['contract_isp_invoice'],

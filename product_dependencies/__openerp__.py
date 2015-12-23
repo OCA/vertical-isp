@@ -37,8 +37,8 @@ sales wizards with decision trees based on each product dependency tree.
 
 This module is not related to the manufacturing process or the
 Bill of Materials.""",
-    'author': "Savoirfaire-Linux Inc,Odoo Community Association (OCA)",
     'contributors': ['Juan Ignacio Úbeda <juani@aizean.com>'],
+    'author': "Savoir-faire Linux Inc, Odoo Community Association (OCA), Serpent Consulting Services Pvt. Ltd.",
     'website': 'www.savoirfairelinux.com',
     'license': 'AGPL-3',
     'depends': ['product'],
