@@ -1,0 +1,100 @@
+# Translation of OpenERP Server.
+# This file contains the translation of the following modules:
+# 	* contract_isp_unique_product
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenERP Server 7.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-06-05 16:01+0000\n"
+"PO-Revision-Date: 2015-06-05 15:27-0500\n"
+"Last-Translator: Vincent Vinet <vincent.vinet@savoirfairelinux.com>\n"
+"Language-Team: \n"
+"Language: fr_CA\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.5.4\n"
+
+#. module: contract_isp_unique_product
+#: field:contract.service.delete,account_id:0
+msgid "Account"
+msgstr "Compte Analytique"
+
+#. module: contract_isp_unique_product
+#: code:_description:0
+#: model:ir.model,name:contract_isp_unique_product.model_account_analytic_account
+#, python-format
+msgid "Analytic Account"
+msgstr "Compte Analytique"
+
+#. module: contract_isp_unique_product
+#: view:contract.service.delete:0
+msgid "Cancel"
+msgstr "Annuler"
+
+#. module: contract_isp_unique_product
+#: view:account.analytic.account:0 view:contract.service.delete:0
+msgid "Delete"
+msgstr "Supprimer"
+
+#. module: contract_isp_unique_product
+#: view:contract.service.delete:0
+#: model:ir.actions.act_window,name:contract_isp_unique_product.action_view_contract_service_delete
+msgid "Delete Service"
+msgstr "Suppression de service"
+
+#. module: contract_isp_unique_product
+#: field:contract.service.delete,message:0
+msgid "Message"
+msgstr "Message"
+
+#. module: contract_isp_unique_product
+#: field:contract.service.delete,service_id:0
+msgid "Service"
+msgstr "Services"
+
+#. module: contract_isp_unique_product
+#: code:addons/contract_isp_unique_product/contract.py:61
+#, python-format
+msgid "Validation Error"
+msgstr "Erreur de validation"
+
+#. module: contract_isp_unique_product
+#: code:addons/contract_isp_unique_product/wizard/delete_contract_service.py:44
+#, python-format
+msgid ""
+"When deleting a duplicate service, make sure you are deleting the inactive "
+"one"
+msgstr ""
+"Lorsque vous effacez un service en double, assurez vous de supprimer le "
+"service inactif"
+
+#. module: contract_isp_unique_product
+#: code:addons/contract_isp_unique_product/contract.py:62
+msgid ""
+"You are not allowed to have multiple identical products in a contract, "
+"remove the inactive duplicate services first."
+msgstr ""
+"Il est interdit d'avoir plusieurs fois le même produit dans un contrat , "
+"veuillez supprimer les services, en débutant par les inactifs."
+
+#. module: contract_isp_unique_product
+#: code:_description:0
+#: model:ir.model,name:contract_isp_unique_product.model_contract_service
+#, python-format
+msgid "contract.service"
+msgstr ""
+
+#. module: contract_isp_unique_product
+#: code:_description:0
+#: model:ir.model,name:contract_isp_unique_product.model_contract_service_delete
+#, python-format
+msgid "contract.service.delete"
+msgstr ""
+
+#. module: contract_isp_unique_product
+#: field:account.analytic.account,has_duplicate_products:0
+#: field:contract.service,is_duplicate:0
+msgid "unknown"
+msgstr "inconnu"
