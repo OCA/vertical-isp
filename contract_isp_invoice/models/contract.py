@@ -3,8 +3,9 @@
 ##############################################################################
 #
 #    OpenERP, Open Source Management Solution
-#    Copyright (C) 2013 Savoir-faire Linux (<http://www.savoirfairelinux.com>).
-#
+#    Copyright (C) 2013 Savoirfaire-Linux Inc. (<www.savoirfairelinux.com>).
+#    Copyright (C) 2011-Today Serpent Consulting Services Pvt. Ltd. (<http://www.serpentcs.com>)
+
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
 #    published by the Free Software Foundation, either version 3 of the
@@ -37,14 +38,14 @@ _logger = logging.getLogger(__name__)
 class res_company(models.Model):
     _inherit = "res.company"
 
-    @api.multi
+    @api.model
     def _days(self):
         return tuple([(str(x), str(x)) for x in range(1, 29)])
 
-    invoice_day = fields.Selection(_days, 'Invoice day')
+    invoice_day = fields.Selection('_days', 'Invoice day')
     send_email_contract_invoice = fields.Boolean('Send invoice by email',
                                                  default=True)
-
+    
 
 class res_partner(models.Model):
     _inherit = "res.partner"
@@ -52,11 +53,6 @@ class res_partner(models.Model):
     def _get_default_payment_term(self):
         return self.env['ir.model.data'].get_object_reference
     ('contract_isp_invoice', 'account_payment_term_end_of_month')[1]
-#    _defaults = {
-#        'property_payment_term': lambda s, cr, uid, ctx:
-#         s._get_default_payment_term(cr, uid, ctx)
-#    }
-
 
 class account_voucher(models.Model):
     _inherit = 'account.voucher'
@@ -88,7 +84,6 @@ class account_voucher(models.Model):
     @api.model
     def create(self, data):
         if self._context is None:
-            # context = {}
             pass
         if self._context.get('original_amount', False) and data.get('amount',
                                                                     False):
@@ -98,16 +93,13 @@ class account_voucher(models.Model):
                     _('Amount cannot be less than the invoice amount'))
 
         return super(account_voucher, self).create(data)
-
     @api.multi
     def proforma_voucher(self):
         if self._context is None:
-            # context = {}
             pass
+
         ret = True
         account_analytic_account_obj = self.env['account.analytic.account']
-        # account_invoice_obj = self.env['account.invoice']
-
         voucher = self.browse(self.id)
         if self._context.get('not_subscription_voucher', True) is False:
             if self._context.get('active_model') == 'account.analytic.account'and\
@@ -119,8 +111,6 @@ class account_voucher(models.Model):
                                               date=datetime.datetime.today())
                     inv = account_analytic_account_obj.\
                         create_invoice(self._context.get('active_ids'))
-                    # a = account_invoice_obj.signal_workflow
-                    # ('invoice_open')
             else:
                 raise Warning(_('Contract not found'))
 
@@ -159,7 +149,9 @@ class account_voucher(models.Model):
             mail_template_id = ir_model_data_obj.get_object_reference
             ('account', 'email_template_edi_invoice')[1]
             mail_mail_obj = self.env['mail.mail']
-            if isinstance(inv, list):
+            inv=account_analytic_account_obj.\
+                        create_invoice(self._context.get('active_ids'))
+            if isinstance(inv,list):
                 for i in inv:
                     mail_id = mail_template_obj.send_mail(mail_template_id, i)
                     mail_message = mail_mail_obj.browse(mail_id). \
@@ -188,11 +180,9 @@ class account_analytic_account(models.Model):
         return_int = False
         if isinstance(self.ids, int):
             return_int = True
-            # ids = [self.ids]
 
         account_analytic_account_obj = self.env['account.analytic.account']
         account_analytic_line = self.env['account.analytic.line']
-        # contract_service_obj = self.env['contract.service']
         res_company_obj = self.env['res.company']
         account_invoice_obj = self.env['account.invoice']
         res_company_data = res_company_obj.search([('id', '=',
@@ -208,20 +198,18 @@ class account_analytic_account(models.Model):
             mail_mail_obj = self.env['mail.mail']
 
         cuttoff_day = res_company_data['cutoff_day']
-
         cutoff_date = datetime.date(
             datetime.date.today().year,
             datetime.date.today().month,
             int(cuttoff_day)
         )
-
         invoice_day = res_company_data['invoice_day']
-
-        invoice_date = datetime.date(
-            datetime.date.today().year,
-            datetime.date.today().month,
-            int(invoice_day)
-        )
+        if invoice_day:
+            invoice_date = datetime.date(
+                                         datetime.date.today().year,
+                                         datetime.date.today().month,
+                                         int(invoice_day)
+                                         )
 
         if prorata:
             if datetime.date.today() <= cutoff_date:
@@ -268,15 +256,11 @@ class account_analytic_account(models.Model):
 
                     wf_service.trg_validate('account.invoice', inv[0],
                                             'invoice_open')
-                    # a = account_invoice_obj._workflow_signal(
-                    #    cr, uid, inv, 'invoice_open', context)
 
                     if res_company_data['send_email_contract_invoice']:
                         _logger.info(
                             "Mailing invoice %s" % account_invoice_obj.browse
                             (inv[0]).name)
-
-                        # ctx = dict(self._context, default_type='email')
 
                         try:
                             mail_id = mail_template_obj.send_mail
@@ -317,10 +301,6 @@ class account_analytic_account(models.Model):
             context = {}
         context = dict(self._context)
         res_currency_obj = self.env['res.currency']
-        # account_analytic_account_obj = self.env['account.analytic.account']
-        # account_invoice_obj = self.env['account.invoice']
-        # commet becuase round problem
-        # cur = self.browse(self.ids[0]).pricelist_id.currency_id
 
         amount_tax = amount_untaxed = 0
         for line in self.browse(self._context.get('active_id')).\
@@ -341,9 +321,6 @@ class account_analytic_account(models.Model):
 
         # jgama - Create the activation invoice
         context['not_subscription_voucher'] = False
-
-        # amount = account_invoice_obj.browse(
-        #     cr, uid, inv, context=context).amount_total
 
         view_id = self.env['ir.model.data']. \
             get_object_reference('account_voucher',

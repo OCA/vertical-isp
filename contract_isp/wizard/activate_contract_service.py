@@ -3,8 +3,9 @@
 ##############################################################################
 #
 #    OpenERP, Open Source Management Solution
-#    Copyright (C) 2013 Savoir-faire Linux (<www.savoirfairelinux.com>).
-#
+#    Copyright (C) 2013 Savoirfaire-Linux Inc. (<www.savoirfairelinux.com>).
+#    Copyright (C) 2011-Today Serpent Consulting Services Pvt. Ltd. (<http://www.serpentcs.com>)
+
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
 #    published by the Free Software Foundation, either version 3 of the
@@ -21,7 +22,6 @@
 ##############################################################################
 
 import datetime
-# from openerp.addons.contract_isp.models.contract import add_months
 from openerp import models, fields, api
 
 
@@ -57,10 +57,6 @@ class contract_service_activate(models.TransientModel):
 
     @api.multi
     def activate(self):
-        # company_obj = self.env['res.company']
-        # company_id = company_obj._company_default_get()
-        # company_ids = company_obj.search([('id', '=', company_id)])
-        # cutoff = company_ids[0].cutoff_day
         contract_service_obj = self.env['contract.service']
         contract_service = contract_service_obj.browse(self.service_id.id)
 
@@ -69,14 +65,6 @@ class contract_service_activate(models.TransientModel):
             int(self.activation_date[5:7]),
             int(self.activation_date[8:10]))
 
-        #         cuttoff_day = cutoff
-        #         invoice_day = company_ids[0].invoice_day
-        #         cutoff_date = datetime.date(datetime.date.today().year,
-        #                                     datetime.date.today().month,
-        #                                     int(cuttoff_day))
-        #         invoice_date = datetime.date(datetime.date.today().year,
-        #                                      datetime.date.today().month,
-        #                                      int(invoice_day))
         contract_service.write({
             'activation_date': self.activation_date,
             'state': 'active'

@@ -3,8 +3,9 @@
 ##############################################################################
 #
 #    OpenERP, Open Source Management Solution
-#    Copyright (C) 2013 Savoir-faire Linux (<www.savoirfairelinux.com>).
-#
+#    Copyright (C) 2013 Savoirfaire-Linux Inc. (<www.savoirfairelinux.com>).
+#    Copyright (C) 2011-Today Serpent Consulting Services Pvt. Ltd. (<http://www.serpentcs.com>)
+
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
 #    published by the Free Software Foundation, either version 3 of the
@@ -36,8 +37,7 @@ Features:
 * Refund on contract closing
 * Exception services invoice logic
 """,
-    'author': "Savoir-faire Linux (joao.gama@savoirfairelinux.com), Odoo"
-        " Community Association (OCA), Serpent Consulting Services Pvt. Ltd.",
+    'author': "Savoir-faire Linux Inc, Odoo Community Association (OCA), Serpent Consulting Services Pvt. Ltd.",
     'website': 'www.savoirfairelinux.com',
     'license': 'AGPL-3',
     'depends': ['contract_isp'],

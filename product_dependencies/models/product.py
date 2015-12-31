@@ -4,7 +4,8 @@
 #
 #    OpenERP, Open Source Management Solution
 #    Copyright (C) 2013 Savoirfaire-Linux Inc. (<www.savoirfairelinux.com>).
-#
+#    Copyright (C) 2011-Today Serpent Consulting Services Pvt. Ltd. (<http://www.serpentcs.com>)
+
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
 #    published by the Free Software Foundation, either version 3 of the
@@ -21,9 +22,6 @@
 ##############################################################################
 
 from openerp import models, fields, api
-
-# from openerp.osv import orm, fields
-
 
 class ProductDependency(models.Model):
     _name = 'product.dependency'

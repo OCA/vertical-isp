@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
+
 ##############################################################################
 #
 #    OpenERP, Open Source Management Solution
-#    Copyright (C) 2013 Savoir-faire Linux (<www.savoirfairelinux.com>).
-#
+#    Copyright (C) 2013 Savoirfaire-Linux Inc. (<www.savoirfairelinux.com>).
+#    Copyright (C) 2011-Today Serpent Consulting Services Pvt. Ltd. (<http://www.serpentcs.com>)
+
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
 #    published by the Free Software Foundation, either version 3 of the
@@ -19,9 +21,6 @@
 #
 ##############################################################################
 
-# import time
-# import datetime
-# from openerp.addons.contract_isp.models.contract import add_months
 from openerp import models, api
 
 
@@ -30,18 +29,8 @@ class contract_service_activate(models.TransientModel):
 
     @api.multi
     def activate(self):
-        # if self._context is None:
-            # context = {}
-        # account_invoice_obj = self.env['account.invoice']
-        # account_voucher_obj = self.env['account.voucher']
-        # account_move_obj = self.env['account.move']
-        # res_company_obj = self.env['res.company']
-
         ret = super(contract_service_activate, self).activate()
-
         contract_service_obj = self.env['contract.service']
-        # account_analytic_account_obj = self.env['account.analytic.account']
-        # account_move_line_obj = self.env['account.move.line']
 
         query = [
             ('account_id', '=', self.account_id.id),

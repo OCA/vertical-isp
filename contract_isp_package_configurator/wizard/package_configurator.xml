@@ -4,145 +4,141 @@
         <record id="view_contract_service_configurator_line_tree" model="ir.ui.view">
             <field name="name">Package Configurator Line</field>
             <field name="model">contract.service.configurator.line</field>
-	    <field name="type">tree</field>
+        <field name="type">tree</field>
             <field name="arch" type="xml">
                 <tree string="Package Configurator" version="7.0">
-		    <field name="product_id" />
-		</tree>
-	    </field>
-	    </record>
+            <field name="product_id" />
+        </tree>
+        </field>
+        </record>
 
         <record id="view_contract_service_configurator" model="ir.ui.view">
             <field name="name">Package Configurator</field>
             <field name="model">contract.service.configurator</field>
             <field name="arch" type="xml">
                 <form string="Package Configurator">
-		    <header>
-			<field name="state" class="oe_right" widget="statusbar" />
-		    </header>
-		    <field name="root_category_id" invisible="1" />
-		    <field name="is_level2" invisible="1" />
-		    <field name="contract_id" invisible="1" />
-		    <group string="Category" attrs="{'invisible': [('state', '=', 'dependency')]}">
-			<field
-			    nolabel="1"
-			    name="product_category_id"
-			    options="{'no_open': True}"
-			    domain="[('type', '=', 'normal'), ('id', 'child_of', [root_category_id])]"
-			     />
-		    </group>
-		    <group string="Products" attrs="{'invisible': [('state', '=', 'dependency')]}">
-			<group colspan="4">
-			    <div width="100%%">
-				<field 
-				    name="current_product_id"
-				    width="70%%"
-				    class="oe_inline"
-				    options="{'no_open': True}"
-				    domain = "[('categ_id', '=', product_category_id)]"
-				    placeholder="Product" />
-				<button 
-				    name="do_add_current_product_id"
-				    string="Add"
-				    type="object"
-				    states="draft,product"
-				    width="15%%"
-				    class="oe_inline oe_highlight" />
-			    </div>
-			</group>
-			<group>
-			    <field name="line_ids" nolabel="1" mode="tree">
-				<tree create="0">
-				    <!-- <field name="product_id" /> -->
-				    <field name="serial" />
-				</tree>
-			    </field>
-			</group>
-		    </group>
-		    <group attrs="{'invisible': [('state', '&lt;&gt;', 'dependency')]}">
-			<div colspan="4">
-			    <p>Click on add to view the available components</p>
-			</div>
-			<field 
-			    name="dependency_ids"
-			    nolabel="1"
-			    mode="tree"
-			    widget="many2many"
-			    domain="[('configurator_id', '=', active_id)]">
-			    <tree>
-				<!-- <field name="product_id"/> -->
-			    </tree>
-			</field>
-		    </group>
+            <header>
+            <field name="state" class="oe_right" widget="statusbar" />
+            </header>
+            <field name="root_category_id" invisible="1" />
+            <field name="is_level2" invisible="1" />
+            <field name="contract_id" invisible="1" />
+            <group string="Category" attrs="{'invisible': [('state', '=', 'dependency')]}">
+            <field
+                nolabel="1"
+                name="product_category_id"
+                options="{'no_open': True}"
+                domain="[('type', '=', 'normal'), ('id', '=', [root_category_id])]"/>
+            </group>
+            <group string="Products" attrs="{'invisible': [('state', '=', 'dependency')]}">
+            <group colspan="4">
+                <div width="100%%">
+                <field 
+                    name="current_product_id"
+                    width="70%%"
+                    class="oe_inline"
+                    options="{'no_open': True}"
+                    domain = "[('categ_id', '=', product_category_id)]"
+                    placeholder="Product" />
+                <button 
+                    name="do_add_current_product_ids"
+                    string="Add"
+                    type="object"
+                    states="draft,product"
+                    width="15%%"
+                    class="oe_inline oe_highlight" />
+                </div>
+            </group>
+            <group>
+                <field name="line_ids" nolabel="1" mode="tree">
+                <tree create="0">
+                    <field name="product_id" />
+                    <field name="serial" />
+                </tree>
+                </field>
+            </group> 
+            </group>
+            <group attrs="{'invisible': [('state', '&lt;&gt;', 'dependency')]}">
+            <div colspan="4">
+                <p>Click on add to view the available components</p>
+            </div>
+            <field 
+                name="dependency_ids"
+                nolabel="1"
+                mode="tree"
+                widget="many2many"
+                domain="[('configurator_id', '=', active_id)]">
+            </field>
+            </group> 
 
-		    <footer>
-			<button 
-			    name="do_next"
-			    string="Next"
-			    type="object"
-			    class="oe_highlight"
-			    states="dependency"
-			    />
-			<button 
-			    name="do_done"
-			    string="Done"
-			    type="object"
-			    class="oe_highlight"
-			    states="product,done"
-			    />
-			<button
-			    string="Cancel"
-			    class="oe_link"
-			    type="object"
-			    name="do_cancel" />
-		    </footer>
-		</form>
-	    </field>
-	</record>
+            <footer>
+            <button 
+                name="do_next"
+                string="Next"
+                type="object"
+                class="oe_highlight"
+                states="dependency"
+                />
+            <button 
+                name="do_done"
+                string="Done"
+                type="object"
+                class="oe_highlight"
+                states="product,done"
+                />
+            <button
+                string="Cancel"
+                class="oe_link"
+                type="object"
+                name="do_cancel" />
+            </footer>
+        </form>
+        </field>
+    </record>
 
         <record id="view_contract_service_configurator_line" model="ir.ui.view">
             <field name="name">Product Details</field>
             <field name="model">contract.service.configurator.line</field>
             <field name="arch" type="xml">
                 <form string="Package Configurator" version="7.0">
-		    <header>
-			<field
-			    name="state"
-			    class="oe_right"
-			    widget="statusbar"
-			    attrs="{'invisible': [('state', '=', 'message')]}"/>
-		    </header>
-		    <group string="Products" colspan="4" attrs="{'invisible': [('state', 'in', ('message', 'stock'))]}">
-			<field name="product_id" readonly="1" />
-			<field 
-			    name="serial"
-			    class="oe_inline"
-			    domain="[('product_id', '=', product_id),('quant_ids', '&gt;', 0)]"
-			    options="{'no_open': True}"
-			    placeholder="Serial Number"
-			    attrs="{'invisible': [('state', '=', 'draft')]}"/>
-		    </group>
-		    <group colspan="4" attrs="{'invisible': [('state', 'in', ('serial', 'stock'))]}">
-			<field 
-			    name="message" 
-			    nolabel="1"
-			    readonly="1"/>
-		    </group>
-		    <group colspan="4" attrs="{'invisible': [('state', 'in', ('message', 'serial', 'done'))]}">
-			<p>We don't have this product in stock at the moment!</p>
-		    </group>		    
-		    <footer>
-			<button 
-			    name="router"
-			    string="Ok"
-			    type="object"
-			    states="message,serial,stock"
-			    class="oe_highlight"
-			    />
-		    </footer>
-		</form>
-	    </field>
-	</record>
+            <header>
+            <field
+                name="state"
+                class="oe_right"
+                widget="statusbar"
+                attrs="{'invisible': [('state', '=', 'message')]}"/>
+            </header>
+            <group string="Products" colspan="4" attrs="{'invisible': [('state', 'in', ('message', 'stock'))]}">
+            <field name="product_id" readonly="1" />
+            <field 
+                name="serial"
+                class="oe_inline"
+                domain="[('product_id', '=', product_id),('quant_ids', '&gt;', 0)]"
+                options="{'no_open': True}"
+                placeholder="Serial Number"
+                attrs="{'invisible': [('state', '=', 'draft')]}"/>
+            </group>
+            <group colspan="4" attrs="{'invisible': [('state', 'in', ('serial', 'stock'))]}">
+            <field 
+                name="message" 
+                nolabel="1"
+                readonly="1"/>
+            </group>
+            <group colspan="4" attrs="{'invisible': [('state', 'in', ('message', 'serial', 'done'))]}">
+            <p>We don't have this product in stock at the moment!</p>
+            </group>            
+            <footer>
+            <button 
+                name="router"
+                string="Ok"
+                type="object"
+                states="message,serial,stock"
+                class="oe_highlight"
+                />
+            </footer>
+        </form>
+        </field>
+    </record>
 
         <record id="action_contract_isp_package_configurator" model="ir.actions.act_window">
             <field name="name">Package Configurator</field>
@@ -150,9 +146,9 @@
             <field name="res_model">contract.service.configurator</field>
             <field name="view_type">form</field>
             <field name="view_mode">form</field>
-	    <field name="view_id" ref="contract_isp_package_configurator.view_contract_service_configurator" />
+        <field name="view_id" ref="contract_isp_package_configurator.view_contract_service_configurator" />
             <field name="target">new</field>
-	    <field name="context">{'default_contract_id': active_id}</field>
+        <field name="context">{'default_contract_id': active_id}</field>
         </record>
 
     </data>

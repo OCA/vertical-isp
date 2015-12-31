@@ -3,8 +3,9 @@
 ##############################################################################
 #
 #    OpenERP, Open Source Management Solution
-#    Copyright (C) 2013 Savoir-faire Linux (<http://www.savoirfairelinux.com>).
-#
+#    Copyright (C) 2013 Savoirfaire-Linux Inc. (<www.savoirfairelinux.com>).
+#    Copyright (C) 2011-Today Serpent Consulting Services Pvt. Ltd. (<http://www.serpentcs.com>)
+
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
 #    published by the Free Software Foundation, either version 3 of the
@@ -20,14 +21,10 @@
 #
 ##############################################################################
 
-# import logging
 import calendar
 import datetime
 import openerp.addons.decimal_precision as dp
-# from openerp.report import report_sxw
-# from openerp.tools import convert
 from openerp.tools.translate import _
-
 from openerp import models, fields, api, _
 
 
@@ -110,8 +107,6 @@ class contract_service(models.Model):
 
     @api.depends('price', 'unit_price')
     def _get_product_price(self):
-        #         product_obj = self.env['product.product']
-        #         product_pricelist_obj = self.env['product.pricelist']
         partner_id = self.account_id.partner_id.id
         pricelist_id = self.account_id.partner_id.property_product_pricelist
         for line in self:
@@ -156,18 +151,15 @@ class contract_service(models.Model):
                               ('active', 'Active'),
                               ('inactive', 'Inactive')),
                              'State', default='draft')
-    #     _defaults = {# 'name': '',from
-    #                  }
 
     @api.onchange('product_id')
     def on_change_product_id(self):
-        product = self.env['product.product'].browse(self.product_id)
         if self.product_id:
-            self.analytic_line_type = product.analytic_line_type
-            self.require_activation = product.require_activation
-            self.category_id = product.categ_id.id
-            self.unit_price = product.list_price
-            if product.analytic_line_type in ('r', 'o'):
+            self.analytic_line_type = self.analytic_line_type
+            self.require_activation = self.require_activation
+            self.category_id = self.category_id.id
+            self.unit_price = self.unit_price
+            if self.analytic_line_type in ('r', 'o'):
                 self.duration = 0
             else:
                 self.duration = 1
@@ -179,25 +171,20 @@ class contract_service(models.Model):
 
     @api.multi
     def create_analytic_line(self, mode='manual', date=None):
-
         if not date:
             date = datetime.date.today()
 
         if type(self.ids) is int:
-            #             ids = [self.ids]
             pass
+
         context = dict(self._context)
         ret = []
         record = {}
         next_month = None
-        #         company_obj = self.env['res.company']
-        #         company_id = company_obj._company_default_get()
-        #         company = company_obj.browse(company_id)
-
         account_analytic_line_obj = self.env['account.analytic.line']
         for line in self:
-            account_id = line.account_id.id
-            partner_lang = account_id.partner_id.lang
+            account_id = line.account_id.partner_id
+            partner_lang = account_id.lang
             res_lang_obj = self.env['res.lang']
             query = [
                 ('code', '=', partner_lang),
@@ -212,13 +199,11 @@ class contract_service(models.Model):
             if line.analytic_line_type == 'r':
                 if mode == 'prorata':
                     activation_date = date
-
                     month_days = calendar.monthrange(activation_date.year,
                                                      activation_date.month)[1]
-
                     used_days = month_days - activation_date.day
                     ptx = (100 * used_days / month_days) / 100.0
-
+                    
                     amount = line.product_id.list_price * ptx
                     interval = date_interval(add_months(date, 1),
                                              True,
@@ -229,12 +214,10 @@ class contract_service(models.Model):
                     next_month = add_months(date, 1)
                     next_month = datetime.date(
                         next_month.year,
-                        next_month.month,
-                        1)
-                    interval = date_interval(next_month,
-                                             False,
-                                             date_format)
-
+                        next_month.month)
+                        
+                    interval = date_interval(next_month,False,date_format)
+                
                 elif mode == 'manual':
                     amount = line.product_id.list_price
                     interval = date_interval(date, False, date_format)
@@ -335,10 +318,6 @@ class account_analytic_account(models.Model):
             mode = context.get('create_analytic_line_mode')
 
         contract_service_obj = self.pool.get('contract.service')
-        #         query = [
-        #             ('account_id', 'in', ids),
-        #             ('state', '=', 'active'),
-        #         ]
         contract_service_ids = contract_service_obj.search(cr, uid,
                                                            [],
                                                            order='account_id',
@@ -356,10 +335,9 @@ class account_analytic_account(models.Model):
         if values['type'] == 'contract' and values['use_contract_services']:
             values['name'] = values['code']
             partner_obj = self.env['res.partner']
-            values['parent_id'] = partner_obj.read(values['partner_id'],
-                                                   fields=['partner_analytic_'
-                                                           'account_id'])
-            ['partner_analytic_account_id'][0]
+            if values['parent_id']:
+                 values['parent_id'] = partner_obj.read(values['partner_id'],
+                                                   fields=['partner_analytic_account_id']) ['partner_analytic_account_id'][0]
         return super(account_analytic_account, self).create(values)
 
 

@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
+
 ##############################################################################
 #
 #    OpenERP, Open Source Management Solution
-#    Copyright (C) 2013 Savoir-faire Linux (<http://www.savoirfairelinux.com>).
-#
+#    Copyright (C) 2013 Savoirfaire-Linux Inc. (<www.savoirfairelinux.com>).
+#    Copyright (C) 2011-Today Serpent Consulting Services Pvt. Ltd. (<http://www.serpentcs.com>)
+
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
 #    published by the Free Software Foundation, either version 3 of the
@@ -19,12 +21,9 @@
 #
 ##############################################################################
 
-# import logging
 import calendar
 import datetime
 from openerp.osv import fields
-# from openerp.report import report_sxw
-# from openerp.tools import convert
 from openerp.tools.translate import _
 from openerp.addons.contract_isp.models.contract import date_interval
 from openerp import models, fields, api, _
@@ -49,14 +48,11 @@ class contract_isp_close(models.TransientModel):
 
     @api.multi
     def do_close(self):
-        # self = self.browse(cr, uid, ids[0], context=context)
         mail_mail_obj = self.env['mail.mail']
         account_analytic_line_obj = self.env['account.analytic.line']
         account_invoice_obj = self.env['account.invoice']
-        # contract = self.account_id
         account_analytic_account = self.env['account.analytic.account']\
             .browse(self._context.get('active_id', False))
-        # today = datetime.date.today()
 
         query = [
             ('partner_id', '=', account_analytic_account.partner_id.id),
