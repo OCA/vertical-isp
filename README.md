@@ -2,6 +2,15 @@
 [![Coverage Status](https://coveralls.io/repos/OCA/vertical-isp/badge.png?branch=8.0)](https://coveralls.io/r/OCA/vertical-isp?branch=8.0)
 
 # Vertical ISP
+Vertical-ISP introduce the following features:
+
+*Contract-ISP - Manage product based service contracts
+*Contract-ISP-Automatic-Invoicing - Automatically Generate Recurring Invoice
+*Contract-ISP-Invoice - Generate Product based Service Invoice
+*Contract-ISP-Package-Configurator - Provide wizard to create service packages based on Products
+*Product-Dependencies - To create product/service packages based on product inter-dependencies.
+
+Please refer to the README of each module to have more information about how to configure and use the modules.
 
 [//]: # (addons)
 Unported addons
