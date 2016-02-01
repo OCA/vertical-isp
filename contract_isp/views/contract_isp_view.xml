@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <openerp>
     <data>
-    <record id="view_company_contract_isp_form" model="ir.ui.view">
+
+        <record id="view_company_contract_isp_form" model="ir.ui.view">
             <field name="name">contract.isp.res.company.form</field>
             <field name="model">res.company</field>
         <field name="inherit_id" ref="base.view_company_form"/>
@@ -12,7 +13,6 @@
                 <group>
                 <field name="parent_account_id" />
                 </group>
-
                 <group>
                     <field name="cutoff_day" />
                 </group>
@@ -31,7 +31,6 @@
                     <field name="use_contract_services" />
                     <label for="use_contract_services" />
                 </xpath>
-
         <xpath expr="//separator[@string='Invoicing']" position="before">
             <separator 
             name="services"
@@ -43,7 +42,7 @@
             select="1"
             options="{'always_reload': True, 'reload_on_button': True}"
             attrs="{'invisible': [('use_contract_services', '=', False)]}">
-            <tree editable="botton" colors="green:state=='active'" >
+            <tree editable="bottom" colors="green:state=='active'" >
                 <field name="account_id" invisible="1"/>
                 <field name="state" readonly="True" />
                 <field name="activation_date"
@@ -56,7 +55,7 @@
                 <field name="qty" />
                 <field name="unit_price" invisible="1" />
                 <field name="price" readonly="1" sum="Total Price" />
-                <field name="analytic_line_type" />
+                <field name="analytic_line_type" required="True"/>
                <field name="require_activation" invisible="True" />
                 <field 
                 name="duration"
@@ -70,13 +69,15 @@
                 type="action"
                 states="draft,inactive"
                 icon="gtk-yes"
+                attrs="{'invisible': ['|', ('state', 'not in', ('draft', 'inactive')), ('require_activation', '=', False)]}"
                 groups="contract_isp.group_isp_agent"/>
                 <button
-                name="action_desactivate"
+                name="%(action_view_contract_service_deactivate)d"
                 string="Desactivate"
-                type="object"
+                type="action"
                 states="active"
                 icon="gtk-no"
+                attrs="{'invisible': ['|', ('state', '!=', 'active'), ('require_activation', '=', False)]}"
                 groups="contract_isp.group_isp_agent"/>
             </tree>
             </field>
@@ -88,15 +89,15 @@
             <field name="name">contract.service.form</field>
             <field name="model">contract.service</field>
             <field name="arch" type="xml">
-        <form string="Contract Services" version="7.0">
-            <sheet string="Analytic Account">
-            <field name="activation_date" />
-            <field name="analytic_line_type" />
-            <field name="duration" />
-            <field name="product_id" />
-            </sheet>
-        </form>
-        </field>
+                <form string="Contract Services" version="7.0">
+                    <sheet string="Analytic Account">
+                        <field name="activation_date" />
+                        <field name="analytic_line_type" required="True"/>
+                        <field name="duration" />
+                        <field name="product_id" />
+                    </sheet>
+                </form>
+            </field>
     </record>
 
     <record id="view_contract_service_tree" model="ir.ui.view">
@@ -140,7 +141,7 @@
         <field name="inherit_id" ref="product.product_normal_form_view"/>
         <field name="arch" type="xml">
             <field name="standard_price" position="after">
-                <field name="analytic_line_type" />
+                <field name="analytic_line_type" required="True"/>
                 <field name="require_activation" />
             </field>
         </field>
@@ -152,11 +153,10 @@
             <field name="inherit_id" ref="hr_timesheet_invoice.account_analytic_account_form_form"/>
             <field name="arch" type="xml">
                 <xpath expr="//header/button[@name='set_pending']" position='attributes'>
-            <attribute name="string">Suspend</attribute>
-        </xpath>
-        </field>
-    </record>
-
+                    <attribute name="string">Suspend</attribute>
+                </xpath>
+            </field>
+         </record>
 
         <act_window
             id="action_contract_service_manage"
@@ -165,7 +165,6 @@
             src_model="account.analytic.account"
             view_type="tree"
             view_mode="tree" />
-
 
     </data>
 </openerp>
