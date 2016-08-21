@@ -8,9 +8,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: vertical-isp (7.0)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-07-25 02:26+0000\n"
-"PO-Revision-Date: 2015-05-27 15:46+0000\n"
-"Last-Translator: Maxime Chambreuil <maxime.chambreuil@gmail.com>\n"
+"POT-Creation-Date: 2016-08-15 23:35+0000\n"
+"PO-Revision-Date: 2015-12-31 13:22+0000\n"
+"Last-Translator: Maxime Chambreuil <mchambreuil@ursainfosystems.com>\n"
 "Language-Team: French (http://www.transifex.com/oca/OCA-vertical-isp-7-0/language/fr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -49,7 +49,7 @@ msgid "Recurrent Billing"
 msgstr "Facturation récurrente"
 
 #. module: contract_isp_invoice
-#: code:addons/contract_isp_invoice/contract.py:953
+#: code:addons/contract_isp_invoice/contract.py:962
 #, python-format
 msgid "Please define income account for product '%s'."
 msgstr "Merci de définir un compte de revenus pour l'article '%s'."
@@ -75,13 +75,13 @@ msgid "contract.isp.close"
 msgstr "contract.isp.close"
 
 #. module: contract_isp_invoice
-#: code:addons/contract_isp_invoice/contract.py:852
+#: code:addons/contract_isp_invoice/contract.py:861
 #, python-format
 msgid "Contract incomplete. Please fill in the Customer and Pricelist fields."
 msgstr "Contrat incomplet. Veuillez saisir le client et la liste de prix."
 
 #. module: contract_isp_invoice
-#: code:addons/contract_isp_invoice/contract.py:654
+#: code:addons/contract_isp_invoice/contract.py:663
 #, python-format
 msgid "No pricelist specified"
 msgstr "Aucune liste de prix spécifiée"
@@ -92,7 +92,7 @@ msgid "Analytic Line"
 msgstr "Ligne facturable"
 
 #. module: contract_isp_invoice
-#: code:addons/contract_isp_invoice/contract.py:655
+#: code:addons/contract_isp_invoice/contract.py:664
 #, python-format
 msgid ""
 "You must set a pricelist on the analytic account before creating vouchers."
@@ -131,7 +131,7 @@ msgid "Billing Process"
 msgstr "Processus de facturation"
 
 #. module: contract_isp_invoice
-#: code:addons/contract_isp_invoice/contract.py:851
+#: code:addons/contract_isp_invoice/contract.py:860
 #, python-format
 msgid "Analytic Account Incomplete!"
 msgstr "Compte analytique incomplet!"
@@ -154,7 +154,7 @@ msgstr "Montre le produit"
 
 #. module: contract_isp_invoice
 #: view:account.analytic.account:0
-#: code:addons/contract_isp_invoice/contract.py:686
+#: code:addons/contract_isp_invoice/contract.py:695
 #, python-format
 msgid "Create Initial Invoice"
 msgstr "Créer la facture initiale"
@@ -297,7 +297,7 @@ msgid "Close contract"
 msgstr "Clôturer le contrat"
 
 #. module: contract_isp_invoice
-#: code:addons/contract_isp_invoice/contract.py:952
+#: code:addons/contract_isp_invoice/contract.py:961
 #, python-format
 msgid "Configuration Error!"
 msgstr "Erreur de configuration!"
