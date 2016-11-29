@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: vertical-isp (7.0)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-08-21 11:04+0000\n"
+"POT-Creation-Date: 2016-09-18 12:59+0000\n"
 "PO-Revision-Date: 2015-12-31 13:22+0000\n"
 "Last-Translator: <>\n"
 "Language-Team: Spanish (http://www.transifex.com/oca/OCA-vertical-isp-7-0/language/es/)\n"
@@ -20,7 +20,7 @@ msgstr ""
 #. module: contract_isp_unique_product
 #: field:contract.service.delete,account_id:0
 msgid "Account"
-msgstr ""
+msgstr "Cuenta"
 
 #. module: contract_isp_unique_product
 #: field:contract.service.delete,service_id:0
@@ -73,7 +73,7 @@ msgstr "Cancelar"
 #. module: contract_isp_unique_product
 #: field:contract.service.delete,message:0
 msgid "Message"
-msgstr ""
+msgstr "Mensaje"
 
 #. module: contract_isp_unique_product
 #: model:ir.model,name:contract_isp_unique_product.model_contract_service

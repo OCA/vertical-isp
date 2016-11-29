@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: vertical-isp (7.0)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-08-21 11:04+0000\n"
-"PO-Revision-Date: 2016-09-10 06:04+0000\n"
+"POT-Creation-Date: 2016-09-18 12:59+0000\n"
+"PO-Revision-Date: 2016-11-22 16:35+0000\n"
 "Last-Translator: Maxime Chambreuil <mchambreuil@ursainfosystems.com>\n"
 "Language-Team: Spanish (http://www.transifex.com/oca/OCA-vertical-isp-7-0/language/es/)\n"
 "MIME-Version: 1.0\n"
@@ -22,7 +22,7 @@ msgstr ""
 #: field:contract.service.configurator,product_category_id:0
 #: field:contract.service.configurator,root_category_id:0
 msgid "Category"
-msgstr ""
+msgstr "Categoría"
 
 #. module: contract_isp_package_configurator
 #: code:addons/contract_isp_package_configurator/wizard/package_configurator.py:43
@@ -204,7 +204,7 @@ msgstr ""
 #. module: contract_isp_package_configurator
 #: view:contract.service.configurator.line:0
 msgid "Ok"
-msgstr ""
+msgstr "Aceptar"
 
 #. module: contract_isp_package_configurator
 #: field:contract.service.configurator.dependency.line,name:0
@@ -226,7 +226,7 @@ msgstr ""
 #. module: contract_isp_package_configurator
 #: model:ir.model,name:contract_isp_package_configurator.model_res_company
 msgid "Companies"
-msgstr ""
+msgstr "Compañías"
 
 #. module: contract_isp_package_configurator
 #: field:contract.service.configurator,contract_id:0
@@ -266,7 +266,7 @@ msgstr ""
 #: code:addons/contract_isp_package_configurator/wizard/package_configurator.py:623
 #, python-format
 msgid "Error"
-msgstr ""
+msgstr "Error"
 
 #. module: contract_isp_package_configurator
 #: model:ir.model,name:contract_isp_package_configurator.model_contract_service_equipment_manage
@@ -291,7 +291,7 @@ msgstr ""
 #. module: contract_isp_package_configurator
 #: view:contract.service.equipment.manage:0
 msgid "Reserve"
-msgstr ""
+msgstr "Reservar"
 
 #. module: contract_isp_package_configurator
 #: field:contract.service.equipment.manage,product_id:0
@@ -314,7 +314,7 @@ msgstr ""
 #: field:contract.service.configurator.dependency.line,stock_move_id:0
 #: field:contract.service.configurator.line,stock_move_id:0
 msgid "Stock Move"
-msgstr ""
+msgstr "Movimiento de existencias"
 
 #. module: contract_isp_package_configurator
 #: code:addons/contract_isp_package_configurator/wizard/package_configurator.py:556
@@ -327,12 +327,12 @@ msgstr ""
 #: field:contract.service.configurator.dependency.line,state:0
 #: field:contract.service.configurator.line,state:0
 msgid "State"
-msgstr ""
+msgstr "Estado"
 
 #. module: contract_isp_package_configurator
 #: view:contract.service.equipment.manage:0
 msgid "or"
-msgstr ""
+msgstr "o"
 
 #. module: contract_isp_package_configurator
 #: model:ir.model,name:contract_isp_package_configurator.model_account_analytic_account
@@ -378,7 +378,7 @@ msgstr "Cancelar"
 #: field:contract.service.configurator.dependency.line,message:0
 #: field:contract.service.configurator.line,message:0
 msgid "Message"
-msgstr ""
+msgstr "Mensaje"
 
 #. module: contract_isp_package_configurator
 #: view:contract.service.configurator.line:0

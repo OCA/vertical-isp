@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: vertical-isp (7.0)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-08-21 11:04+0000\n"
-"PO-Revision-Date: 2016-09-10 06:04+0000\n"
+"POT-Creation-Date: 2016-09-18 12:59+0000\n"
+"PO-Revision-Date: 2016-10-25 19:38+0000\n"
 "Last-Translator: Maxime Chambreuil <mchambreuil@ursainfosystems.com>\n"
 "Language-Team: Spanish (http://www.transifex.com/oca/OCA-vertical-isp-7-0/language/es/)\n"
 "MIME-Version: 1.0\n"
@@ -69,7 +69,7 @@ msgstr ""
 #. module: contract_isp
 #: field:contract.service,analytic_line_type:0
 msgid "Type"
-msgstr ""
+msgstr "Tipo"
 
 #. module: contract_isp
 #: view:account.analytic.account:0
@@ -100,7 +100,7 @@ msgstr ""
 #. module: contract_isp
 #: field:contract.service,name:0
 msgid "Description"
-msgstr ""
+msgstr "Descripción"
 
 #. module: contract_isp
 #: field:contract.service,deactivation_date:0
@@ -141,7 +141,7 @@ msgstr ""
 #. module: contract_isp
 #: selection:contract.service,state:0
 msgid "Active"
-msgstr ""
+msgstr "Activo"
 
 #. module: contract_isp
 #: field:contract.service,unit_price:0
@@ -162,7 +162,7 @@ msgstr ""
 #: field:contract.service.activate,account_id:0
 #: field:contract.service.deactivate,account_id:0
 msgid "Account"
-msgstr ""
+msgstr "Cuenta"
 
 #. module: contract_isp
 #: selection:contract.service,analytic_line_type:0
@@ -183,7 +183,7 @@ msgstr ""
 #. module: contract_isp
 #: model:ir.model,name:contract_isp.model_res_company
 msgid "Companies"
-msgstr ""
+msgstr "Compañías"
 
 #. module: contract_isp
 #: field:contract.service,account_id:0
@@ -193,7 +193,7 @@ msgstr ""
 #. module: contract_isp
 #: field:contract.service,duration:0
 msgid "Duration"
-msgstr ""
+msgstr "Duración"
 
 #. module: contract_isp
 #: view:contract.service.activate:0
@@ -254,7 +254,7 @@ msgstr ""
 #. module: contract_isp
 #: field:account.analytic.account,invoice_ids:0
 msgid "Invoices"
-msgstr ""
+msgstr "Facturas"
 
 #. module: contract_isp
 #: view:contract.service.deactivate:0
@@ -264,7 +264,7 @@ msgstr ""
 #. module: contract_isp
 #: field:contract.service,state:0
 msgid "State"
-msgstr ""
+msgstr "Estado"
 
 #. module: contract_isp
 #: field:contract.service,qty:0
@@ -314,7 +314,7 @@ msgstr "Cancelar"
 #. module: contract_isp
 #: model:ir.model,name:contract_isp.model_res_partner
 msgid "Partner"
-msgstr ""
+msgstr "Empresa"
 
 #. module: contract_isp
 #: field:contract.service,activation_line_generated:0

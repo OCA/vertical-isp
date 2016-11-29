@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: vertical-isp (7.0)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-08-21 11:04+0000\n"
-"PO-Revision-Date: 2016-09-10 06:04+0000\n"
+"POT-Creation-Date: 2016-09-18 12:59+0000\n"
+"PO-Revision-Date: 2016-11-03 19:13+0000\n"
 "Last-Translator: Maxime Chambreuil <mchambreuil@ursainfosystems.com>\n"
 "Language-Team: Spanish (http://www.transifex.com/oca/OCA-vertical-isp-7-0/language/es/)\n"
 "MIME-Version: 1.0\n"
@@ -20,7 +20,7 @@ msgstr ""
 #. module: contract_isp_invoice
 #: selection:account.invoice,source_process:0
 msgid "Manual"
-msgstr ""
+msgstr "Manual"
 
 #. module: contract_isp_invoice
 #: view:contract.isp.close:0
@@ -144,7 +144,7 @@ msgstr ""
 #. module: contract_isp_invoice
 #: view:account.voucher:0
 msgid "object"
-msgstr ""
+msgstr "object"
 
 #. module: contract_isp_invoice
 #: help:hr.timesheet.invoice.create,product_name:0
@@ -176,7 +176,7 @@ msgstr ""
 #. module: contract_isp_invoice
 #: model:ir.model,name:contract_isp_invoice.model_res_company
 msgid "Companies"
-msgstr ""
+msgstr "Compañías"
 
 #. module: contract_isp_invoice
 #: selection:account.invoice,source_process:0
@@ -304,7 +304,7 @@ msgstr ""
 #. module: contract_isp_invoice
 #: model:ir.model,name:contract_isp_invoice.model_account_invoice
 msgid "Invoice"
-msgstr ""
+msgstr "Factura"
 
 #. module: contract_isp_invoice
 #: view:contract.isp.close:0
@@ -314,7 +314,7 @@ msgstr "Cancelar"
 #. module: contract_isp_invoice
 #: model:ir.model,name:contract_isp_invoice.model_res_partner
 msgid "Partner"
-msgstr ""
+msgstr "Empresa"
 
 #. module: contract_isp_invoice
 #: model:ir.model,name:contract_isp_invoice.model_contract_service_deactivate
@@ -324,7 +324,7 @@ msgstr ""
 #. module: contract_isp_invoice
 #: model:ir.model,name:contract_isp_invoice.model_account_journal
 msgid "Journal"
-msgstr ""
+msgstr "Diario"
 
 #. module: contract_isp_invoice
 #: selection:account.invoice,source_process:0
