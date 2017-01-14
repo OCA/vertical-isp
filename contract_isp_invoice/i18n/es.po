@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: vertical-isp (7.0)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-11-29 19:11+0000\n"
-"PO-Revision-Date: 2016-12-21 18:34+0000\n"
+"POT-Creation-Date: 2016-12-24 06:55+0000\n"
+"PO-Revision-Date: 2017-01-10 08:59+0000\n"
 "Last-Translator: Maxime Chambreuil <mchambreuil@ursainfosystems.com>\n"
 "Language-Team: Spanish (http://www.transifex.com/oca/OCA-vertical-isp-7-0/language/es/)\n"
 "MIME-Version: 1.0\n"
@@ -88,7 +88,7 @@ msgstr ""
 #. module: contract_isp_invoice
 #: model:ir.model,name:contract_isp_invoice.model_account_analytic_line
 msgid "Analytic Line"
-msgstr ""
+msgstr "Línea analítica"
 
 #. module: contract_isp_invoice
 #: code:addons/contract_isp_invoice/contract.py:664
