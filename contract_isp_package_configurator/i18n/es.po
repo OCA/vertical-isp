@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: vertical-isp (7.0)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-12-24 06:55+0000\n"
-"PO-Revision-Date: 2017-01-10 08:59+0000\n"
+"POT-Creation-Date: 2017-01-14 08:56+0000\n"
+"PO-Revision-Date: 2017-02-24 11:53+0000\n"
 "Last-Translator: Maxime Chambreuil <mchambreuil@ursainfosystems.com>\n"
 "Language-Team: Spanish (http://www.transifex.com/oca/OCA-vertical-isp-7-0/language/es/)\n"
 "MIME-Version: 1.0\n"
@@ -146,7 +146,7 @@ msgstr ""
 #: field:contract.service.equipment.manage,products_no_serial:0
 #: field:contract.service.equipment.manage,products_with_serial:0
 msgid "unknown"
-msgstr ""
+msgstr "desconocido"
 
 #. module: contract_isp_package_configurator
 #: model:res.groups,name:contract_isp_package_configurator.group_isp_add_equipment
