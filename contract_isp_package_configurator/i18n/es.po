@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: vertical-isp (7.0)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-14 08:56+0000\n"
-"PO-Revision-Date: 2017-02-24 11:53+0000\n"
+"POT-Creation-Date: 2017-02-25 08:55+0000\n"
+"PO-Revision-Date: 2017-03-02 22:14+0000\n"
 "Last-Translator: Maxime Chambreuil <mchambreuil@ursainfosystems.com>\n"
 "Language-Team: Spanish (http://www.transifex.com/oca/OCA-vertical-isp-7-0/language/es/)\n"
 "MIME-Version: 1.0\n"
@@ -179,7 +179,7 @@ msgstr ""
 #. module: contract_isp_package_configurator
 #: field:contract.service.configurator,dependency_ids:0
 msgid "Dependencies"
-msgstr ""
+msgstr "Dependencias"
 
 #. module: contract_isp_package_configurator
 #: field:res.company,default_product_category:0
