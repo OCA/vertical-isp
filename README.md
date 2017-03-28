@@ -4,6 +4,7 @@
 # Vertical ISP
 
 [//]: # (addons)
+
 Unported addons
 ---------------
 addon | version | summary
