@@ -21,26 +21,4 @@
 #
 ##############################################################################
 
-from openerp import models, api
-
-
-class contract_service_activate(models.TransientModel):
-    _inherit = 'contract.service.activate'
-
-    @api.multi
-    def activate(self):
-        ret = super(contract_service_activate, self).activate()
-        contract_service_obj = self.env['contract.service']
-
-        query = [
-            ('account_id', '=', self.account_id.id),
-            ('state', '=', 'draft')
-        ]
-        # Check if all services were activated
-        if not contract_service_obj.search(query):
-
-            # jgama - Try to create the prorata invoice
-            # pro_inv = account_analytic_account_obj.create_invoice
-            # (prorata=True)
-            pass
-        return ret
+from . import product

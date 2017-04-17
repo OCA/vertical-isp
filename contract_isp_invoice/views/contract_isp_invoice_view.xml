@@ -7,24 +7,26 @@
             <field name="inherit_id" ref="contract_isp.view_company_contract_isp_form"/>
             <field name="arch" type="xml">
                 <field name="cutoff_day" position="after">
-                    <field name="invoice_day" />
-                    <field name="send_email_contract_invoice" />
+                     <field name="invoice_day" />
+                     <field name="send_email_contract_invoice" /> 
                 </field>
             </field>
         </record>
-        
+
         <record id="contract_isp_form_button1" model="ir.ui.view">
             <field name="name">contract.isp.form.button1</field>
             <field name="model">account.analytic.account</field>
             <field name="inherit_id" ref="analytic.view_account_analytic_account_form"/>
             <field name="arch" type="xml">
                 <xpath expr="//div[@name='buttons']" position='inside'>
-                    <button string="Create Voucher" name="prepare_voucher" context="{'default_partner_id':
-                        partner_id}" type="object" />
+                    <button string="Create Voucher"
+                            name="prepare_voucher"
+                            context="{'default_partner_id': partner_id}"
+                            type="object" class="oe_inline oe_stat_button" />
                 </xpath>
             </field>
         </record>
-        
+
         <record id="view_voucher_form_post_later" model="ir.ui.view">
             <field name="name">account.voucher.form.postlater</field>
             <field name="model">account.voucher</field>
@@ -32,33 +34,32 @@
             <field name="arch" type="xml">
                 <field name="name" position="after">
                     <field name="later_validation" invisible="1" />
-                    <field name="original_amount" invisible="0"/>
+		    <field name="original_amount" invisible="1" />
                 </field>
                 <button name="proforma_voucher" position="attributes">
                     <attribute name="attrs">{'invisible': [('later_validation', '=', True)]}</attribute>
                     <attribute name="type">object</attribute>
                 </button>
-<!--                <button name="proforma_voucher" position="attributes">
+                <button name="proforma_voucher" position="attributes">
                     <attribute name="attrs">{'invisible': [('later_validation', '=', True)]}</attribute>
                     <attribute name="type">object</attribute>
-                </button> -->
+                </button>
                 <button name="cancel_voucher" string="Cancel Receipt" position="attributes">
                     <attribute name="type">object</attribute>
                 </button>
             </field>
         </record>
-        
+
         <record id="view_journal_form_post_later" model="ir.ui.view">
             <field name="name">account.journal.form.postlater</field>
             <field name="model">account.journal</field>
             <field name="inherit_id" ref="account.view_account_journal_form" />
             <field name="arch" type="xml">
                 <field name="group_invoice_lines" position="after">
-                    <field name="later_validation" attrs="{'invisible': [('type', 'not in', ('bank', 'cash'))]}"
-                        />
+                    <field name="later_validation" attrs="{'invisible': [('type', 'not in', ('bank', 'cash'))]}" />
                 </field>
             </field>
         </record>
-        
+
     </data>
 </openerp>

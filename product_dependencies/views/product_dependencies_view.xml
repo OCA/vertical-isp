@@ -11,7 +11,7 @@
             <group string="Dependencies">
                 <field name="dependency_ids" mode="tree" nolabel="1">
                 <tree version="7">
-                    <field name="type" on_change="onchange_type(type)" />
+                    <field name="ptype" />
                     <field name="name" />
                     <field name="product_id" invisible="1" />
                     <field name="category_id" invisible="1" />
@@ -29,17 +29,15 @@
         <field name="arch" type="xml">
         <form string="Dependency" version="7.0">
             <group>
-            <field name="type" on_change="onchange_type(type)" required="1" />
-            <field 
-                on_change="onchange_product_id(product_id)"
+            <field name="name" />
+            <field name="ptype" required="1" />
+            <field
                 name="product_id"
-                attrs="{'invisible': [('type', '&lt;&gt;', 'product')], 'required': [('type', '=', 'product')]}" />
+                attrs="{'invisible': [('ptype', '&lt;&gt;', 'product')], 'required': [('ptype', '=', 'product')]}" />
             <field 
-                on_change="onchange_category_id(category_id)"
                 name="category_id"
-                attrs="{'invisible': [('type', '&lt;&gt;', 'category')], 'required': [('type', '=', 'category')]}" />
+                attrs="{'invisible': [('ptype', '&lt;&gt;', 'category')], 'required': [('ptype', '=', 'category')]}" />
             <field name="auto" />
-            <field name="name" invisible="1" />
             </group>
         </form>
         </field>

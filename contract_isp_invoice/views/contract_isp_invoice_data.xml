@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+    <data>
+        <record id="account_payment_term_end_of_month" model="account.payment.term">
+            <field name="name">End of Month</field>
+            <field name="note">End of current month</field>
+        </record>
+        <record id="account_payment_term_end_of_month_line" model="account.payment.term.line">
+            <field name="value">balance</field>
+            <field eval="0" name="days"/>
+            <field eval="-1" name="days2"/>
+            <field eval="account_payment_term_end_of_month" name="payment_id"/>
+        </record>
+    </data>
+
+    <data noupdate="1">
+        <record id="email_template_contract_isp_invoice_close" model="email.template">
+            <field name="name">Contract close</field>
+            <field name="email_from">${user.email or ''}</field>
+            <field name="subject">Contract n. ${object.name}</field>
+            <field name="email_to">object.manager_id.email or ''</field>
+            <field name="lang">${user.lang}</field>
+            <field name="model_id" ref="analytic.model_account_analytic_account"/>
+            <field name="auto_delete" eval="True"/>
+            <field name="body_html"><![CDATA[
+<div style="font-family: 'Lucica Grande', Ubuntu, Arial, Verdana, sans-serif; font-size: 12px; color: rgb(34, 34, 34); background-color: rgb(255, 255, 255); ">
+
+    <p>Dear Accountant,</p>
+    <p>
+    Please take notice that the following contract is being terminated.
+
+    </p>
+<br/>
+    <table>
+    <tr>
+    <td>Contract:</td><td>${object.name}</td>
+    </tr>
+    <tr>
+    <td>Partner:</td><td>${object.partner_id.name}</td>
+    </tr> 
+    <tr>
+    <td>Close date:</td><td>${object.close_date}</td>
+    </tr>
+    </table>
+    <h3>Reasons/Comments</h3>
+    <p>${object.close_reason}</p>
+<br/>
+Best Regards,
+<br/>
+   <br/>
+${user.name}
+
+<br/>
+
+    <br/>
+
+</div>
+            ]]></field>
+        </record>
+    </data>
+</openerp>

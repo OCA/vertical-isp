@@ -9,7 +9,7 @@
                 <xpath expr="//div[@name='buttons']" position='inside'>
             <button string="Package Configurator"
                 name="%(action_contract_isp_package_configurator)d"
-                type="action" />
+                type="action" class="oe_inline oe_stat_button"/>
         </xpath>
         </field>
     </record>

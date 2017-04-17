@@ -3,8 +3,9 @@
 ##############################################################################
 #
 #    OpenERP, Open Source Management Solution
-#    Copyright (C) 2013 Savoir-faire Linux (<http://www.savoirfairelinux.com>).
-#
+#    Copyright (C) 2013 Savoirfaire-Linux Inc. (<www.savoirfairelinux.com>).
+#    Copyright (C) 2011-Today Serpent Consulting Services Pvt. Ltd. (<http://www.serpentcs.com>)
+
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
 #    published by the Free Software Foundation, either version 3 of the
@@ -20,95 +21,88 @@
 #
 ##############################################################################
 
-import logging
 import calendar
 import datetime
-from openerp.osv import orm, fields
-from openerp.report import report_sxw
-from openerp.tools import convert
+from openerp.osv import fields
 from openerp.tools.translate import _
-from openerp.addons.contract_isp.contract import date_interval
+from openerp.addons.contract_isp.models.contract import date_interval
+from openerp import models, fields, api, _
+from openerp.exceptions import Warning
 
 
-class contract_isp_close(orm.TransientModel):
+class contract_isp_close(models.TransientModel):
     _name = 'contract.isp.close'
 
-    def _get_account_id(self, cr, uid, context=None):
-        if context.get('active_model', '') == 'account.analytic.account':
-            contract_id = context.get('active_id')
+    @api.one
+    def _get_account_id(self):
+        if self._context.get('active_model', '') == 'account.analytic.account':
+            contract_id = self._context.get('active_id')
             return contract_id
-        return None
+        return False
 
-    _columns = {
-        'account_id': fields.many2one('account.analytic.account', 'Contract'),
-        'close_date': fields.datetime('Close date', required=True),
-        'close_reason': fields.text('Reason')
-    }
+    account_id = fields.Many2one('account.analytic.account', 'Contract',
+                                 default=lambda s: s._get_account_id())
+    close_date = fields.Datetime('Close date', required=True,
+                                 default=fields.datetime.now())
+    close_reason = fields.Text('Reason')
 
-    _defaults = {
-        'account_id': lambda s, cr, uid, ctx: s._get_account_id(cr, uid, ctx),
-        'close_date': fields.datetime.now
-    }
-
-    def do_close(self, cr, uid, ids, context=None):
-        wizard = self.browse(cr, uid, ids[0], context=context)
-        mail_mail_obj = self.pool.get('mail.mail')
-        account_analytic_line_obj = self.pool.get('account.analytic.line')
-        account_invoice_obj = self.pool.get('account.invoice')
-        contract = self.browse(cr, uid, ids, context=context)[0].account_id
-
-        today = datetime.date.today()
+    @api.multi
+    def do_close(self):
+        mail_mail_obj = self.env['mail.mail']
+        account_analytic_line_obj = self.env['account.analytic.line']
+        account_invoice_obj = self.env['account.invoice']
+        account_analytic_account = self.env['account.analytic.account']\
+            .browse(self._context.get('active_id', False))
 
         query = [
-            ('partner_id', '=', contract.partner_id.id),
-            ('origin', '=', contract.name)
+            ('partner_id', '=', account_analytic_account.partner_id.id),
+            ('origin', '=', account_analytic_account.name)
         ]
 
-        last_invoice_id = account_invoice_obj.search(cr, uid, query,
-                                                     context=context)
+        last_invoice_id = account_invoice_obj.search(query)
         if last_invoice_id:
-            last_invoice = account_invoice_obj.browse(cr, uid,
-                                                      last_invoice_id[-1],
-                                                      context=context)
-            if last_invoice.date_invoice > wizard.close_date:
-                raise orm.except_orm(_('Error!'), _('Close date before last invoice date!'))
+            last_invoice = account_invoice_obj.browse(last_invoice_id[-1])
+            if last_invoice.date_invoice > self.close_date:
+                raise Warning(_('Error!'), _
+                              ('Close date before last invoice date!'))
 
             amount_untaxed = last_invoice.amount_untaxed
 
-            month_days = calendar.monthrange(int(wizard.close_date[:4]),
-                                             int(wizard.close_date[5:7]))[1]
+            month_days = calendar.monthrange(int(self.close_date[:4]),
+                                             int(self.close_date[5:7]))[1]
 
-            used_days = month_days - int(wizard.close_date[8:10])
+            used_days = month_days - int(self.close_date[8:10])
             ptx = (100 * used_days / month_days) / 100.0
             amount = amount_untaxed * ptx
-            interval = date_interval(datetime.date(int(wizard.close_date[:4]),
-                                                   int(wizard.close_date[5:7]),
-                                                   int(wizard.close_date[8:10])),
+            interval = date_interval(datetime.date(int(self.close_date[:4]),
+                                                   int(self.close_date[5:7]),
+                                                   int(self.close_date[8:10])),
                                      True)
 
             line = {
                 'name': ' '.join([_('Credit refund'), interval]),
                 'amount': amount,
-                'account_id': contract.id,
-                'user_id': uid,
-                'general_account_id': contract.partner_id.property_account_receivable.id,
+                'account_id': account_analytic_account.id,
+                'user_id': self.uid,
+                'general_account_id': account_analytic_account.partner_id.
+                property_account_receivable.id,
                 'to_invoice': 1,
                 'unit_amount': 1,
                 'is_prorata': True,
-                'date': wizard.close_date
+                'date': self.close_date
             }
-            account_analytic_line_obj.create(cr, uid, line, context=context)
+            account_analytic_line_obj.create(line)
 
-        contract.write({'close_date': wizard.close_date,
-                        'close_reason': wizard.close_reason})
+        account_analytic_account.write({'close_date': self.close_date,
+                                        'close_reason': self.close_reason})
 
-        mail_template_obj = self.pool.get('email.template')
-        mail_template_id = self.pool.get('ir.model.data').get_object_reference(
-            cr, uid, 'contract_isp_invoice',
-            'email_template_contract_isp_invoice_close')
-        mail_id = mail_template_obj.send_mail(cr, uid, mail_template_id[1], contract.id, context=context)
-        mail_message = mail_mail_obj.browse(cr, uid, mail_id, context=context).mail_message_id
+        mail_template_obj = self.env['email.template']
+        mail_template_id = self.env['ir.model.data'].\
+            get_object_reference('contract_isp_invoice',
+                                 'email_template_contract_isp_invoice_close')
+        mail_id = mail_template_obj.send_mail(mail_template_id[1],
+                                              account_analytic_account.id)
+        mail_message = mail_mail_obj.browse(mail_id).mail_message_id
         mail_message.write({'type': 'email'})
-        contract.write({'state': 'close'})
+        account_analytic_account.write({'state': 'close'})
         return {}
-        

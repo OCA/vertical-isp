@@ -22,25 +22,30 @@
 ##############################################################################
 
 from openerp import models, api
+PROCESS_CRON = 'cron'
 
 
-class contract_service_activate(models.TransientModel):
-    _inherit = 'contract.service.activate'
+class account_analytic_account(models.Model):
+    _inherit = 'account.analytic.account'
 
-    @api.multi
-    def activate(self):
-        ret = super(contract_service_activate, self).activate()
-        contract_service_obj = self.env['contract.service']
+    @api.v7
+    def cron_contract_automatic_invoicing(self, cr, uid, ids=None,
+                                          context=None):
+        if context is None:
+            context = {}
+
+        if not context.get('create_analytic_line_mode', False):
+            context['create_analytic_line_mode'] = 'cron'
 
         query = [
-            ('account_id', '=', self.account_id.id),
-            ('state', '=', 'draft')
+            ('state', '=', 'open'),
+            ('type', '=', 'contract')
         ]
-        # Check if all services were activated
-        if not contract_service_obj.search(query):
 
-            # jgama - Try to create the prorata invoice
-            # pro_inv = account_analytic_account_obj.create_invoice
-            # (prorata=True)
-            pass
-        return ret
+        ids_to_invoice = self.search(cr, uid, query, context=context)
+        for contract_id in ids_to_invoice:
+            self.create_analytic_lines(cr, uid, [contract_id],
+                                       context=context)
+            self.create_invoice(cr, uid, contract_id,
+                                PROCESS_CRON, context=context)
+            cr.commit()
