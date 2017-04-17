@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding='UTF-8'?>
+<openerp>
+    <data>
+        <record model="ir.cron" id="account_analytic_cron">
+            <field name="name">Contract Automatic Invoicing</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">months</field>
+            <field name="numbercall">-1</field>
+	    <field name="active" eval="False" />
+            <field name="doall" eval="False"/>
+            <field name="model" eval="'account.analytic.account'"/>
+            <field name="function" eval="'cron_contract_automatic_invoicing'"/>
+            <field name="args" eval="'()'" />
+        </record>
+    </data>
+</openerp>

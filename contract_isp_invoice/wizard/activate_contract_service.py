@@ -22,40 +22,37 @@
 
 import time
 import datetime
-from openerp.osv import orm, fields
-from openerp.addons.contract_isp.contract import add_months
+from openerp.addons.contract_isp.models.contract import add_months
+from openerp import models, fields, api, _
 
 
-class contract_service_activate(orm.TransientModel):
+class contract_service_activate(models.TransientModel):
     _inherit = 'contract.service.activate'
 
-    def activate(self, cr, uid, ids, context=None):
-        if context is None:
+    @api.multi
+    def activate(self):
+        if self._context is None:
             context = {}
 
-        account_invoice_obj = self.pool.get('account.invoice')
-        account_voucher_obj = self.pool.get('account.voucher')
-        account_move_obj = self.pool.get('account.move')
-        res_company_obj = self.pool.get('res.company')
-        wizard = self.browse(cr, uid, ids[0], context)
+        account_invoice_obj = self.env['account.invoice']
+        account_voucher_obj = self.env['account.voucher']
+        account_move_obj = self.env['account.move']
+        res_company_obj = self.env['res.company']
 
-        ret = super(contract_service_activate, self).activate(cr, uid,
-                                                              ids,
-                                                              context=context)
+        ret = super(contract_service_activate, self).activate()
 
-        contract_service_obj = self.pool.get('contract.service')
-        account_analytic_account_obj = self.pool.get('account.analytic.account')
-        account_move_line_obj = self.pool.get('account.move.line')
+        contract_service_obj = self.env['contract.service']
+        account_analytic_account_obj = self.env['account.analytic.account']
+        account_move_line_obj = self.env['account.move.line']
 
         query = [
-            ('account_id', '=', wizard.account_id.id),
+            ('account_id', '=', self.account_id.id),
             ('state', '=', 'draft')
         ]
         # Check if all services were activated
-        if not contract_service_obj.search(cr, uid, query, context=context):
+        if not contract_service_obj.search(query):
 
             # jgama - Try to create the prorata invoice
-            pro_inv = account_analytic_account_obj.create_invoice(
-                cr, uid, wizard.account_id.id, prorata=True, context=context)
+            pro_inv = account_analytic_account_obj.create_invoice(prorata=True)
 
         return ret

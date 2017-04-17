@@ -22,7 +22,7 @@
 
 {
     'name': 'Contract ISP',
-    'version': '1.0',
+    'version': '8.0.1',
     'category': 'Contract Management',
     'description': """
 Manage service based contracts
@@ -38,15 +38,15 @@ Features:
 * Service activation wizard.
 """,
     'author': "Savoir-faire Linux Inc,Odoo Community Association (OCA)",
-    'website': 'www.savoirfairelinux.com',
+    'website': 'www.serpentcs.com',
     'license': 'AGPL-3',
     'depends': ['account_analytic_analysis'],
     'data': ['security/contract_isp_security.xml',
              'security/ir.model.access.csv',
              'wizard/activate_contract_service.xml',
-             'contract_isp_view.xml',
-             'contract_isp_data.xml',
-             'contract_isp_workflow.xml'],
+             'views/contract_isp_view.xml',
+             'views/contract_isp_data.xml',
+             'views/contract_isp_workflow.xml'],
     'active': False,
-    'installable': False,
+    'installable': True,
 }

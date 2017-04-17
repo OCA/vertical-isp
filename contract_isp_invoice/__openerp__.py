@@ -42,11 +42,11 @@ Features:
     'depends': ['contract_isp'],
     'data': [
         'security/ir.model.access.csv',
-        'contract_isp_invoice_data.xml',
-        'contract_isp_invoice_view.xml',
+        'views/contract_isp_invoice_data.xml',
+        'views/contract_isp_invoice_view.xml',
         'wizard/contract_isp_invoice_invoice_create.xml',
         'wizard/close_contract_view.xml'
     ],
     'active': False,
-    'installable': False,
+    'installable': True,
 }

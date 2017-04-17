@@ -10,13 +10,13 @@
 		    <field name="product_id" />
 		</tree>
 	    </field>
-	</record>
+	    </record>
 
         <record id="view_contract_service_configurator" model="ir.ui.view">
             <field name="name">Package Configurator</field>
             <field name="model">contract.service.configurator</field>
             <field name="arch" type="xml">
-                <form string="Package Configurator" version="7.0">
+                <form string="Package Configurator">
 		    <header>
 			<field name="state" class="oe_right" widget="statusbar" />
 		    </header>
@@ -29,7 +29,7 @@
 			    name="product_category_id"
 			    options="{'no_open': True}"
 			    domain="[('type', '=', 'normal'), ('id', 'child_of', [root_category_id])]"
-			    on_change="onchange_product_category_id(product_category_id, is_level2)" />
+			     />
 		    </group>
 		    <group string="Products" attrs="{'invisible': [('state', '=', 'dependency')]}">
 			<group colspan="4">
@@ -70,7 +70,7 @@
 			    widget="many2many"
 			    domain="[('configurator_id', '=', active_id)]">
 			    <tree>
-				<field name="product_id" on_change="onchange_product_id(product_id, context)"/>
+				<field name="product_id"/>
 			    </tree>
 			</field>
 		    </group>
@@ -117,7 +117,7 @@
 			<field 
 			    name="serial"
 			    class="oe_inline"
-			    domain="[('product_id', '=', product_id), '&amp;', ('stock_available', '&gt;', 0)]"
+			    domain="[('product_id', '=', product_id),('quant_ids', '&gt;', 0)]"
 			    options="{'no_open': True}"
 			    placeholder="Serial Number"
 			    attrs="{'invisible': [('state', '=', 'draft')]}"/>

@@ -19,15 +19,15 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-from openerp.osv import orm, fields
+from openerp import models, fields, api, _
+PROCESS_CRON = 'cron'
 
-
-class account_analytic_account(orm.Model):
+class account_analytic_account(models.Model):
     _inherit = 'account.analytic.account'
-
-    #TODO
-    def cron_contract_automatic_invoicing(self, cr, uid, ids=None,
-                                          context=None):
+            
+    @api.v7
+    def cron_contract_automatic_invoicing(self, cr, uid, ids=None, context=None):
+            
         if context is None:
             context = {}
 
@@ -40,8 +40,8 @@ class account_analytic_account(orm.Model):
         ]
 
         ids_to_invoice = self.search(cr, uid, query, context=context)
-
         for contract_id in ids_to_invoice:
             self.create_analytic_lines(cr, uid, [contract_id], context=context)
-            self.create_invoice(cr, uid, contract_id, context=context)
+            self.create_invoice(cr, uid, contract_id, PROCESS_CRON,context=context)
             cr.commit()
+        
