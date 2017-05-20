@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: vertical-isp (7.0)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-25 08:55+0000\n"
-"PO-Revision-Date: 2017-03-02 22:14+0000\n"
+"POT-Creation-Date: 2017-03-04 08:47+0000\n"
+"PO-Revision-Date: 2017-05-13 18:20+0000\n"
 "Last-Translator: Maxime Chambreuil <mchambreuil@ursainfosystems.com>\n"
 "Language-Team: Spanish (http://www.transifex.com/oca/OCA-vertical-isp-7-0/language/es/)\n"
 "MIME-Version: 1.0\n"
@@ -355,7 +355,7 @@ msgstr ""
 #: selection:contract.service.configurator.line,state:0
 #, python-format
 msgid "Done"
-msgstr ""
+msgstr "Hecho"
 
 #. module: contract_isp_package_configurator
 #: view:contract.service.configurator:0
