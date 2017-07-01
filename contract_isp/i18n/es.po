@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: vertical-isp (7.0)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-12-24 06:55+0000\n"
-"PO-Revision-Date: 2017-01-10 08:59+0000\n"
+"POT-Creation-Date: 2017-06-03 10:50+0000\n"
+"PO-Revision-Date: 2017-06-27 01:53+0000\n"
 "Last-Translator: Maxime Chambreuil <mchambreuil@ursainfosystems.com>\n"
 "Language-Team: Spanish (http://www.transifex.com/oca/OCA-vertical-isp-7-0/language/es/)\n"
 "MIME-Version: 1.0\n"
@@ -249,7 +249,7 @@ msgstr ""
 #: view:account.analytic.account:0 view:contract.service:0
 #: view:contract.service.activate:0
 msgid "Activate"
-msgstr ""
+msgstr "Activar"
 
 #. module: contract_isp
 #: field:account.analytic.account,invoice_ids:0
