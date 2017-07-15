@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: vertical-isp (7.0)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-03 10:50+0000\n"
-"PO-Revision-Date: 2017-06-27 01:53+0000\n"
+"POT-Creation-Date: 2017-07-01 11:11+0000\n"
+"PO-Revision-Date: 2017-07-15 09:41+0000\n"
 "Last-Translator: Maxime Chambreuil <mchambreuil@ursainfosystems.com>\n"
 "Language-Team: Spanish (http://www.transifex.com/oca/OCA-vertical-isp-7-0/language/es/)\n"
 "MIME-Version: 1.0\n"
@@ -90,7 +90,7 @@ msgstr "Producto"
 #. module: contract_isp
 #: field:contract.service,category_id:0
 msgid "Product Category"
-msgstr ""
+msgstr "Categoría de producto"
 
 #. module: contract_isp
 #: model:ir.model,name:contract_isp.model_account_analytic_line
