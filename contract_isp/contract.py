@@ -19,9 +19,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-
 import logging
-_logger = logging.getLogger(__name__)
 import calendar
 import datetime
 
@@ -33,6 +31,8 @@ from openerp.tools.translate import _
 LINE_TYPE_EXCEPTION = 'x'
 LINE_TYPE_RECURRENT = 'r'
 LINE_TYPE_ONETIME = 'o'
+
+_logger = logging.getLogger(__name__)
 
 
 def add_months(sourcedate, months):
@@ -469,18 +469,18 @@ class account_analytic_account(orm.Model):
         return res
 
     def _search_invoice_ids(self, cr, uid, obj, name, args, context):
-        query, params = [], []
+        parts, params = [], []
         for key, op, value in args:
             if key != "invoice_ids":
                 continue
             if op in ("=", "in") and not value:
-                query.append("agg.invoice_ids = ARRAY[NULL]::integer[]")
+                parts.append("agg.invoice_ids = ARRAY[NULL]::integer[]")
             elif op in ("!=", "not in") and not value:
-                query.append("NOT agg.invoice_ids = ARRAY[NULL]::integer[]")
+                parts.append("NOT agg.invoice_ids = ARRAY[NULL]::integer[]")
             elif op in ("=", "in", "!=", "not in") and value:
                 if isinstance(value, (int, long)):
                     value = [value]
-                query.append("{0} agg.invoice_ids && ARRAY[{1}]".format(
+                parts.append("{0} agg.invoice_ids && ARRAY[{1}]".format(
                     "NOT" if op in ("!=", "not in") else "",
                     ", ".join(["%s"] * len(value)),
                 ))
@@ -488,12 +488,11 @@ class account_analytic_account(orm.Model):
             else:
                 continue
 
-        if not query:
+        if not parts:
             return []
 
         else:
-            cr.execute(
-                """
+            query = """
                 SELECT array_agg(agg.id) FROM (
                     SELECT aaa.id as id
                          , array_agg(ail.invoice_id) as invoice_ids
@@ -502,9 +501,9 @@ class account_analytic_account(orm.Model):
                     ON ail.account_analytic_id = aaa.id
                     GROUP BY aaa.id
                     ) agg
-                WHERE {0}""".format(" AND ".join(query)),
-                params,
-            )
+                WHERE """
+            query += " AND ".join(parts)
+            cr.execute(query, params)
 
             ids = cr.fetchone()[0]
             return [('id', 'in', tuple(ids))]
