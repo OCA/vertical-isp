@@ -129,15 +129,15 @@ class contract_service(orm.Model):
 
     def _get_product_price(self, cr, uid, ids, field_name, arg, context=None):
         product_pricelist_obj = self.pool.get('product.pricelist')
-        partner_id = self.browse(
-            cr, uid, ids[0],
-            context=context).account_id.partner_id.id
-        pricelist_id = self.browse(
-            cr, uid, ids[0],
-            context=context
-        ).account_id.partner_id.property_product_pricelist.id
         ret = {}
         for line in self.browse(cr, uid, ids, context=context):
+            partner_id = self.browse(
+                cr, uid, line.id,
+                context=context).account_id.partner_id.id
+            pricelist_id = self.browse(
+                cr, uid, line.id,
+                context=context
+            ).account_id.partner_id.property_product_pricelist.id
             if line.product_id:
                 ret[line.id] = product_pricelist_obj.price_get(
                     cr, uid, [pricelist_id],

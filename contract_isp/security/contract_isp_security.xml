@@ -6,7 +6,7 @@
             <field name="name">Agent Level 1</field>
             <field name="category_id" ref="base.module_category_customer_relationship_management" />
             <field name="users" eval="[(4, ref('base.user_root'))]" />
-	    <field name="implied_ids" eval="None" />
+            <field name="implied_ids" eval="None" />
             <field name="comment">The users in this group will be able to manage customers and contracts</field>
         </record>
 
