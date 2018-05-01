@@ -20,10 +20,11 @@
 ##############################################################################
 from __future__ import unicode_literals
 
-from datetime import date
+from datetime import date, datetime, timedelta
 from functools import partial
 
 from openerp.tests.common import TransactionCase
+from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT
 
 from .common import ServiceSetup, YEAR
 
@@ -189,3 +190,61 @@ class test_prorata_activate_service(TransactionCase, ServiceSetup):
             delta=0.01)
         self.assertEquals(invoice.type, inv_type,
                           msg="Wrong type of invoice/refund")
+
+    def test_bill_delay(self):
+        cr, uid = self.cr, self.ref("base.user_demo")
+        su_uid = self.uid
+
+        self.company.write({"prorata_bill_delay": "5"})
+        act_date = "{0}-05-05".format(YEAR)
+        self.cr.execute(
+            """ SELECT COALESCE(max(id), 0) from account_invoice
+            WHERE partner_id = %s
+            """,
+            (self.partner_id, )
+        )
+        max_invoice = self.cr.fetchone()[0]
+        now = datetime.utcnow()
+        sid = self._create_activate_service(self.p_internet, act_date)
+        self.wiz_deactivate_obj.deactivate(
+            cr, uid,
+            [self.wiz_deactivate_obj.create(
+                cr, uid, {
+                    "account_id": self.account_id,
+                    "service_id": sid,
+                    "deactivation_date": "{0}-05-06".format(YEAR),
+                })],
+            {'operation_date': date(YEAR, 5, 6)}
+        )
+
+        new_invoices = self.invoice_obj.search(
+            cr, uid, [('partner_id', '=', self.partner_id),
+                      ('id', '>', max_invoice)],
+        )
+        self.assertEquals(new_invoices, [],
+                          "No new invoice expected")
+
+        # Delay is not passed yet, expecting no new invoice
+        self.registry("contract.pending.invoice").cron_send_pending(
+            cr, su_uid, curtime=now.strftime(DEFAULT_SERVER_DATETIME_FORMAT))
+
+        new_invoices = self.invoice_obj.search(
+            cr, su_uid, [('partner_id', '=', self.partner_id),
+                         ('id', '>', max_invoice)],
+        )
+        self.assertEquals(new_invoices, [],
+                          "No new invoice expected")
+
+        self.registry("contract.pending.invoice").cron_send_pending(
+            cr, su_uid, curtime=(
+                now + timedelta(minutes=6)
+            ).strftime(DEFAULT_SERVER_DATETIME_FORMAT),
+            autocommit=False,
+        )
+
+        new_invoices = self.invoice_obj.search(
+            cr, su_uid, [('partner_id', '=', self.partner_id),
+                         ('id', '>', max_invoice)],
+        )
+        self.assertEquals(len(new_invoices), 1,
+                          "One new invoice expected")
