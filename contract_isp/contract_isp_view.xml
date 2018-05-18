@@ -43,7 +43,7 @@
           select="1"
           options="{'always_reload': True, 'reload_on_button': True}"
           attrs="{'invisible': [('use_contract_services', '=', False)]}">
-          <tree editable="botton" colors="black:require_activation==False; green:state=='active'" >
+          <tree editable="bottom" colors="black:require_activation==False; green:state=='active'" >
             <field name="account_id" invisible="1"/>
             <field name="state" readonly="True" />
             <field name="activation_date"
