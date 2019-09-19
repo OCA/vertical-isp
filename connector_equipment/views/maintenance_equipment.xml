@@ -1,0 +1,24 @@
+<!-- Copyright 2019 Open Source Integrators
+     License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl) -->
+
+<odoo>
+    <record id="maintenance_equipment_connector_page" model="ir.ui.view">
+        <field name="name">maintenance.equipment.connector.page</field>
+        <field name="model">maintenance.equipment</field>
+        <field name="inherit_id" ref="maintenance.hr_equipment_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook/page[3]" position="after">
+                <page string="Connector">
+                    <h2>API Information</h2>
+                    <group>
+                        <group>
+                            <field name="managed"/>
+                            <field name="backend_id"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
