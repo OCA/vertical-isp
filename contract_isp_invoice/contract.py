@@ -104,6 +104,13 @@ class account_voucher(orm.Model):
             cr, uid, data, context=context)
 
     def proforma_voucher(self, cr, uid, ids, context=None):
+        """
+        This is the function called when validating the account.voucher that
+        we created from the "Create Initial Invoice" button.
+
+        If we passed 'not_subscription_voucher = False', we go into our own
+        custom handling. Otherwise defer to super()
+        """
         if context is None:
             context = {}
 
@@ -125,19 +132,10 @@ class account_voucher(orm.Model):
                         mode='subscription',
                         date=date_today)
 
-                inv = account_analytic_account_obj.create_invoice(
+                account_analytic_account_obj.create_invoice(
                     cr, uid, context.get('active_id'),
                     source_process=PROCESS_INITIAL,
                     context=context)
-
-                wf_service = netsvc.LocalService("workflow")
-                if isinstance(inv, list):
-                    for i in inv:
-                        wf_service.trg_validate(
-                            uid, 'account.invoice', i, 'invoice_open', cr)
-                else:
-                    wf_service.trg_validate(
-                        uid, 'account.invoice', inv, 'invoice_open', cr)
             else:
                 raise openerp.exceptions.Warning(_('Contract not found'))
 
@@ -175,18 +173,6 @@ class account_voucher(orm.Model):
                             period_id, journal_id,
                             context=context)
 
-            mail_template_obj = self.pool.get('email.template')
-            ir_model_data_obj = self.pool.get('ir.model.data')
-            mail_template_id = ir_model_data_obj.get_object_reference(
-                cr, uid, 'account', 'email_template_edi_invoice')[1]
-            mail_mail_obj = self.pool.get('mail.mail')
-            if isinstance(inv, list):
-                for i in inv:
-                    mail_id = mail_template_obj.send_mail(
-                        cr, uid, mail_template_id, i, context=context)
-                    mail_message = mail_mail_obj.browse(
-                        cr, uid, mail_id, context=context).mail_message_id
-                    mail_message.write({'type': 'email'})
         else:
             ret = super(account_voucher, self).proforma_voucher(
                 cr, uid, ids, context=context)
@@ -487,7 +473,6 @@ class account_analytic_account(orm.Model):
         account_analytic_line_obj = self.pool['account.analytic.line']
         account_invoice_obj = self.pool['account.invoice']
         account_invoice_line_obj = self.pool['account.invoice.line']
-        wf_service = netsvc.LocalService("workflow")
 
         if sum(-line.amount
                for line in account_analytic_line_obj.browse(
@@ -549,14 +534,9 @@ class account_analytic_account(orm.Model):
         if to_write:
             account_invoice_obj.write(cr, uid, inv, to_write, context=context)
 
-        if context.get('not_subscription_voucher', True):
-            _logger.debug("Opening invoice %s", inv)
-            wf_service.trg_validate(
-                uid, 'account.invoice', inv, 'invoice_open', cr)
-
         return res
 
-    def create_invoice(self, cr, uid, ids, source_process=None, context=None):
+    def prepare_invoice(self, cr, uid, ids, source_process=None, context=None):
         context = context or {}
         prorata = (source_process == PROCESS_PRORATA)
         _logger.debug("create_invoice %r %s", ids, prorata)
@@ -569,12 +549,6 @@ class account_analytic_account(orm.Model):
 
         account_analytic_account_obj = self.pool['account.analytic.account']
         account_analytic_line_obj = self.pool['account.analytic.line']
-
-        res_company_obj = self.pool['res.company']
-        res_company_data = res_company_obj.read(
-            cr, uid,
-            res_company_obj._company_default_get(cr, uid, context),
-            context=context)
 
         res = []
         if context.get('create_invoice_mode', 'contract') != 'reseller':
@@ -604,10 +578,6 @@ class account_analytic_account(orm.Model):
                     else:
                         res.append(inv)
 
-                    if res_company_data['send_email_contract_invoice']:
-                        self.send_email_contract_invoice(
-                            cr, uid, inv, context=context)
-
         else:
             query = [('account_id', 'in', ids),
                      ('to_invoice', '!=', False),
@@ -633,11 +603,66 @@ class account_analytic_account(orm.Model):
                 else:
                     res.append(inv)
 
-                if res_company_data['send_email_contract_invoice']:
-                    self.send_email_contract_invoice(
-                        cr, uid, inv, context=context)
-
         return res
+
+    def assign_invoice_numbers(self, cr, uid, ids, context=None):
+        """ Assign invoice numbers to invoices from the associated journal """
+        sequence_obj = self.pool["ir.sequence"]
+        period_obj = self.pool["account.period"]
+        for inv in self.pool["account.invoice"].browse(cr, uid, ids,
+                                                       context=context):
+            # This code is an extract of account.invoice action_move_create()
+            # We go fetch the invoice number the same way using the period_id
+            # and journal_id that action_move_create uses to create the move
+            journal = inv.journal_id
+            period_id = inv.period_id
+            ctx = dict(context or {})
+            ctx.update(company_id=inv.company_id.id,
+                       account_period_prefer_normal=True)
+            if not period_id:
+                period_ids = period_obj.find(cr, uid, inv.date_invoice,
+                                             context=ctx)
+                if period_ids:
+                    period_id = period_obj.browse(cr, uid, period_ids[0],
+                                                  context=ctx)
+            if period_id and journal and journal.sequence_id:
+                c = {'fiscalyear_id': period_id.fiscalyear_id.id}
+                new_name = sequence_obj.next_by_id(cr, uid,
+                                                   journal.sequence_id.id,
+                                                   context=c)
+                inv.write({'internal_number': new_name})
+
+        return True
+
+    def open_invoices(self, cr, uid, ids, context=None):
+        wf_service = netsvc.LocalService("workflow")
+        res_company_obj = self.pool['res.company']
+        res_company_data = res_company_obj.read(
+            cr, uid,
+            res_company_obj._company_default_get(cr, uid, context),
+            context=context)
+        for inv in ids:
+            _logger.debug("Opening invoice %s", inv)
+            wf_service.trg_validate(
+                uid, 'account.invoice', inv, 'invoice_open', cr)
+            if res_company_data['send_email_contract_invoice']:
+                self.send_email_contract_invoice(
+                    cr, uid, inv, context=context)
+
+        return ids
+
+    def create_invoice(self, cr, uid, ids, source_process=None, context=None):
+        invoice_ids = self.prepare_invoice(cr, uid, ids,
+                                           source_process=source_process,
+                                           context=context)
+        self.open_invoices(cr, uid, invoice_ids, context=context)
+        return invoice_ids
+
+    def create_lines_and_prepare(self, cr, uid, ids, source_process=None,
+                                 context=None):
+        self.create_analytic_lines(cr, uid, ids, context=context)
+        return self.prepare_invoice(cr, uid, ids, source_process,
+                                    context=context)
 
     def create_lines_and_invoice(self, cr, uid, ids, source_process=None,
                                  context=None):
@@ -658,6 +683,10 @@ class account_analytic_account(orm.Model):
         }
 
     def prepare_voucher(self, cr, uid, ids, context=None):
+        """
+        Called when pressing the "Create Initial Payment" button.
+        Opens up a account.voucher creation window
+        """
         if context is None:
             context = {}
 
