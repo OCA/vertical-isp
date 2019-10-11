@@ -20,12 +20,16 @@
 ##############################################################################
 from __future__ import unicode_literals
 
+from calendar import monthrange
 from datetime import date
 from functools import partial
 
 from openerp.tests.common import TransactionCase
 
 from .common import ServiceSetup, YEAR
+
+
+END_FEB = monthrange(YEAR, 2)[1]  # Last day of February
 
 
 class test_prorata_deactivate_service(TransactionCase, ServiceSetup):
@@ -76,7 +80,7 @@ class test_prorata_deactivate_service(TransactionCase, ServiceSetup):
             invoice_end=(3, 31),
             expected_amount=(
                 1 +  # March,
-                self.service_obj._prorata_rate(15, 28)  # Feb 14-28 : 15 days
+                self.service_obj._prorata_rate(END_FEB - 13, END_FEB)
             ) * -56,  # Refund
         )
 
@@ -90,7 +94,7 @@ class test_prorata_deactivate_service(TransactionCase, ServiceSetup):
             invoice_end=(3, 31),
             expected_amount=(
                 1 +  # March,
-                self.service_obj._prorata_rate(15, 28)  # Feb 14-28 : 15 days
+                self.service_obj._prorata_rate(END_FEB - 13, END_FEB)
             ) * -56,  # Refund
         )
 
@@ -101,9 +105,9 @@ class test_prorata_deactivate_service(TransactionCase, ServiceSetup):
             operation_date=(2, 8),
             invoice_date=(2, 14),
             invoice_start=(2, 7),
-            invoice_end=(2, 28),
+            invoice_end=(2, END_FEB),
             expected_amount=(
-                self.service_obj._prorata_rate(22, 28)  # Feb 7-28 : 22 days
+                self.service_obj._prorata_rate(END_FEB - 6, END_FEB)
             ) * -56,  # Refund
         )
 
@@ -117,7 +121,7 @@ class test_prorata_deactivate_service(TransactionCase, ServiceSetup):
             invoice_end=(3, 31),
             expected_amount=(
                 1 +  # March
-                self.service_obj._prorata_rate(22, 28)  # Feb 7-28 : 22 days
+                self.service_obj._prorata_rate(END_FEB - 6, END_FEB)
             ) * -56,  # Refund
         )
 
@@ -130,7 +134,7 @@ class test_prorata_deactivate_service(TransactionCase, ServiceSetup):
             invoice_start=(2, 7),
             invoice_end=(2, 14),
             expected_amount=(
-                self.service_obj._prorata_rate(8, 28)  # Feb 7-14 : 8 days
+                self.service_obj._prorata_rate(8, END_FEB)  # Feb 7-14 : 8 days
             ) * 56,  # Invoice
         )
 
@@ -143,9 +147,12 @@ class test_prorata_deactivate_service(TransactionCase, ServiceSetup):
             invoice_start=(2, 7),
             invoice_end=(4, 16),
             expected_amount=(
-                self.service_obj._prorata_rate(22, 28) +  # Feb 7-28 : 22 days
-                self.service_obj._prorata_rate(16, 30) +  # Apr 1-16 : 16 days
-                1  # March
+                # From Feb 7th to end of month, so len(feb) - 6 days
+                self.service_obj._prorata_rate(END_FEB - 6, END_FEB) +
+                # Apr 1-16 : 16 days
+                self.service_obj._prorata_rate(16, 30) +
+                # All of March
+                1
             ) * 56,  # Invoice
         )
 

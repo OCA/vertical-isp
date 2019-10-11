@@ -22,11 +22,15 @@ from __future__ import unicode_literals
 
 from datetime import date, datetime, timedelta
 from functools import partial
+from calendar import monthrange
 
 from openerp.tests.common import TransactionCase
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT
 
 from .common import ServiceSetup, YEAR
+
+
+END_FEB = monthrange(YEAR, 2)[1]  # Last day of February
 
 
 class test_prorata_activate_service(TransactionCase, ServiceSetup):
@@ -51,8 +55,11 @@ class test_prorata_activate_service(TransactionCase, ServiceSetup):
             operation_date=(1, 14),
             invoice_date=(1, 7),
             invoice_start=(2, 13),
-            invoice_end=(2, 28),
-            expected_amount=self.service_obj._prorata_rate(16, 28) * 56,
+            invoice_end=(2, END_FEB),
+            expected_amount=self.service_obj._prorata_rate(
+                END_FEB - 12,  # Start on 13th, so bill [(28 or 29) - 12] days
+                END_FEB  # 28 or 29 days in the month, depending
+            ) * 56,
         )
 
     def test_prorata_after_invoice_before_cutoff_past_month(self):
@@ -85,8 +92,11 @@ class test_prorata_activate_service(TransactionCase, ServiceSetup):
             operation_date=(1, 26),
             invoice_date=(2, 7),
             invoice_start=(2, 15),
-            invoice_end=(2, 28),
-            expected_amount=self.service_obj._prorata_rate(14, 28) * 56,
+            invoice_end=(2, END_FEB),
+            expected_amount=self.service_obj._prorata_rate(
+                END_FEB - 14,  # Start on 15th, so bill [(28 or 29) - 14] days
+                END_FEB  # 28 or 29 days in the month, depending
+            ) * 56,
         )
 
     def test_prorata_before_invoice_past_month_activation(self):
@@ -103,8 +113,11 @@ class test_prorata_activate_service(TransactionCase, ServiceSetup):
             operation_date=(2, 1),
             invoice_date=(2, 7),
             invoice_start=(2, 27),
-            invoice_end=(2, 28),
-            expected_amount=self.service_obj._prorata_rate(2, 28) * 56,
+            invoice_end=(2, END_FEB),
+            expected_amount=self.service_obj._prorata_rate(
+                END_FEB - 26,  # 2 or 3 days, depending on leap year
+                END_FEB  # 28 or 29 days
+            ) * 56,
         )
 
     def test_prorata_before_invoice_current_month_activation(self):
@@ -136,7 +149,7 @@ class test_prorata_activate_service(TransactionCase, ServiceSetup):
                            operation_date=(2, 5),
                            invoice_date=(2, 7),
                            invoice_start=(2, 1),
-                           invoice_end=(2, 28),
+                           invoice_end=(2, END_FEB),  # 28 or 29 (leap years)
                            expected_amount=56)
 
     def _test_invoice(self, product,

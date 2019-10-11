@@ -19,9 +19,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-
 import logging
-_logger = logging.getLogger(__name__)
 import calendar
 import datetime
 
@@ -33,6 +31,8 @@ from openerp.tools.translate import _
 LINE_TYPE_EXCEPTION = 'x'
 LINE_TYPE_RECURRENT = 'r'
 LINE_TYPE_ONETIME = 'o'
+
+_logger = logging.getLogger(__name__)
 
 
 def add_months(sourcedate, months):
