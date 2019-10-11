@@ -84,21 +84,6 @@
                 </field>
             </record>
 
-            <record id="view_contract_service_form" model="ir.ui.view">
-                <field name="name">contract.service.form</field>
-                <field name="model">contract.service</field>
-                <field name="arch" type="xml">
-                    <form string="Contract Services" version="7.0">
-                        <sheet string="Analytic Account">
-                            <field name="activation_date" />
-                            <field name="analytic_line_type" required="True" />
-                            <field name="duration" />
-                            <field name="product_id" />
-                        </sheet>
-                    </form>
-                </field>
-            </record>
-
             <record id="view_contract_service_tree" model="ir.ui.view">
                 <field name="name">contract.service.tree</field>
                 <field name="model">contract.service</field>
