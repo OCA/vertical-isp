@@ -32,9 +32,18 @@ class Company(orm.Model):
     _columns = {
         'invoice_day': fields.selection(_days, 'Invoice day'),
         'billing_day': fields.selection(_days, 'Billing day'),
-        'send_email_contract_invoice': fields.boolean('Send invoice by email')
+        'send_email_contract_invoice': fields.boolean('Send invoice by email'),
+        'prorata_bill_delay': fields.integer('Prorata Invoice delay minutes'),
     }
 
     _defaults = {
         'send_email_contract_invoice': True
     }
+
+    def get_prorata_bill_delay(self, cr, uid, company_id=None, context=None):
+        if company_id:
+            company = self.browse(cr, uid, company_id)
+        else:
+            company = self.pool["res.users"].browse(cr, uid, uid).company_id
+
+        return company.prorata_bill_delay or 0

@@ -20,12 +20,17 @@
 ##############################################################################
 from __future__ import unicode_literals
 
-from datetime import date
+from datetime import date, datetime, timedelta
 from functools import partial
+from calendar import monthrange
 
 from openerp.tests.common import TransactionCase
+from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT
 
 from .common import ServiceSetup, YEAR
+
+
+END_FEB = monthrange(YEAR, 2)[1]  # Last day of February
 
 
 class test_prorata_activate_service(TransactionCase, ServiceSetup):
@@ -50,8 +55,11 @@ class test_prorata_activate_service(TransactionCase, ServiceSetup):
             operation_date=(1, 14),
             invoice_date=(1, 7),
             invoice_start=(2, 13),
-            invoice_end=(2, 28),
-            expected_amount=self.service_obj._prorata_rate(16, 28) * 56,
+            invoice_end=(2, END_FEB),
+            expected_amount=self.service_obj._prorata_rate(
+                END_FEB - 12,  # Start on 13th, so bill [(28 or 29) - 12] days
+                END_FEB  # 28 or 29 days in the month, depending
+            ) * 56,
         )
 
     def test_prorata_after_invoice_before_cutoff_past_month(self):
@@ -84,8 +92,11 @@ class test_prorata_activate_service(TransactionCase, ServiceSetup):
             operation_date=(1, 26),
             invoice_date=(2, 7),
             invoice_start=(2, 15),
-            invoice_end=(2, 28),
-            expected_amount=self.service_obj._prorata_rate(14, 28) * 56,
+            invoice_end=(2, END_FEB),
+            expected_amount=self.service_obj._prorata_rate(
+                END_FEB - 14,  # Start on 15th, so bill [(28 or 29) - 14] days
+                END_FEB  # 28 or 29 days in the month, depending
+            ) * 56,
         )
 
     def test_prorata_before_invoice_past_month_activation(self):
@@ -102,8 +113,11 @@ class test_prorata_activate_service(TransactionCase, ServiceSetup):
             operation_date=(2, 1),
             invoice_date=(2, 7),
             invoice_start=(2, 27),
-            invoice_end=(2, 28),
-            expected_amount=self.service_obj._prorata_rate(2, 28) * 56,
+            invoice_end=(2, END_FEB),
+            expected_amount=self.service_obj._prorata_rate(
+                END_FEB - 26,  # 2 or 3 days, depending on leap year
+                END_FEB  # 28 or 29 days
+            ) * 56,
         )
 
     def test_prorata_before_invoice_current_month_activation(self):
@@ -135,7 +149,7 @@ class test_prorata_activate_service(TransactionCase, ServiceSetup):
                            operation_date=(2, 5),
                            invoice_date=(2, 7),
                            invoice_start=(2, 1),
-                           invoice_end=(2, 28),
+                           invoice_end=(2, END_FEB),  # 28 or 29 (leap years)
                            expected_amount=56)
 
     def _test_invoice(self, product,
@@ -189,3 +203,61 @@ class test_prorata_activate_service(TransactionCase, ServiceSetup):
             delta=0.01)
         self.assertEquals(invoice.type, inv_type,
                           msg="Wrong type of invoice/refund")
+
+    def test_bill_delay(self):
+        cr, uid = self.cr, self.ref("base.user_demo")
+        su_uid = self.uid
+
+        self.company.write({"prorata_bill_delay": "5"})
+        act_date = "{0}-05-05".format(YEAR)
+        self.cr.execute(
+            """ SELECT COALESCE(max(id), 0) from account_invoice
+            WHERE partner_id = %s
+            """,
+            (self.partner_id, )
+        )
+        max_invoice = self.cr.fetchone()[0]
+        now = datetime.utcnow()
+        sid = self._create_activate_service(self.p_internet, act_date)
+        self.wiz_deactivate_obj.deactivate(
+            cr, uid,
+            [self.wiz_deactivate_obj.create(
+                cr, uid, {
+                    "account_id": self.account_id,
+                    "service_id": sid,
+                    "deactivation_date": "{0}-05-06".format(YEAR),
+                })],
+            {'operation_date': date(YEAR, 5, 6)}
+        )
+
+        new_invoices = self.invoice_obj.search(
+            cr, uid, [('partner_id', '=', self.partner_id),
+                      ('id', '>', max_invoice)],
+        )
+        self.assertEquals(new_invoices, [],
+                          "No new invoice expected")
+
+        # Delay is not passed yet, expecting no new invoice
+        self.registry("contract.pending.invoice").cron_send_pending(
+            cr, su_uid, curtime=now.strftime(DEFAULT_SERVER_DATETIME_FORMAT))
+
+        new_invoices = self.invoice_obj.search(
+            cr, su_uid, [('partner_id', '=', self.partner_id),
+                         ('id', '>', max_invoice)],
+        )
+        self.assertEquals(new_invoices, [],
+                          "No new invoice expected")
+
+        self.registry("contract.pending.invoice").cron_send_pending(
+            cr, su_uid, curtime=(
+                now + timedelta(minutes=6)
+            ).strftime(DEFAULT_SERVER_DATETIME_FORMAT),
+            autocommit=False,
+        )
+
+        new_invoices = self.invoice_obj.search(
+            cr, su_uid, [('partner_id', '=', self.partner_id),
+                         ('id', '>', max_invoice)],
+        )
+        self.assertEquals(len(new_invoices), 1,
+                          "One new invoice expected")

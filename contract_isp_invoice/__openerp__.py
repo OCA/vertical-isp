@@ -44,8 +44,12 @@ Features:
         'security/ir.model.access.csv',
         'contract_isp_invoice_data.xml',
         'contract_isp_invoice_view.xml',
+        'view_company.xml',
         'wizard/contract_isp_invoice_invoice_create.xml',
         'wizard/close_contract_view.xml'
+    ],
+    'demo': [
+        'demo_security.xml',
     ],
     'active': False,
     'installable': True,

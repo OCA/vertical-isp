@@ -55,7 +55,11 @@ class ServiceSetup(object):
 
     def _configure_company(self):
         self.company = self.company_obj.browse(self.cr, self.uid, 1)
-        self.company.write({"cutoff_day": "7", "invoice_day": "14"})
+        self.company.write({
+            "cutoff_day": "7",
+            "invoice_day": "14",
+            "prorata_bill_delay": 0,
+        })
 
     def _create_partner(self):
         self.partner_id = self.partner_obj.name_create(

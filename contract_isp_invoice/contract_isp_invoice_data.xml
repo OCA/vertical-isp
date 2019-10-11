@@ -11,6 +11,17 @@
             <field eval="-1" name="days2"/>
             <field eval="account_payment_term_end_of_month" name="payment_id"/>
         </record>
+        <record model="ir.cron" id="account_analytic_cron">
+            <field name="name">Contract ProRata Invoicing</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">minutes</field>
+            <field name="numbercall">-1</field>
+            <field name="active" eval="True" />
+            <field name="doall" eval="False"/>
+            <field name="model" eval="'contract.pending.invoice'"/>
+            <field name="function" eval="'cron_send_pending'"/>
+            <field name="args" eval="'()'" />
+        </record>
     </data>
 
     <data noupdate="1">
