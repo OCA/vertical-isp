@@ -9,6 +9,7 @@ setuptools.setup(
     version=version,
     install_requires=[
         'odoo12-addon-connector_equipment',
+        'odoo12-addon-connector_equipment_service',
     ],
     classifiers=[
         'Programming Language :: Python',
