@@ -42,13 +42,13 @@ class MaintenanceEquipment(models.Model):
     @api.multi
     def create(self, vals):
         res = super().create(vals)
-        if self.backend_equipment_id.managed:
+        if self.managed:
             self._connect('update_config')
         return res
 
     @api.multi
     def write(self, vals):
         res = super().write(vals)
-        if self.backend_equipment_id.managed:
+        if self.managed:
             self._connect('update_config')
         return res
