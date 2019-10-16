@@ -41,4 +41,3 @@ class ConnectorEquipment(TransactionCase):
         })
 
         self.assertEqual(equipment_01.update_config(), True)
-
