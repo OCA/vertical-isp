@@ -1,7 +1,6 @@
 # Copyright (C) 2019 - TODAY, Open Source Integrators
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 import time
-import datetime
 from odoo import fields
 from odoo.tests.common import TransactionCase, Form
 
