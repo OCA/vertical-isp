@@ -2,7 +2,7 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 import time
 from odoo import fields
-from odoo.tests.common import TransactionCase, Form
+from odoo.tests.common import TransactionCase
 
 
 class ConnectorEquipment(TransactionCase):
