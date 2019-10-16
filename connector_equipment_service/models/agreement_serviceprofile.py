@@ -8,6 +8,8 @@ from odoo import _, api, models
 class AgreementServiceProfile(models.Model):
     _inherit = ['agreement.serviceprofile']
 
+    equipment_id = fields.Many2one('maintenance.equipment', "Equipment ID")
+
     @api.multi
     def write(self, vals):
         # If equipment was empty and now set to managed equipment
