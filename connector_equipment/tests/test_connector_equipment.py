@@ -11,7 +11,6 @@ class ConnectorEquipment(TransactionCase):
         self.backend_equipment = self.env['backend.equipment']
         self.maintenance_equipment = self.env['maintenance.equipment']
 
-
     def test_maintenance_equipment_create(self):
         """ Test creating new workorders, and test following functions,
             - _compute_duration() in hrs
