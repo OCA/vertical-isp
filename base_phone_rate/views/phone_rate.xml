@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Phone Rate Tree -->
+    <record id="phone_rate_tree_view" model="ir.ui.view">
+        <field name="name">phone.rate.tree.view</field>
+        <field name="model">phone.rate</field>
+        <field name="arch" type="xml">
+            <tree string="Phone Rates">
+                <field name="name"/>
+                <field name="state_id"/>
+                <field name="country_id"/>
+                <field name="dial_prefix"/>
+                <field name="rate"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="phone_rate_form_view" model="ir.ui.view">
+        <field name="name">phone.rate.form.view</field>
+        <field name="model">phone.rate</field>
+        <field name="arch" type="xml">
+            <form string="Phone Rate">
+                <sheet>
+                    <label for="name" class="oe_edit_only"/>
+                    <h1><field name="name"/></h1>
+                    <group>
+                        <group>
+                            <field name="state_id"/>
+                            <field name="country_id"/>
+                        </group>
+                        <group>
+                            <field name="dial_prefix"/>
+                            <field name="rate"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_phone_rate" model="ir.actions.act_window">
+        <field name="name">Phone Rates</field>
+        <field name="res_model">phone.rate</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a Phone Rate.
+            </p>
+        </field>
+    </record>
+
+    <record id="phone_rate_search_view" model="ir.ui.view">
+        <field name="name">phone.rate.search</field>
+        <field name="model">phone.rate</field>
+        <field name="arch" type="xml">
+            <search string="Search Phone Rates">
+                <field name="name"/>
+                <field name="state_id"/>
+                <field name="country_id"/>
+                <field name="dial_prefix"/>
+                <field name="rate"/>
+            </search>
+        </field>
+    </record>
+
+    <menuitem id="menu_phone_rate"
+        action="action_phone_rate" 
+        name="Phone Rates"
+        parent="contacts.menu_localisation"
+        sequence="4"/>
+
+</odoo>
