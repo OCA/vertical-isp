@@ -10,20 +10,25 @@ class MaintenanceEquipment(models.Model):
 
     @api.multi
     def add_service(self, service_profile):
-        raise NotImplementedError()
+        return False
+        # raise NotImplementedError()
 
     @api.multi
     def update_service(self, service_profile):
-        raise NotImplementedError()
+        return False
+        # raise NotImplementedError()
 
     @api.multi
     def activate_service(self, service_profile):
-        raise NotImplementedError()
+        return False
+        # raise NotImplementedError()
 
     @api.multi
     def suspend_service(self, service_profile):
-        raise NotImplementedError()
+        return False
+        # raise NotImplementedError()
 
     @api.multi
     def remove_service(self, service_profile):
-        raise NotImplementedError()
+        return False
+        # raise NotImplementedError()

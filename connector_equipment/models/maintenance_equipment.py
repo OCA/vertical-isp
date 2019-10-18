@@ -39,7 +39,7 @@ class MaintenanceEquipment(models.Model):
                 for sp_id in serviceprofiles:
                     self.remove_service(sp_id)
 
-    @api.multi
+    @api.model
     def create(self, vals):
         res = super().create(vals)
         if self.managed:
