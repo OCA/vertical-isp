@@ -18,3 +18,5 @@ class MaintenanceEquipment(models.Model):
 
     equipment_ids = fields.One2many('maintenance.equipment', 'backend_id',
                                     string="Equipments")
+    client = fields.Char('Client ID')
+    client_secret = fields.Char('Client Secret')

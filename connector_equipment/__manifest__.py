@@ -14,6 +14,9 @@
         'views/backend_equipment.xml',
         'security/ir.model.access.csv'
     ],
+    'demo': [
+        'demo/backend_equipment_demo.xml',
+    ],
     'installable': True,
     'development_status': 'Beta',
     'maintainers': [

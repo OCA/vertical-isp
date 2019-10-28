@@ -1,0 +1,13 @@
+<odoo>
+
+	<record id="demo_server_backend_equipment" 
+		model="backend.equipment">
+        <field name="name">Demo Server</field>
+        <field name="host"></field>
+        <field name="client"></field>
+        <field name="client_secret"></field>
+        <field name="user"></field>
+        <field name="password"></field>
+    </record>
+
+</odoo>
