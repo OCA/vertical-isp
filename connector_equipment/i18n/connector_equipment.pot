@@ -42,6 +42,16 @@ msgid "Can be managed"
 msgstr ""
 
 #. module: connector_equipment
+#: model:ir.model.fields,field_description:connector_equipment.field_backend_equipment__client
+msgid "Client ID"
+msgstr ""
+
+#. module: connector_equipment
+#: model:ir.model.fields,field_description:connector_equipment.field_backend_equipment__client_secret
+msgid "Client Secret"
+msgstr ""
+
+#. module: connector_equipment
 #: model_terms:ir.ui.view,arch_db:connector_equipment.maintenance_equipment_connector_page
 msgid "Connector"
 msgstr ""
