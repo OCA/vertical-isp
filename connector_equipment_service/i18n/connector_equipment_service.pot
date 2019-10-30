@@ -14,13 +14,13 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. module: connector_equipment_service
-#: code:addons/connector_equipment_service/models/agreement_serviceprofile.py:30
+#: code:addons/connector_equipment_service/models/agreement_serviceprofile.py:43
 #, python-format
 msgid "Activated Service"
 msgstr ""
 
 #. module: connector_equipment_service
-#: code:addons/connector_equipment_service/models/agreement_serviceprofile.py:18
+#: code:addons/connector_equipment_service/models/agreement_serviceprofile.py:29
 #, python-format
 msgid "Added Service"
 msgstr ""
@@ -36,43 +36,32 @@ msgid "Maintenance Equipment"
 msgstr ""
 
 #. module: connector_equipment_service
-#: code:addons/connector_equipment_service/models/agreement_serviceprofile.py:72
-#, python-format
-msgid "New Service Activated"
-msgstr ""
-
-#. module: connector_equipment_service
-#: code:addons/connector_equipment_service/models/agreement_serviceprofile.py:75
-#, python-format
-msgid "New Service Added"
-msgstr ""
-
-#. module: connector_equipment_service
-#: code:addons/connector_equipment_service/models/agreement_serviceprofile.py:60
+#: code:addons/connector_equipment_service/models/agreement_serviceprofile.py:83
 #, python-format
 msgid "Previous Service Removed"
 msgstr ""
 
 #. module: connector_equipment_service
-#: code:addons/connector_equipment_service/models/agreement_serviceprofile.py:56
+#: code:addons/connector_equipment_service/models/agreement_serviceprofile.py:77
 #, python-format
 msgid "Previous Service Suspended"
 msgstr ""
 
 #. module: connector_equipment_service
-#: code:addons/connector_equipment_service/models/agreement_serviceprofile.py:43
+#: code:addons/connector_equipment_service/models/agreement_serviceprofile.py:60
 #, python-format
 msgid "Removed Service"
 msgstr ""
 
 #. module: connector_equipment_service
-#: code:addons/connector_equipment_service/models/agreement_serviceprofile.py:37
+#: code:addons/connector_equipment_service/models/agreement_serviceprofile.py:50
+#: code:addons/connector_equipment_service/models/agreement_serviceprofile.py:59
 #, python-format
 msgid "Suspended Service"
 msgstr ""
 
 #. module: connector_equipment_service
-#: code:addons/connector_equipment_service/models/agreement_serviceprofile.py:23
+#: code:addons/connector_equipment_service/models/agreement_serviceprofile.py:36
 #, python-format
 msgid "Updated Service"
 msgstr ""
