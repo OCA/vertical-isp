@@ -1,0 +1,107 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+#	* base_phone_rate
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 12.0\n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: <>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: base_phone_rate
+#: model:ir.model.fields,field_description:base_phone_rate.field_phone_rate__country_id
+msgid "Country"
+msgstr ""
+
+#. module: base_phone_rate
+#: model:ir.model.fields,field_description:base_phone_rate.field_phone_rate__state_id
+msgid "Country State"
+msgstr ""
+
+#. module: base_phone_rate
+#: model_terms:ir.actions.act_window,help:base_phone_rate.action_phone_rate
+msgid "Create a Phone Rate."
+msgstr ""
+
+#. module: base_phone_rate
+#: model:ir.model.fields,field_description:base_phone_rate.field_phone_rate__create_uid
+msgid "Created by"
+msgstr ""
+
+#. module: base_phone_rate
+#: model:ir.model.fields,field_description:base_phone_rate.field_phone_rate__create_date
+msgid "Created on"
+msgstr ""
+
+#. module: base_phone_rate
+#: model:ir.model.fields,field_description:base_phone_rate.field_phone_rate__dial_prefix
+msgid "Dial Prefix"
+msgstr ""
+
+#. module: base_phone_rate
+#: sql_constraint:phone.rate:0
+msgid "Dial Prefix on Phone Rate must be unique!"
+msgstr ""
+
+#. module: base_phone_rate
+#: model:ir.model.fields,field_description:base_phone_rate.field_phone_rate__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: base_phone_rate
+#: model:ir.model.fields,field_description:base_phone_rate.field_phone_rate__id
+msgid "ID"
+msgstr ""
+
+#. module: base_phone_rate
+#: model:ir.model.fields,field_description:base_phone_rate.field_phone_rate____last_update
+msgid "Last Modified on"
+msgstr ""
+
+#. module: base_phone_rate
+#: model:ir.model.fields,field_description:base_phone_rate.field_phone_rate__write_uid
+msgid "Last Updated by"
+msgstr ""
+
+#. module: base_phone_rate
+#: model:ir.model.fields,field_description:base_phone_rate.field_phone_rate__write_date
+msgid "Last Updated on"
+msgstr ""
+
+#. module: base_phone_rate
+#: model:ir.model.fields,field_description:base_phone_rate.field_phone_rate__name
+msgid "Name"
+msgstr ""
+
+#. module: base_phone_rate
+#: model_terms:ir.ui.view,arch_db:base_phone_rate.phone_rate_form_view
+msgid "Phone Rate"
+msgstr ""
+
+#. module: base_phone_rate
+#: model:ir.actions.act_window,name:base_phone_rate.action_phone_rate
+#: model:ir.ui.menu,name:base_phone_rate.menu_phone_rate
+#: model_terms:ir.ui.view,arch_db:base_phone_rate.phone_rate_tree_view
+msgid "Phone Rates"
+msgstr ""
+
+#. module: base_phone_rate
+#: model:ir.model.fields,field_description:base_phone_rate.field_phone_rate__rate
+msgid "Rate"
+msgstr ""
+
+#. module: base_phone_rate
+#: model_terms:ir.ui.view,arch_db:base_phone_rate.phone_rate_search_view
+msgid "Search Phone Rates"
+msgstr ""
+
+#. module: base_phone_rate
+#: model:ir.model,name:base_phone_rate.model_phone_rate
+msgid "phone.rate"
+msgstr ""
+
