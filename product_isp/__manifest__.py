@@ -9,7 +9,7 @@
     'author': 'Open Source Integrators, Odoo Community Association (OCA)',
     "website": 'https://github.com/OCA/vertical-isp',
     'depends': [
-        'stock',
+        'product',
         'base_phone_rate'
     ],
     'data': [
