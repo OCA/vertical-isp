@@ -8,6 +8,7 @@ setuptools.setup(
     description="Meta package for oca-vertical-isp Odoo addons",
     version=version,
     install_requires=[
+        'odoo12-addon-base_phone_rate',
         'odoo12-addon-connector_equipment',
         'odoo12-addon-connector_equipment_service',
     ],
