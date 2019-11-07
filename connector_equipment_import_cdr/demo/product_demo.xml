@@ -1,0 +1,69 @@
+<odoo>
+
+    <record id="product_uom_min" model="uom.uom">
+        <field name="name">Minute(s)</field>
+        <field ref="uom.uom_categ_wtime" name="category_id"/>
+        <field name="factor" eval="1.0"/>
+        <field name="uom_type">smaller</field>
+    </record>
+
+    <record id="demo_product_attribute_1" model="product.attribute">
+        <field name="name">Type</field>
+        <field name="sequence">1</field>
+    </record>
+
+    <record id="demo_product_attribute_value_1" model="product.attribute.value">
+        <field name="name">Domestic</field>
+        <field name="attribute_id" ref="demo_product_attribute_1"/>
+        <field name="sequence">1</field>
+    </record>
+
+    <record id="demo_product_attribute_value_2" model="product.attribute.value">
+        <field name="name">International</field>
+        <field name="attribute_id" ref="demo_product_attribute_1"/>
+        <field name="sequence">2</field>
+    </record>
+
+    <record id="demo_product_attribute_value_3" model="product.attribute.value">
+        <field name="name">Toll Free</field>
+        <field name="attribute_id" ref="demo_product_attribute_1"/>
+        <field name="sequence">3</field>
+    </record>
+
+    <record id="demo_product_product_template" model="product.template">
+        <field name="name">Call</field>
+        <field name="categ_id" ref="product.product_category_3"/>
+        <field name="type">service</field>
+        <field name="sale_ok">True</field>
+        <field name="purchase_ok">True</field>
+        <field name="uom_id" ref="product_uom_min"/>
+        <field name="uom_po_id" ref="product_uom_min"/>
+    </record>
+
+    <record id="demo_call_product_product_1" model="product.product">
+        <field name="product_tmpl_id" ref="demo_product_product_template"/>
+        <field name="attribute_value_ids" eval="[(6,0,[ref('connector_equipment_import_cdr.demo_product_attribute_value_1')])]"/>
+    </record>
+
+    <record id="demo_call_product_product_2" model="product.product">
+        <field name="product_tmpl_id" ref="demo_product_product_template"/>
+        <field name="attribute_value_ids" eval="[(6,0,[ref('connector_equipment_import_cdr.demo_product_attribute_value_2')])]"/>
+    </record>
+
+    <record id="demo_call_product_product_3" model="product.product">
+        <field name="product_tmpl_id" ref="demo_product_product_template"/>
+        <field name="attribute_value_ids" eval="[(6,0,[ref('connector_equipment_import_cdr.demo_product_attribute_value_3')])]"/>
+    </record>
+
+    <record id="demo_product_template_attribute_line" model="product.template.attribute.line">
+        <field name="product_tmpl_id" ref="demo_product_product_template"/>
+        <field name="attribute_id" ref="demo_product_attribute_1"/>
+        <field name="value_ids" eval="[(6,0,[ref('connector_equipment_import_cdr.demo_product_attribute_value_1'), ref('connector_equipment_import_cdr.demo_product_attribute_value_2'),
+        ref('connector_equipment_import_cdr.demo_product_attribute_value_3')])]"/>
+    </record>
+
+    <record id="demo_product_product_template" model="product.template">
+        <field name="attribute_line_ids" eval="[(6,0,[ref('connector_equipment_import_cdr.demo_product_template_attribute_line')])]"/>
+    </record>
+
+</odoo>
