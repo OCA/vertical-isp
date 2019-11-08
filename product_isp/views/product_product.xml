@@ -1,0 +1,25 @@
+<!-- Copyright 2019 Open Source Integrators
+     License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl) -->
+
+<odoo>
+    <record id="product_product_add_isp" model="ir.ui.view">
+        <field name="name">product.product.add.isp</field>
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="product.product_normal_form_view"/>
+        <field name="arch" type="xml">
+            <field name="type" position="after">
+                <field name="international_call_service" attrs="{'invisible': [('type', '!=', 'service')]}"/>
+            </field>
+            <xpath expr="//div[@class='oe_button_box']" position="inside">
+                <button type="object"
+                        name="action_view_phone_rates"
+                        class="oe_stat_button"
+                        icon="fa-phone"
+                        groups="base.group_user">
+                    <field name="phone_rate_count" widget="statinfo"
+                           string="Phone Rates"/>
+                </button>
+            </xpath>
+        </field>
+    </record>
+</odoo>
