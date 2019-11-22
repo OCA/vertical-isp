@@ -79,6 +79,7 @@ msgid "Name"
 msgstr ""
 
 #. module: base_phone_rate
+#: model:ir.model,name:base_phone_rate.model_phone_rate
 #: model_terms:ir.ui.view,arch_db:base_phone_rate.phone_rate_form_view
 msgid "Phone Rate"
 msgstr ""
@@ -98,10 +99,5 @@ msgstr ""
 #. module: base_phone_rate
 #: model_terms:ir.ui.view,arch_db:base_phone_rate.phone_rate_search_view
 msgid "Search Phone Rates"
-msgstr ""
-
-#. module: base_phone_rate
-#: model:ir.model,name:base_phone_rate.model_phone_rate
-msgid "phone.rate"
 msgstr ""
 
