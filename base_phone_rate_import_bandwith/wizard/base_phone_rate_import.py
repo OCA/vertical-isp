@@ -30,31 +30,32 @@ class BasePhoneRateImportBandwith(models.TransientModel):
                 raise Warning(_('Select .xlsx file only'))
             csv_data = base64.decodestring(data.upload_file)
             temp_path = tempfile.gettempdir()
-            fname = temp_path + '/xsl_file.xlsx'
-            fp = open(fname, 'wb+')
-            fp.write(csv_data)
-            fp.close()
+            fname = os.path.join(temp_path, filename_str)
+            with open(fname, 'wb+') as fp:
+                fp.write(csv_data)
             wb = open_workbook(fname)
-            for sheet in wb.sheets():
-                for rownum in range(0, sheet.nrows):
-                    if rownum > 0:
-                        bandwith_data = sheet.row_values(rownum)
-                        name = bandwith_data[0]
-                        if ' (' in bandwith_data[0]:
-                            country = name.split(' (')
-                            country_name = country[0]
-                        else:
-                            country_name = name
-                        country_rec = res_country_obj.search(
-                            [('name', '=ilike', country_name)])
-                        phone_rate_rec = phone_rate_obj.search(
-                            [('dial_prefix', '=', bandwith_data[1])])
-                        if phone_rate_rec:
-                            phone_rate_rec.rate = bandwith_data[2]
-                        else:
-                            phone_rate_obj.create(
-                                {'name': name,
-                                 'country_id': country_rec.id,
-                                 'dial_prefix': bandwith_data[1],
-                                 'rate': bandwith_data[2]})
+            sheet = wb.sheets()[0]
+
+            for rownum in range(1, sheet.nrows):
+                bandwith_data = sheet.row_values(rownum)
+                name = bandwith_data[0]
+                dial_prefix = int(bandwith_data[1])
+                rate = bandwith_data[2]
+
+                country_name = name.split(' (')[0] if ' (' in name else name
+                country_rec = res_country_obj.search(
+                    [('name', '=ilike', country_name)])
+                values = {
+                    'name': name,
+                    'country_id': country_rec.id,
+                    'dial_prefix': dial_prefix,
+                    'rate': rate,
+                }
+
+                phone_rate_rec = phone_rate_obj.search(
+                    [('dial_prefix', '=', dial_prefix)])
+                if phone_rate_rec:
+                    phone_rate_rec.update(values)
+                else:
+                    phone_rate_obj.create(values)
             os.remove(fname)
