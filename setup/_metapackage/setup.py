@@ -9,6 +9,7 @@ setuptools.setup(
     version=version,
     install_requires=[
         'odoo12-addon-base_phone_rate',
+        'odoo12-addon-base_phone_rate_import_bandwith',
         'odoo12-addon-connector_equipment',
         'odoo12-addon-connector_equipment_service',
         'odoo12-addon-product_isp',
