@@ -1,0 +1,52 @@
+<odoo>
+
+    <!-- Phone Rate Tree -->
+
+    <record id="base_phone_rate_import_bandwith_form_view" model="ir.ui.view">
+        <field name="name">base.phone.rate.import.bandwith.form.view</field>
+        <field name="model">base.phone.rate.import.bandwith</field>
+        <field name="arch" type="xml">
+            <form string="Import Rates from Bandwidth.com">
+                <sheet>
+                    <group>
+                        <field name="upload_file" filename="filename"/>
+                        <field name="filename" invisible="1"/>
+                    </group>
+                </sheet>
+                <footer>
+                    <group>
+                        <span>
+                            <button string="Import" type="object" class="oe_highlight" name="import_bandwith"/>
+                            <button string="Cancel" class="oe_link" special="cancel" />
+                        </span>
+                    </group>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="base_phone_rate_import_bandwith_action" model="ir.actions.act_window">
+        <field name="name">Import Rates from Bandwidth.com</field>
+        <field name="res_model">base.phone.rate.import.bandwith</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem id="menu_phone_rate_import_bandwith"
+        action="base_phone_rate_import_bandwith_action" 
+        name="Import Rates from Bandwidth.com"
+        parent="contacts.menu_localisation"
+        sequence="5"/>
+
+    <!-- Add action entry in the Action Menu for Phone Rates -->
+    <act_window id="base_phone_rate_import_action"
+        name="Import Rates from Bandwidth.com"
+        src_model="phone.rate"
+        res_model="base.phone.rate.import.bandwith"
+        view_type="form"
+        view_mode="form"
+        key2="client_action_multi"
+        target="new"/>
+
+</odoo>
