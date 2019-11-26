@@ -13,7 +13,7 @@
             </xpath>
             <xpath expr="//sheet" position="before">
                 <header>
-                    <button name="import_cdr" string="Run Manually" type="object" class="oe_highlight"/>
+                    <button name="button_import_cdr" string="Run Manually" type="object" class="oe_highlight"/>
                 </header>
             </xpath>
         </field>
