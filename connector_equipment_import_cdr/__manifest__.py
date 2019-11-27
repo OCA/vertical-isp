@@ -11,7 +11,9 @@
     "website": 'https://github.com/OCA/vertical-isp',
     'depends': [
         'connector_equipment',
-        'agreement_maintenance'],
+        'agreement_maintenance',
+        'account',
+    ],
     'data': [
         'data/backend_equipment_cron.xml',
         'security/ir.model.access.csv',
