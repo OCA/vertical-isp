@@ -23,35 +23,37 @@ class AgreementServiceProfile(models.Model):
         equip_id = self.get_equip(vals)
         # Add Service
         # If equipment was empty and now set to managed or stage in draft
-        if equip_id and (not self.equipment_id or
-                         self.get_stage(vals) == 'draft'):
+        if equip_id and (not self.equipment_id or self.
+                         get_next_stage(vals) == 'draft'):
             equip_id._connect('add_service', serviceprofiles=self)
             self.message_post(body=_('Added Service'))
 
         # Update Service
         # If SP is changed but not the managed equipment
-        if 'equipment_id' not in vals and equip_id:
+        # Don't call update if stage_id is all that is changed
+        if ('equipment_id' not in vals and equip_id and
+                (len(vals) > 1 or 'stage_id' not in vals)):
             self.equipment_id._connect('update_service',
                                        serviceprofiles=self)
             self.message_post(body=_('Updated Service'))
 
         # Activate Service (Provision?)
         # If SP state -> In Progress and equipment is managed
-        if self.get_stage(vals) == 'in_progress' and equip_id:
+        if self.get_next_stage(vals) == 'in_progress' and equip_id:
             equip_id._connect('activate_service',
                               serviceprofiles=self)
             self.message_post(body=_('Activated Service'))
 
         # Suspend Service
         # If SP state -> Suspend and equipment is managed
-        if self.get_stage(vals) == 'suspend' and equip_id:
+        if self.get_next_stage(vals) == 'suspend' and equip_id:
             equip_id._connect('suspend_service',
                               serviceprofiles=self)
             self.message_post(body=_('Suspended Service'))
 
         # Suspend/Remove Service
         # If SP state -> Closed or Cancelled and equipment is managed
-        if self.get_stage(vals) in ['closed', 'cancelled'] and equip_id:
+        if self.get_next_stage(vals) in ['close', 'cancel']:
             equip_id._connect('suspend_service',
                               serviceprofiles=self)
             equip_id._connect('remove_service',
@@ -140,3 +142,25 @@ class AgreementServiceProfile(models.Model):
                  ref('agreement_serviceprofile.servpro_stage_cancel').id)):
             x = 'cancel'
         return x
+
+    # Check to see if the stage is being changed
+    def get_next_stage(self, vals):
+        if (vals.get('stage_id', False) == self.env.
+                ref('agreement_serviceprofile.servpro_stage_draft').id):
+            return 'draft'
+        if (vals.get('stage_id', False) == self.env.
+                ref('agreement_serviceprofile.servpro_stage_progress').id):
+            return 'in_progress'
+        if (vals.get('stage_id', False) == self.env.
+                ref('agreement_serviceprofile.servpro_stage_suspend').id):
+            return 'suspend'
+        if (vals.get('stage_id', False) == self.env.
+                ref('agreement_serviceprofile.servpro_stage_renew').id):
+            return 'renew'
+        if (vals.get('stage_id', False) == self.env.
+                ref('agreement_serviceprofile.servpro_stage_close').id):
+            return 'close'
+        if (vals.get('stage_id', False) == self.env.
+                ref('agreement_serviceprofile.servpro_stage_cancel').id):
+            return 'cancel'
+        return False
