@@ -10,9 +10,11 @@
     'author': 'Open Source Integrators, Odoo Community Association (OCA)',
     "website": 'https://github.com/OCA/vertical-isp',
     'depends': [
-        'connector_equipment',
-        'agreement_maintenance',
         'account',
+        'agreement_legal_sale',
+        'agreement_maintenance',
+        'base_phone_rate',
+        'connector_equipment',
     ],
     'data': [
         'data/backend_equipment_cron.xml',

@@ -48,6 +48,7 @@
     <record id="demo_call_product_product_2" model="product.product">
         <field name="product_tmpl_id" ref="demo_product_product_template"/>
         <field name="attribute_value_ids" eval="[(6,0,[ref('connector_equipment_import_cdr.demo_product_attribute_value_2')])]"/>
+        <field name="is_international_call" eval="True"/>
     </record>
 
     <record id="demo_call_product_product_3" model="product.product">
