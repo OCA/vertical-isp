@@ -30,3 +30,14 @@ class PhoneRate(models.Model):
     def _onchange_country_id(self):
         if self.state_id.country_id != self.country_id:
             self.state_id = False
+
+    @api.model
+    def get_rate_from_phonenumber(self, phonenumber):
+        """Given a phone number, find the corresponding rate"""
+        for n in range(1, len(phonenumber)):
+            number = phonenumber[:n]
+            phonerate = self.search(
+                [('dial_prefix', '=ilike', number + '%')]
+            )
+            if len(phonerate) == 1:
+                return phonerate
