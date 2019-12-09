@@ -3,7 +3,7 @@
 
 import datetime
 from odoo import api, fields, models, _
-from odoo.exceptions import Warning
+from odoo.exceptions import UserError
 
 
 class AgreementServiceProfile(models.Model):
@@ -41,7 +41,7 @@ class AgreementServiceProfile(models.Model):
         for service in self:
             analytic = service.agreement_id.analytic_account.id
             if not analytic:
-                raise Warning(_('Analytic Account is not found in database.'))
+                raise UserError(_('Analytic Account is not found in database.'))
             # Group Data Lines by Product
             backend = service.equipment_id.backend_id
             product_map = backend.product_line_ids
