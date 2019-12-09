@@ -12,7 +12,6 @@
                 <field name="last_cdr_sync"/>
                 <button name="button_import_cdr" string="Import Now" type="object" class="oe_highlight"/>
             </xpath>
-            </xpath>
         </field>
     </record>
 
