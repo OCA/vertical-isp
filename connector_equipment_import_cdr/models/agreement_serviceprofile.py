@@ -1,7 +1,7 @@
 # Copyright (C) 2019, Open Source Integrators
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
-import date, datetime
+from datetime import date, timedelta
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError
 
@@ -16,7 +16,7 @@ class AgreementServiceProfile(models.Model):
     def get_billing_day(self):
         self.ensure_one()
         start_date = self.agreement_id.start_date
-        billing_date = start_date + datetime.timedelta(days=1)
+        billing_date = start_date + timedelta(days=1)
         return billing_date.day
 
     @api.multi
