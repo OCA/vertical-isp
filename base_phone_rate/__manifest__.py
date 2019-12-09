@@ -16,6 +16,7 @@
         'views/product_product.xml',
         'views/phone_rate.xml',
         'security/ir.model.access.csv',
+        'data/decimal_precision.xml',
     ],
     'installable': True,
     'development_status': 'Beta',
