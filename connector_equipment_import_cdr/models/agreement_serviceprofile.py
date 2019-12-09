@@ -1,7 +1,7 @@
 # Copyright (C) 2019, Open Source Integrators
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
-import datetime
+import date, datetime
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError
 
@@ -10,7 +10,7 @@ class AgreementServiceProfile(models.Model):
     _inherit = 'agreement.serviceprofile'
 
     domain = fields.Char()
-    last_cdr_sync = fields.Date("Last CDR Data Sync Date")
+    last_cdr_sync = fields.Date("Last CDR Sync Date")
 
     @api.multi
     def get_billing_day(self):
@@ -41,7 +41,8 @@ class AgreementServiceProfile(models.Model):
         for service in self:
             analytic = service.agreement_id.analytic_account.id
             if not analytic:
-                raise UserError(_('Analytic Account is not found in database.'))
+                raise UserError(_(
+                    'Analytic Account is not found in database.'))
             # Group Data Lines by Product
             backend = service.equipment_id.backend_id
             product_map = backend.product_line_ids
@@ -66,10 +67,10 @@ class AgreementServiceProfile(models.Model):
             AnalyticLine = self.env["account.analytic.line"]
             for product, lines in products_data.items():
                 calls = len(lines)
-                duration_secs = sum(x['duration'] for x in lines])
-                duration_mins = duration // 60  # TODO duration rounding rule
-                start = min(x['time_start'] for x in lines])
-                end = max(x['time_release'] for x in lines])
+                duration_secs = sum(x['duration'] for x in lines)
+                duration_mins = duration_secs // 60  # TODO rounding rule
+                start = min(x['time_start'] for x in lines)
+                end = max(x['time_release'] for x in lines)
                 amount = (product.is_international_call and sum(
                     x.get('phone_rate').rate
                     * int(x.get('duration', '0')) / 60.0
@@ -78,20 +79,13 @@ class AgreementServiceProfile(models.Model):
                     'connector_equipment_import_cdr.product_uom_min')
                 # billing_day = service.get_billling_day()
                 # TODO name = 'YYYYMM'
-                name = start + ' to '+ end
+                name = start + ' to ' + end
                 ref = "# Calls: %d" % (calls,)
-                #product_uom_unit = self.env.ref(
-                #    'connector_equipment_import_cdr.product_uom_min')
-                #if data.get('type') == 1:
-                #    product = self.env.ref(
-                #        'connector_equipment_import_cdr.demo_call_product_product_1')
-                #else:
-                #    product = self.env.ref(
-                #        'connector_equipment_import_cdr.demo_call_product_product_2')
+
                 AnalyticLine.create({
                     "name": name,
                     "account_id": analytic.id,
-                    "date": today_date.date(),
+                    "date": date.today(),
                     "amount": amount or 0,
                     "ref": ref,
                     "partner_id": service.partner_id,
@@ -99,7 +93,7 @@ class AgreementServiceProfile(models.Model):
                     "product_id": product.id,
                     "product_uom_id": uom.id,
                 })
-            service.last_cdr_sync = today_date.date()
+            service.last_cdr_sync = date.today()
 
     @api.multi
     def button_import_cdr(self):
