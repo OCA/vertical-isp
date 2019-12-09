@@ -63,8 +63,4 @@
         ref('connector_equipment_import_cdr.demo_product_attribute_value_3')])]"/>
     </record>
 
-    <record id="demo_product_product_template" model="product.template">
-        <field name="attribute_line_ids" eval="[(6,0,[ref('connector_equipment_import_cdr.demo_product_template_attribute_line')])]"/>
-    </record>
-
 </odoo>
