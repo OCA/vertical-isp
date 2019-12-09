@@ -11,11 +11,6 @@
             <xpath expr="//field[@name='equipment_ids']" position="after">
                 <field name="product_line_ids"/>
             </xpath>
-            <xpath expr="//sheet" position="before">
-                <header>
-                    <button name="button_import_cdr" string="Run Manually" type="object" class="oe_highlight"/>
-                </header>
-            </xpath>
         </field>
     </record>
 
