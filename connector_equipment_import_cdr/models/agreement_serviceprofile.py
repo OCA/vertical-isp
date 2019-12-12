@@ -35,11 +35,11 @@ class AgreementServiceProfile(models.Model):
                     return product
             return product
 
-        phone_to_rate = self.env['phone.rate'].get_rate_from_phone_number
+        phone_to_rate = self.env['phone.rate'].get_rate_from_phonenumber
         # TODO loop should be by domain?
         # We could be duplicating if same domain is in several service profiles
         for service in self:
-            analytic = service.agreement_id.analytic_account.id
+            analytic = service.agreement_id.analytic_account_id.id
             if not analytic:
                 raise UserError(_(
                     'Analytic Account is not found in database.'))
