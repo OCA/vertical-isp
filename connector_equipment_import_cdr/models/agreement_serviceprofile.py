@@ -39,14 +39,10 @@ class AgreementServiceProfile(models.Model):
         # TODO loop should be by domain?
         # We could be duplicating if same domain is in several service profiles
         for service in self:
-            analytic = service.agreement_id.analytic_account_id.id
-            if not analytic:
-                raise UserError(_(
-                    'Analytic Account is not found in database.'))
             # Group Data Lines by Product
             backend = service.equipment_id.backend_id
             product_map = backend.product_line_ids
-            domain_data = backend.api_get_cdr_data(service.domain)
+            domain_data = backend.api_get_domain_cdr_data(service)
             products_data = {product: [] for pattern, product in product_map}
             for line in domain_data:
                 call_type = {
@@ -64,6 +60,10 @@ class AgreementServiceProfile(models.Model):
                         line['phone_rate'] = phone_to_rate(dialed_number)
                     products_data[product].append(line)
             # Create Analytic Line for each Product
+            analytic = service.agreement_id.analytic_account_id.id
+            if not analytic:
+                raise UserError(_(
+                    'Analytic Account is not found in database.'))
             AnalyticLine = self.env["account.analytic.line"]
             for product, lines in products_data.items():
                 calls = len(lines)
