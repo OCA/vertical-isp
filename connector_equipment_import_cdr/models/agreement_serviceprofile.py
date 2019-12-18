@@ -29,7 +29,7 @@ class AgreementServiceProfile(models.Model):
         """
         def phone_to_product(outgoing_number, product_map):
             for line in product_map:
-                product = line.product_id
+                product = line.name
                 match = outgoing_number == line.pattern  # TODO apply RegEx
                 if match:
                     return product
@@ -43,7 +43,7 @@ class AgreementServiceProfile(models.Model):
             backend = service.equipment_id.backend_id
             product_map = backend.product_line_ids
             domain_data = backend.api_get_domain_cdr_data(service)
-            products_data = {product: [] for pattern, product in product_map}
+            products_data = {line.name: [] for line in product_map}
             for line in domain_data:
                 call_type = {
                     '0': 'outbound',
@@ -60,39 +60,43 @@ class AgreementServiceProfile(models.Model):
                         line['phone_rate'] = phone_to_rate(dialed_number)
                     products_data[product].append(line)
             # Create Analytic Line for each Product
-            analytic = service.agreement_id.analytic_account_id.id
+            analytic = service.agreement_id.analytic_account_id
             if not analytic:
                 raise UserError(_(
                     'Analytic Account is not found in database.'))
             AnalyticLine = self.env["account.analytic.line"]
+            import pudb; pu.db
             for product, lines in products_data.items():
-                calls = len(lines)
-                duration_secs = sum(x['duration'] for x in lines)
-                duration_mins = duration_secs // 60  # TODO rounding rule
-                start = min(x['time_start'] for x in lines)
-                end = max(x['time_release'] for x in lines)
-                amount = (product.is_international_call and sum(
-                    x.get('phone_rate').rate
-                    * int(x.get('duration', '0')) / 60.0
-                    for x in lines))
-                uom = self.env.ref(  # TODO Verify it is default data
-                    'connector_equipment_import_cdr.product_uom_min')
-                # billing_day = service.get_billling_day()
-                # TODO name = 'YYYYMM'
-                name = start + ' to ' + end
-                ref = "# Calls: %d" % (calls,)
+                if lines:
+                    calls = len(lines)
+                    duration_secs = sum(int(x['duration']) for x in lines)
+                    duration_mins = duration_secs // 60  # TODO rounding rule
+                    # start = min(x['time_start'] for x in lines)
+                    # end = max(x['time_release'] for x in lines)
+                    amount = (product.is_international_call and sum(
+                        x.get('phone_rate').rate
+                        * int(x.get('duration', '0')) / 60.0
+                        for x in lines))
+                    uom = self.env.ref(  # TODO Verify it is default data
+                        'uom.product_uom_unit')
+                        #'connector_equipment_import_cdr.product_uom_min')
+                    # billing_day = service.get_billling_day()
+                    # TODO name = 'YYYYMM'
+                    # name = start + ' to ' + end
+                    name = "YYYYMM"  # TODO
+                    ref = "# Calls: %d" % (calls,)
 
-                AnalyticLine.create({
-                    "name": name,
-                    "account_id": analytic.id,
-                    "date": date.today(),
-                    "amount": amount or 0,
-                    "ref": ref,
-                    "partner_id": service.partner_id,
-                    "unit_amount": duration_mins,
-                    "product_id": product.id,
-                    "product_uom_id": uom.id,
-                })
+                    AnalyticLine.create({
+                        "name": name,
+                        "account_id": analytic.id,
+                        "date": date.today(),
+                        "amount": amount or 0,
+                        "ref": ref,
+                        "partner_id": service.partner_id.id,
+                        "unit_amount": duration_mins,
+                        "product_id": product.id,
+                        "product_uom_id": uom.id,
+                    })
             service.last_cdr_sync = date.today()
 
     @api.multi
