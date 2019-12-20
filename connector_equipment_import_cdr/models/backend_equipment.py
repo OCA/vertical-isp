@@ -1,11 +1,12 @@
 # Copyright (C) 2019, Open Source Integrators
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
-from datetime import timedelta
 import requests
-import json
 from odoo import api, fields, models, _
 from odoo.exceptions import ValidationError
+
+
+CDR_DATA_LIMIT = 999999  # Netsapiens Default is 100
 
 
 class BackendEquipment(models.Model):
@@ -65,29 +66,29 @@ class BackendEquipment(models.Model):
         return token
 
     @api.model
-    def api_get_domain_cdr_data(self, service, from_date=None, to_date=None):
+    def api_get_cdr_data(self, service, from_date, to_date):
         """
         Given a Service Profile, call the API to get CRD data.
         Returns a dict with the retrieved data.
         """
         backend = service.equipment_id.backend_id
-        today_date = fields.Date.context_today(self)
-        yesterday = today_date - timedelta(days=1)
         time_to_string = fields.Datetime.to_string
         token = backend.api_generate_access_token()
-        token_value = {
+        params = {
+            'format': 'json',
             'object': 'cdr2',
             'action': 'read',
-            'start_date': service.last_cdr_sync or '2000-01-01 00:00:00',
-            'end_date': time_to_string(yesterday),
-            'domain': service.domain,
-            'format': 'json'
+            'start_date': time_to_string(from_date),
+            'end_date': time_to_string(to_date),
+            'limit': CDR_DATA_LIMIT,
+            service.query_type: service.query_parameter,  # domain, uid, ...
         }
+
         url_path = self.api_url_build('/ns-api')
         response = requests.post(
             url_path,
-            params=token_value,
+            params=params,
             headers={'Authorization': 'Bearer' + ' ' + token})
         if response.status_code == 200:
-            domain_data = response.json()
-            return domain_data
+            cdr_data = response.json()
+            return cdr_data

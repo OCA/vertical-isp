@@ -17,6 +17,7 @@
         'connector_equipment',
     ],
     'data': [
+        'data/product_data.xml',
         'data/backend_equipment_cron.xml',
         'security/ir.model.access.csv',
         'views/agreement_serviceprofile.xml',
@@ -24,7 +25,6 @@
         'views/backend_view.xml',
     ],
     'demo': [
-        'demo/product_demo.xml',
         'demo/backend_equipment_productline_demo.xml',
     ],
     'installable': True,
