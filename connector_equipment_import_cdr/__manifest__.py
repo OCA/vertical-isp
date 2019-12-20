@@ -11,6 +11,7 @@
     "website": 'https://github.com/OCA/vertical-isp',
     'depends': [
         'account',
+        'sale_timesheet',
         'agreement_legal_sale',
         'agreement_maintenance',
         'base_phone_rate',
