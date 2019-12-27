@@ -7,7 +7,7 @@ from odoo import fields, models
 class BackendEquipmentProductline(models.Model):
     _name = 'backend.equipment.product_line'
     _description = 'Backend Equipment Productline'
-    _order = "sequence"
+    _order = "backend_id,sequence"
 
     name = fields.Many2one('product.product', "Product")
     pattern = fields.Char('Pattern', help="The pattern is a regular expression that\

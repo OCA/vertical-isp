@@ -2,9 +2,14 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 from datetime import datetime
+import logging
 import re
+
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError
+
+
+_logger = logging.getLogger(__name__)
 
 
 class AgreementServiceProfile(models.Model):
@@ -14,7 +19,9 @@ class AgreementServiceProfile(models.Model):
         [('domain', 'Query by Domain'),
          ('uid', 'Query by User')])
     query_parameter = fields.Char()
-    last_cdr_sync = fields.Datetime("Last CDR Sync Date")
+    last_cdr_sync = fields.Datetime(
+        "Last CDR Sync Date",
+        copy=False)
 
     @api.multi
     def import_cdr(self):
@@ -28,7 +35,7 @@ class AgreementServiceProfile(models.Model):
             res = []
             for line in product_line_ids:
                 regexp = re.compile(line.pattern)
-                res.append(regexp, line.name)
+                res.append((regexp, line.name))
             return res
 
         def _phone_to_product(outgoing_number, product_map):
@@ -62,36 +69,45 @@ class AgreementServiceProfile(models.Model):
                 date_from,
                 date_to)
             for line in cdr_data or []:
+                # if line.get('number'):
+                #    # Query per User
+                #    line['number'] = line['number'].split('verified')[-1]
+                # Query per Domain
                 call_type = {
                     '0': 'outbound',
                     '1': 'inbound',
                     '2': 'missed',
                     '3': 'on-net',
                     }.get(line['type'])
-                dialed_number = line['orig_req_user']
-                # duration = line['duration']
-                if call_type == 'outbound':
+                dialed_number = line.get('orig_req_user') or line.get('number')
+                if call_type == 'outbound' and dialed_number:
                     product = _phone_to_product(dialed_number, product_map)
                     if product.is_international_call:
-                        line['phone_rate'] = phone_to_rate(dialed_number)
+                        phone_rate = phone_to_rate(dialed_number)
+                        line['phone_rate'] = phone_rate and phone_rate.rate
                     products_data[product].append(line)
 
             # Create Analytic Line for each Product
             analytic = service.agreement_id.analytic_account_id
             if not analytic:
-                raise UserError(_(
-                    'Analytic Account is not found in database.'))
+                raise UserError(
+                    _('Analytic Account is not found in database.'))
             AnalyticLine = self.env["account.analytic.line"]
+            yesterday = fields.Date.today() - datetime.timedelta(days=1)
             for product, lines in products_data.items():
                 if lines:
-                    from pprint import pprint; pprint(lines)  # TODO remove
+                    _logger.debug('Processing %d CDR lines', len(lines))
                     calls = len(lines)
                     duration_secs = sum(int(x['duration']) for x in lines)
                     duration_mins = duration_secs // 60  # Truncates seconds
-                    amount = (product.is_international_call and sum(
-                        x.get('phone_rate').rate
-                        * int(x.get('duration', '0')) / 60.0
-                        for x in lines))
+                    amount = (
+                        product.is_international_call
+                        and lines
+                        and sum(
+                            (x.get('phone_rate') or 0.0)
+                            * int(x.get('duration', '0')) / 60.0
+                            for x in lines)
+                        or 0.0)
                     uom = self.env.ref(
                         'connector_equipment_import_cdr.product_uom_min')
                     name = 'CDR for %s' % fields.Datetime.to_string(date_to)
@@ -99,7 +115,7 @@ class AgreementServiceProfile(models.Model):
                     data = {
                         "name": name,
                         "account_id": analytic.id,
-                        "date": fields.Date.today(),
+                        "date": yesterday,
                         "amount": amount or 0,
                         "ref": ref,
                         "partner_id": service.partner_id.id,
@@ -107,7 +123,7 @@ class AgreementServiceProfile(models.Model):
                         "product_id": product.id,
                         "product_uom_id": uom.id,
                     }
-                    print('========\nAnalytic Line', data)  # TODO: remove
+                    _logger.debug('Created Analytic Line %s', str(data))
                     AnalyticLine.create(data)
             service.last_cdr_sync = date_to
 
