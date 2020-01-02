@@ -1,7 +1,7 @@
 # Copyright (C) 2019, Open Source Integrators
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
-from datetime import datetime
+from datetime import datetime, timedelta
 import logging
 import re
 
@@ -93,7 +93,7 @@ class AgreementServiceProfile(models.Model):
                 raise UserError(
                     _('Analytic Account is not found in database.'))
             AnalyticLine = self.env["account.analytic.line"]
-            yesterday = fields.Date.today() - datetime.timedelta(days=1)
+            yesterday = fields.Date.today() - timedelta(days=1)
             for product, lines in products_data.items():
                 if lines:
                     _logger.debug('Processing %d CDR lines', len(lines))
