@@ -31,8 +31,10 @@ class AgreementServiceProfile(models.Model):
         # Update Service
         # If SP is changed but not the managed equipment
         # Don't call update if stage_id is all that is changed
-        if ('equipment_id' not in vals and equip_id and
-                (len(vals) > 1 or 'stage_id' not in vals)):
+        if (equip_id and (len(vals) > 1 or 'stage_id' not in vals)):
+            # If equipment was changed, handle old equipment accordingly
+            if vals.get('equipment_id', False):
+                self.equip_changed(vals)
             self.equipment_id._connect('update_service',
                                        serviceprofiles=self)
             self.message_post(body=_('Updated Service'))
@@ -60,10 +62,6 @@ class AgreementServiceProfile(models.Model):
                               serviceprofiles=self)
             self.message_post(body=_('Suspended Service'))
             self.message_post(body=_('Removed Service'))
-
-        # If equipment was changed, handle old equipment accordingly
-        if vals.get('equipment_id', False):
-            self.equip_changed(vals)
 
         return super().write(vals)
 
