@@ -3,6 +3,7 @@
 
 from datetime import datetime, timedelta
 import logging
+import math
 import re
 
 from odoo import api, fields, models, _
@@ -40,13 +41,14 @@ class AgreementServiceProfile(models.Model):
 
         def _phone_to_product(outgoing_number, product_map):
             for regexp, product in product_map:
-                match = bool(regexp.match(outgoing_number))
+                match = regexp.match(outgoing_number)
                 if match:
-                    return product
-            return product  # If not found returns last Product
+                    matched = match.groups(0)  # this is a tuple
+                    return product, matched and matched[0] or outgoing_number
+            # If not found returns last Product
+            return product, outgoing_number
 
-        phone_to_rate = self.env['phone.rate'].get_rate_from_phonenumber
-
+        PhoneRate = self.env['phone.rate']
         # We could be duplicating Analytic Lines
         # if same query_param is in several service profiles
         # Alternative - update Last CDR date
@@ -81,10 +83,14 @@ class AgreementServiceProfile(models.Model):
                     }.get(line['type'])
                 dialed_number = line.get('orig_req_user') or line.get('number')
                 if call_type == 'outbound' and dialed_number:
-                    product = _phone_to_product(dialed_number, product_map)
+                    product, matched_number = _phone_to_product(
+                        dialed_number, product_map)
                     if product.is_international_call:
-                        phone_rate = phone_to_rate(dialed_number)
+                        phone_rate = PhoneRate.get_rate_from_phonenumber(
+                            matched_number or dialed_number)
                         line['phone_rate'] = phone_rate and phone_rate.rate
+                    line['minutes'] = math.ceil(
+                        int(line['duration'])/60.0)
                     products_data[product].append(line)
 
             # Create Analytic Line for each Product
@@ -98,14 +104,13 @@ class AgreementServiceProfile(models.Model):
                 if lines:
                     _logger.debug('Processing %d CDR lines', len(lines))
                     calls = len(lines)
-                    duration_secs = sum(int(x['duration']) for x in lines)
-                    duration_mins = duration_secs // 60  # Truncates seconds
+                    duration_mins = sum(x['minutes'] for x in lines)
                     amount = (
                         product.is_international_call
                         and lines
                         and sum(
                             (x.get('phone_rate') or 0.0)
-                            * int(x.get('duration', '0')) / 60.0
+                            * x.get('minutes', '0')
                             for x in lines)
                         or 0.0)
                     uom = self.env.ref(
