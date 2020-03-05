@@ -14,7 +14,7 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. module: connector_equipment_service
-#: code:addons/connector_equipment_service/models/agreement_serviceprofile.py:43
+#: code:addons/connector_equipment_service/models/agreement_serviceprofile.py:47
 #, python-format
 msgid "Activated Service"
 msgstr ""
@@ -48,20 +48,20 @@ msgid "Previous Service Suspended"
 msgstr ""
 
 #. module: connector_equipment_service
-#: code:addons/connector_equipment_service/models/agreement_serviceprofile.py:60
+#: code:addons/connector_equipment_service/models/agreement_serviceprofile.py:64
 #, python-format
 msgid "Removed Service"
 msgstr ""
 
 #. module: connector_equipment_service
-#: code:addons/connector_equipment_service/models/agreement_serviceprofile.py:50
-#: code:addons/connector_equipment_service/models/agreement_serviceprofile.py:59
+#: code:addons/connector_equipment_service/models/agreement_serviceprofile.py:54
+#: code:addons/connector_equipment_service/models/agreement_serviceprofile.py:63
 #, python-format
 msgid "Suspended Service"
 msgstr ""
 
 #. module: connector_equipment_service
-#: code:addons/connector_equipment_service/models/agreement_serviceprofile.py:36
+#: code:addons/connector_equipment_service/models/agreement_serviceprofile.py:40
 #, python-format
 msgid "Updated Service"
 msgstr ""
