@@ -12,7 +12,7 @@ addon | version | summary
 [base_phone_rate](base_phone_rate/) | 12.0.0.1.0 | Store international rates for phone call
 [base_phone_rate_import_bandwith](base_phone_rate_import_bandwith/) | 12.0.1.0.0 | This module allows you to load and update the phone rates using the file provided by Bandwidth (https://www.bandwidth.com).
 [connector_equipment](connector_equipment/) | 12.0.1.0.0 | Connect Equipment to Outside API
-[connector_equipment_service](connector_equipment_service/) | 12.0.1.0.0 | Combine Connector Equipment and Service Profiles
+[connector_equipment_service](connector_equipment_service/) | 12.0.1.0.1 | Combine Connector Equipment and Service Profiles
 [product_isp](product_isp/) | 12.0.1.0.0 | Assign ISPs to Products
 
 [//]: # (end addons)
