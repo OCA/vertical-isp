@@ -1,0 +1,207 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+#	* connector_equipment_import_cdr
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 12.0\n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: <>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: connector_equipment_import_cdr
+#: model:ir.model,name:connector_equipment_import_cdr.model_agreement_serviceprofile
+msgid "Agreement Service Profiles"
+msgstr ""
+
+#. module: connector_equipment_import_cdr
+#: selection:backend.equipment,sync_schedule:0
+msgid "All Service Profiles Every Day"
+msgstr ""
+
+#. module: connector_equipment_import_cdr
+#: code:addons/connector_equipment_import_cdr/models/agreement_serviceprofile.py:100
+#, python-format
+msgid "Analytic Account is not found in database."
+msgstr ""
+
+#. module: connector_equipment_import_cdr
+#: code:addons/connector_equipment_import_cdr/models/backend_equipment.py:60
+#, python-format
+msgid "Authentication to %s was not successful. Please review connection configuration."
+msgstr ""
+
+#. module: connector_equipment_import_cdr
+#: model:ir.model.fields,field_description:connector_equipment_import_cdr.field_backend_equipment_product_line__backend_id
+msgid "Backend"
+msgstr ""
+
+#. module: connector_equipment_import_cdr
+#: model:ir.model,name:connector_equipment_import_cdr.model_backend_equipment
+msgid "Backend Equipment"
+msgstr ""
+
+#. module: connector_equipment_import_cdr
+#: model:ir.actions.act_window,name:connector_equipment_import_cdr.action_backend_equipment_product_line
+#: model:ir.model,name:connector_equipment_import_cdr.model_backend_equipment_product_line
+#: model_terms:ir.ui.view,arch_db:connector_equipment_import_cdr.backend_equipment_product_line_form_view
+#: model_terms:ir.ui.view,arch_db:connector_equipment_import_cdr.backend_equipment_product_line_tree_view
+msgid "Backend Equipment Productline"
+msgstr ""
+
+#. module: connector_equipment_import_cdr
+#: model:ir.ui.menu,name:connector_equipment_import_cdr.backend_equipment_product_line_menu
+msgid "Backend Equipments Productline"
+msgstr ""
+
+#. module: connector_equipment_import_cdr
+#: model:product.product,name:connector_equipment_import_cdr.call_product_product_1
+#: model:product.product,name:connector_equipment_import_cdr.call_product_product_2
+#: model:product.product,name:connector_equipment_import_cdr.call_product_product_3
+#: model:product.template,name:connector_equipment_import_cdr.call_product_product_1_product_template
+msgid "Call"
+msgstr ""
+
+#. module: connector_equipment_import_cdr
+#: model:ir.model.fields,field_description:connector_equipment_import_cdr.field_backend_equipment_product_line__create_uid
+msgid "Created by"
+msgstr ""
+
+#. module: connector_equipment_import_cdr
+#: model:ir.model.fields,field_description:connector_equipment_import_cdr.field_backend_equipment_product_line__create_date
+msgid "Created on"
+msgstr ""
+
+#. module: connector_equipment_import_cdr
+#: model:ir.model.fields,field_description:connector_equipment_import_cdr.field_backend_equipment_product_line__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: connector_equipment_import_cdr
+#: model:product.attribute.value,name:connector_equipment_import_cdr.product_attribute_value_1
+msgid "Domestic"
+msgstr ""
+
+#. module: connector_equipment_import_cdr
+#: model:ir.model.fields,field_description:connector_equipment_import_cdr.field_backend_equipment_product_line__id
+msgid "ID"
+msgstr ""
+
+#. module: connector_equipment_import_cdr
+#: model:ir.actions.server,name:connector_equipment_import_cdr.cron_import_cdr_ir_actions_server
+#: model:ir.cron,cron_name:connector_equipment_import_cdr.cron_import_cdr
+#: model:ir.cron,name:connector_equipment_import_cdr.cron_import_cdr
+msgid "Import CDR"
+msgstr ""
+
+#. module: connector_equipment_import_cdr
+#: model_terms:ir.ui.view,arch_db:connector_equipment_import_cdr.agreement_service_profile_inherited_view
+msgid "Import Now"
+msgstr ""
+
+#. module: connector_equipment_import_cdr
+#: model:product.attribute.value,name:connector_equipment_import_cdr.product_attribute_value_2
+msgid "International"
+msgstr ""
+
+#. module: connector_equipment_import_cdr
+#: model:ir.model.fields,field_description:connector_equipment_import_cdr.field_agreement_serviceprofile__last_cdr_sync
+msgid "Last CDR Sync Date"
+msgstr ""
+
+#. module: connector_equipment_import_cdr
+#: model:ir.model.fields,field_description:connector_equipment_import_cdr.field_backend_equipment_product_line____last_update
+msgid "Last Modified on"
+msgstr ""
+
+#. module: connector_equipment_import_cdr
+#: model:ir.model.fields,field_description:connector_equipment_import_cdr.field_backend_equipment_product_line__write_uid
+msgid "Last Updated by"
+msgstr ""
+
+#. module: connector_equipment_import_cdr
+#: model:ir.model.fields,field_description:connector_equipment_import_cdr.field_backend_equipment_product_line__write_date
+msgid "Last Updated on"
+msgstr ""
+
+#. module: connector_equipment_import_cdr
+#: model:product.product,uom_name:connector_equipment_import_cdr.call_product_product_1
+#: model:product.product,uom_name:connector_equipment_import_cdr.call_product_product_2
+#: model:product.product,uom_name:connector_equipment_import_cdr.call_product_product_3
+#: model:product.template,uom_name:connector_equipment_import_cdr.call_product_product_1_product_template
+#: model:uom.uom,name:connector_equipment_import_cdr.product_uom_min
+msgid "Minute(s)"
+msgstr ""
+
+#. module: connector_equipment_import_cdr
+#: model:ir.model.fields,field_description:connector_equipment_import_cdr.field_backend_equipment_product_line__pattern
+msgid "Pattern"
+msgstr ""
+
+#. module: connector_equipment_import_cdr
+#: model:ir.model.fields,field_description:connector_equipment_import_cdr.field_backend_equipment_product_line__name
+msgid "Product"
+msgstr ""
+
+#. module: connector_equipment_import_cdr
+#: model:ir.model.fields,field_description:connector_equipment_import_cdr.field_backend_equipment__product_line_ids
+msgid "Products"
+msgstr ""
+
+#. module: connector_equipment_import_cdr
+#: model:ir.model.fields,field_description:connector_equipment_import_cdr.field_agreement_serviceprofile__query_parameter
+msgid "Query Parameter"
+msgstr ""
+
+#. module: connector_equipment_import_cdr
+#: model:ir.model.fields,field_description:connector_equipment_import_cdr.field_agreement_serviceprofile__query_type
+msgid "Query Type"
+msgstr ""
+
+#. module: connector_equipment_import_cdr
+#: selection:agreement.serviceprofile,query_type:0
+msgid "Query by Domain"
+msgstr ""
+
+#. module: connector_equipment_import_cdr
+#: selection:agreement.serviceprofile,query_type:0
+msgid "Query by User"
+msgstr ""
+
+#. module: connector_equipment_import_cdr
+#: model:ir.model.fields,field_description:connector_equipment_import_cdr.field_backend_equipment_product_line__sequence
+msgid "Sequence"
+msgstr ""
+
+#. module: connector_equipment_import_cdr
+#: model:ir.model.fields,field_description:connector_equipment_import_cdr.field_backend_equipment__sync_schedule
+msgid "Sync Schedule"
+msgstr ""
+
+#. module: connector_equipment_import_cdr
+#: model:ir.model.fields,help:connector_equipment_import_cdr.field_backend_equipment_product_line__pattern
+msgid "The pattern is a regular expression that     will applied on the phone number to detect a domestic call, an      international call or a toll free call."
+msgstr ""
+
+#. module: connector_equipment_import_cdr
+#: model:product.attribute.value,name:connector_equipment_import_cdr.product_attribute_value_3
+msgid "Toll Free"
+msgstr ""
+
+#. module: connector_equipment_import_cdr
+#: model:product.attribute,name:connector_equipment_import_cdr.product_attribute_1
+msgid "Type"
+msgstr ""
+
+#. module: connector_equipment_import_cdr
+#: model:product.product,weight_uom_name:connector_equipment_import_cdr.call_product_product_1
+#: model:product.product,weight_uom_name:connector_equipment_import_cdr.call_product_product_2
+#: model:product.product,weight_uom_name:connector_equipment_import_cdr.call_product_product_3
+#: model:product.template,weight_uom_name:connector_equipment_import_cdr.call_product_product_1_product_template
+msgid "kg"
+msgstr ""
+
