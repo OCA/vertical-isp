@@ -7,6 +7,7 @@ from odoo.addons import decimal_precision as dp
 
 class PhoneRate(models.Model):
     _name = "phone.rate"
+    _description = "Phone Rate"
 
     name = fields.Char("Name", required=True)
     country_id = fields.Many2one('res.country', "Country", required=True)
@@ -30,3 +31,16 @@ class PhoneRate(models.Model):
     def _onchange_country_id(self):
         if self.state_id.country_id != self.country_id:
             self.state_id = False
+
+    @api.model
+    def get_rate_from_phonenumber(self, phonenumber):
+        """Given a phone number, find the corresponding rate"""
+        n = len(phonenumber)
+        while n > 0:
+            number = phonenumber[:n]
+            phonerate = self.search(
+                [('dial_prefix', '=ilike', number + '%')]
+            )
+            if len(phonerate) == 1:
+                return phonerate
+            n -= 1

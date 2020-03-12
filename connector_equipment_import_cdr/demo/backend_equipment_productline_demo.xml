@@ -1,0 +1,24 @@
+<odoo>
+
+    <record id="backend_equipment_product_line1" model="backend.equipment.product_line">
+        <field name="sequence">10</field>
+        <field name="name" ref="connector_equipment_import_cdr.call_product_product_1"/>
+        <field name="pattern">**</field>
+        <field name="backend_id" ref="connector_equipment.server_backend_equipment"/>
+    </record>
+
+    <record id="backend_equipment_product_line2" model="backend.equipment.product_line">
+        <field name="sequence">20</field>
+        <field name="name" ref="connector_equipment_import_cdr.call_product_product_2"/>
+        <field name="pattern">**</field>
+        <field name="backend_id" ref="connector_equipment.server_backend_equipment"/>
+    </record>
+
+    <record id="backend_equipment_product_line3" model="backend.equipment.product_line">
+        <field name="sequence">30</field>
+        <field name="name" ref="connector_equipment_import_cdr.call_product_product_3"/>
+        <field name="pattern">**</field>
+        <field name="backend_id" ref="connector_equipment.server_backend_equipment"/>
+    </record>
+
+</odoo>

@@ -1,0 +1,17 @@
+<odoo>
+
+    <record id="backend_equipment_inherited_view" model="ir.ui.view">
+        <field name="name">backend.equipment.inherited.view</field>
+        <field name="model">backend.equipment</field>
+        <field name="inherit_id" ref="connector_equipment.backend_equipment_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='client_secret']" position="after">
+                <field name="sync_schedule"/>
+            </xpath>
+            <xpath expr="//field[@name='equipment_ids']" position="after">
+                <field name="product_line_ids"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

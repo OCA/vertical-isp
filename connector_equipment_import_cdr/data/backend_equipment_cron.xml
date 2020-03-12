@@ -1,0 +1,16 @@
+<odoo noupdate="1">
+
+    <record id="cron_import_cdr" model="ir.cron">
+        <field name="name">Import CDR</field>
+        <field name="model_id" ref="model_backend_equipment"/>
+        <field name="active" eval="False" />
+        <field name="user_id" ref="base.user_root" />
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="numbercall">-1</field>
+        <field name="doall" eval="False"/>
+        <field name="state">code</field>
+        <field name="code">model.import_cdr()</field>
+    </record>
+
+</odoo>

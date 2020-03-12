@@ -1,0 +1,51 @@
+<odoo>
+
+    <!-- Backend Tree View -->
+    <record id="backend_equipment_product_line_tree_view" model="ir.ui.view">
+        <field name="name">backend.equipment.product_line.tree.view</field>
+        <field name="model">backend.equipment.product_line</field>
+        <field name="arch" type="xml">
+            <tree string="Backend Equipment Productline">
+                <field name="name"/>
+                <field name="pattern"/>
+                <field name="sequence"/>
+                <field name="backend_id"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Backend Form View -->
+    <record id="backend_equipment_product_line_form_view" model="ir.ui.view">
+        <field name="name">backend.equipment.product_line.form.view</field>
+        <field name="model">backend.equipment.product_line</field>
+        <field name="arch" type="xml">
+            <form string="Backend Equipment Productline">
+                <sheet>
+                    <group>
+                        <field name="name" required="1"/>
+                        <field name="pattern"/>
+                        <field name="sequence"/>
+                        <field name="backend_id"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_backend_equipment_product_line" model="ir.actions.act_window">
+        <field name="name">Backend Equipment Productline</field>
+        <field name="res_model">backend.equipment.product_line</field>
+        <field name="view_id" ref="backend_equipment_product_line_tree_view"/>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem
+        id="backend_equipment_product_line_menu"
+        name="Backend Equipments Productline"
+        parent="maintenance.menu_maintenance_configuration"
+        action="action_backend_equipment_product_line"
+        groups="maintenance.group_equipment_manager,base.group_user"
+        sequence="6"/>
+
+</odoo>
