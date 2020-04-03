@@ -55,7 +55,7 @@ class AgreementServiceProfile(models.Model):
 
         # Suspend/Remove Service
         # If SP state -> Closed or Cancelled and equipment is managed
-        if self.get_next_stage(vals) in ['close', 'cancel']:
+        if self.get_next_stage(vals) in ['close', 'cancel'] and equip_id:
             equip_id._connect('suspend_service',
                               serviceprofiles=self)
             equip_id._connect('remove_service',
