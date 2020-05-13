@@ -20,48 +20,49 @@ class AgreementServiceProfile(models.Model):
 
     @api.multi
     def write(self, vals):
-        equip_id = self.get_equip(vals)
-        # Add Service
-        # If equipment was empty and now set to managed or stage in draft
-        if equip_id and (not self.equipment_id or self.
-                         get_next_stage(vals) == 'draft'):
-            equip_id._connect('add_service', serviceprofiles=self)
-            self.message_post(body=_('Added Service'))
+        for sp in self:
+            equip_id = sp.get_equip(vals)
+            # Add Service
+            # If equipment was empty and now set to managed or stage in draft
+            if equip_id and (not sp.equipment_id or sp.
+                             get_next_stage(vals) == 'draft'):
+                equip_id._connect('add_service', serviceprofiles=sp)
+                sp.message_post(body=_('Added Service'))
 
-        # Update Service
-        # If SP is changed but not the managed equipment
-        # Don't call update if stage_id is all that is changed
-        if (equip_id and (len(vals) > 1 or 'stage_id' not in vals)):
-            # If equipment was changed, handle old equipment accordingly
-            if vals.get('equipment_id', False):
-                self.equip_changed(vals)
-            self.equipment_id._connect('update_service',
-                                       serviceprofiles=self)
-            self.message_post(body=_('Updated Service'))
+            # Update Service
+            # If SP is changed but not the managed equipment
+            # Don't call update if stage_id is all that is changed
+            if (equip_id and (len(vals) > 1 or 'stage_id' not in vals)):
+                # If equipment was changed, handle old equipment accordingly
+                if vals.get('equipment_id', False):
+                    sp.equip_changed(vals)
+                sp.equipment_id._connect('update_service',
+                                         serviceprofiles=sp)
+                sp.message_post(body=_('Updated Service'))
 
-        # Activate Service (Provision?)
-        # If SP state -> In Progress and equipment is managed
-        if self.get_next_stage(vals) == 'in_progress' and equip_id:
-            equip_id._connect('activate_service',
-                              serviceprofiles=self)
-            self.message_post(body=_('Activated Service'))
+            # Activate Service (Provision?)
+            # If SP state -> In Progress and equipment is managed
+            if sp.get_next_stage(vals) == 'in_progress' and equip_id:
+                equip_id._connect('activate_service',
+                                  serviceprofiles=sp)
+                sp.message_post(body=_('Activated Service'))
 
-        # Suspend Service
-        # If SP state -> Suspend and equipment is managed
-        if self.get_next_stage(vals) == 'suspend' and equip_id:
-            equip_id._connect('suspend_service',
-                              serviceprofiles=self)
-            self.message_post(body=_('Suspended Service'))
+            # Suspend Service
+            # If SP state -> Suspend and equipment is managed
+            if sp.get_next_stage(vals) == 'suspend' and equip_id:
+                equip_id._connect('suspend_service',
+                                  serviceprofiles=sp)
+                sp.message_post(body=_('Suspended Service'))
 
-        # Suspend/Remove Service
-        # If SP state -> Closed or Cancelled and equipment is managed
-        if self.get_next_stage(vals) in ['close', 'cancel'] and equip_id:
-            equip_id._connect('suspend_service',
-                              serviceprofiles=self)
-            equip_id._connect('remove_service',
-                              serviceprofiles=self)
-            self.message_post(body=_('Suspended Service'))
-            self.message_post(body=_('Removed Service'))
+            # Suspend/Remove Service
+            # If SP state -> Closed or Cancelled and equipment is managed
+            if sp.get_next_stage(vals) in ['close', 'cancel'] and equip_id:
+                equip_id._connect('suspend_service',
+                                  serviceprofiles=sp)
+                equip_id._connect('remove_service',
+                                  serviceprofiles=sp)
+                sp.message_post(body=_('Suspended Service'))
+                sp.message_post(body=_('Removed Service'))
 
         return super().write(vals)
 
