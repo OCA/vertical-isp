@@ -3,7 +3,7 @@
 
 {
     'name': 'Connector Equipment Service',
-    'version': '12.0.1.0.2',
+    'version': '12.0.1.1.0',
     'license': 'AGPL-3',
     'summary': 'Combine Connector Equipment and Service Profiles',
     'author': 'Open Source Integrators, Odoo Community Association (OCA)',
