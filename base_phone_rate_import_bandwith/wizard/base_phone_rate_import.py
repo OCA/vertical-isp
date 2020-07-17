@@ -36,7 +36,7 @@ class BasePhoneRateImportBandwith(models.TransientModel):
             wb = open_workbook(fname)
             sheet = wb.sheets()[0]
 
-            for rownum in range(1, sheet.nrows):
+            for rownum in range(7, sheet.nrows):
                 bandwith_data = sheet.row_values(rownum)
                 name = bandwith_data[0]
                 dial_prefix = int(bandwith_data[1])
