@@ -3,7 +3,7 @@
 
 {
     'name': 'Import Phone Rates from Bandwith.com',
-    'version': '12.0.1.0.0',
+    'version': '12.0.1.0.1',
     'license': 'AGPL-3',
     'summary': '''This module allows you to load and update the phone rates
     using the file provided by Bandwidth (https://www.bandwidth.com).''',
